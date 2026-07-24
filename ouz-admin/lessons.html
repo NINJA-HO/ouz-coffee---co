@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lessons — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link active">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Lessons</h2>
+            <p>Write the notes students see on the Tutee page — same for every registered student.</p>
+          </div>
+        </div>
+
+        <!-- ===== LIST VIEW ===== -->
+        <div id="lessonListView">
+          <button class="btn btn-primary" type="button" id="newLessonBtn">+ New Lesson</button>
+          <div id="lessonsList" class="orders-list" style="margin-top: 24px;"></div>
+          <div class="empty-state" id="emptyState" style="display: none;">
+            No lessons yet — click "+ New Lesson" to write your first one.
+          </div>
+        </div>
+
+        <!-- ===== EDITOR VIEW ===== -->
+        <div id="lessonEditorView" style="display: none;">
+          <button class="btn btn-ghost" type="button" id="backToListBtn">&larr; Back to Lessons</button>
+
+          <div class="add-card" style="margin-top: 20px;">
+            <div class="field">
+              <label for="lessonTitleInput">Lesson Title</label>
+              <input id="lessonTitleInput" type="text" placeholder="e.g. Lesson 1 — Espresso Basics" />
+            </div>
+          </div>
+
+          <div class="add-card">
+            <h3>Notes</h3>
+            <div id="blocksContainer"></div>
+
+            <div class="add-block-menu">
+              <span class="add-block-label">+ Add block:</span>
+              <button class="tb-btn" type="button" data-add="heading1">Heading 1</button>
+              <button class="tb-btn" type="button" data-add="heading2">Heading 2</button>
+              <button class="tb-btn" type="button" data-add="heading3">Heading 3</button>
+              <button class="tb-btn" type="button" data-add="paragraph">Text</button>
+              <button class="tb-btn" type="button" data-add="bullet">Bullet List</button>
+              <button class="tb-btn" type="button" data-add="numbered">Numbered List</button>
+              <button class="tb-btn" type="button" data-add="checkbox">Checkbox</button>
+              <button class="tb-btn" type="button" data-add="image">Image</button>
+            </div>
+          </div>
+
+          <div class="add-card" style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn btn-primary" type="button" id="saveLessonBtn">Save Lesson</button>
+            <button class="btn btn-danger" type="button" id="deleteLessonBtn" style="display: none;">Delete Lesson</button>
+            <div class="status-msg" id="lessonStatus" style="margin-top: 0;"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+
+      // ---- Auth guard ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadLessons();
+        }
+      });
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      // ---- View switching ----
+      var listView = document.getElementById("lessonListView");
+      var editorView = document.getElementById("lessonEditorView");
+      var currentLessonId = null; // null = creating a new lesson
+      var blocks = []; // in-memory array of block objects for the lesson being edited
+
+      function showListView() {
+        listView.style.display = "block";
+        editorView.style.display = "none";
+        loadLessons();
+      }
+      function showEditorView() {
+        listView.style.display = "none";
+        editorView.style.display = "block";
+      }
+      document.getElementById("backToListBtn").addEventListener("click", showListView);
+
+      // ---- Lesson list ----
+      function loadLessons() {
+        var list = document.getElementById("lessonsList");
+        var emptyState = document.getElementById("emptyState");
+        list.innerHTML = "";
+
+        db.collection("lessons")
+          .orderBy("createdAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            if (snapshot.empty) {
+              emptyState.style.display = "block";
+              return;
+            }
+            emptyState.style.display = "none";
+
+            snapshot.forEach(function (docSnap) {
+              var data = docSnap.data();
+              var row = document.createElement("div");
+              row.className = "order-row";
+              row.style.cursor = "pointer";
+              row.innerHTML =
+                '<div class="order-row-product">' +
+                '<div class="order-row-noimg"></div>' +
+                "<div>" +
+                '<div class="order-row-pname">' + (data.title || "(untitled lesson)") + "</div>" +
+                '<div class="order-row-pprice">' + ((data.blocks || []).length) + " block(s)</div>" +
+                "</div>" +
+                "</div>" +
+                '<div class="order-row-meta">' +
+                '<button class="btn btn-ghost" data-id="' + docSnap.id + '">Edit</button>' +
+                "</div>";
+
+              row.querySelector("button").addEventListener("click", function (e) {
+                e.stopPropagation();
+                openLessonEditor(docSnap.id, data);
+              });
+              row.addEventListener("click", function () {
+                openLessonEditor(docSnap.id, data);
+              });
+
+              list.appendChild(row);
+            });
+          });
+      }
+
+      document.getElementById("newLessonBtn").addEventListener("click", function () {
+        openLessonEditor(null, { title: "", blocks: [] });
+      });
+
+      // ---- Block helpers ----
+      function makeBlockId() {
+        return "b" + Date.now() + Math.random().toString(36).slice(2, 8);
+      }
+      var TEXT_TYPES = ["heading1", "heading2", "heading3", "paragraph", "bullet", "numbered", "checkbox"];
+      var TYPE_LABELS = {
+        heading1: "Heading 1",
+        heading2: "Heading 2",
+        heading3: "Heading 3",
+        paragraph: "Text",
+        bullet: "Bullet List",
+        numbered: "Numbered List",
+        checkbox: "Checkbox",
+      };
+
+      function openLessonEditor(id, data) {
+        currentLessonId = id;
+        document.getElementById("lessonTitleInput").value = data.title || "";
+        blocks = (data.blocks || []).map(function (b) {
+          return Object.assign({}, b, { id: b.id || makeBlockId() });
+        });
+        document.getElementById("deleteLessonBtn").style.display = id ? "inline-flex" : "none";
+        document.getElementById("lessonStatus").textContent = "";
+        document.getElementById("lessonStatus").className = "status-msg";
+        renderBlocks();
+        showEditorView();
+      }
+
+      function renderBlocks() {
+        var container = document.getElementById("blocksContainer");
+        container.innerHTML = "";
+
+        blocks.forEach(function (block, index) {
+          var row = document.createElement("div");
+          row.className = "block-row";
+
+          var controls = document.createElement("div");
+          controls.className = "block-controls";
+
+          if (TEXT_TYPES.indexOf(block.type) !== -1) {
+            var select = document.createElement("select");
+            select.className = "block-type-select";
+            TEXT_TYPES.forEach(function (t) {
+              var opt = document.createElement("option");
+              opt.value = t;
+              opt.textContent = TYPE_LABELS[t];
+              if (t === block.type) opt.selected = true;
+              select.appendChild(opt);
+            });
+            select.addEventListener("change", function () {
+              block.type = select.value;
+              renderBlocks();
+            });
+            controls.appendChild(select);
+          } else {
+            var label = document.createElement("span");
+            label.className = "block-type-label";
+            label.textContent = "Image";
+            controls.appendChild(label);
+          }
+
+          var upBtn = document.createElement("button");
+          upBtn.type = "button";
+          upBtn.className = "tb-btn";
+          upBtn.textContent = "↑";
+          upBtn.disabled = index === 0;
+          upBtn.addEventListener("click", function () {
+            if (index > 0) {
+              var tmp = blocks[index - 1];
+              blocks[index - 1] = blocks[index];
+              blocks[index] = tmp;
+              renderBlocks();
+            }
+          });
+
+          var downBtn = document.createElement("button");
+          downBtn.type = "button";
+          downBtn.className = "tb-btn";
+          downBtn.textContent = "↓";
+          downBtn.disabled = index === blocks.length - 1;
+          downBtn.addEventListener("click", function () {
+            if (index < blocks.length - 1) {
+              var tmp = blocks[index + 1];
+              blocks[index + 1] = blocks[index];
+              blocks[index] = tmp;
+              renderBlocks();
+            }
+          });
+
+          var delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "tb-btn tb-clear";
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", function () {
+            blocks.splice(index, 1);
+            renderBlocks();
+          });
+
+          controls.appendChild(upBtn);
+          controls.appendChild(downBtn);
+          controls.appendChild(delBtn);
+          row.appendChild(controls);
+
+          if (block.type === "image") {
+            row.appendChild(buildImageBlockUI(block));
+          } else {
+            row.appendChild(buildTextBlockUI(block));
+          }
+
+          container.appendChild(row);
+        });
+      }
+
+      function buildTextBlockUI(block) {
+        var wrap = document.createElement("div");
+
+        if (block.type === "checkbox") {
+          var checkRow = document.createElement("div");
+          checkRow.className = "block-checkbox-row";
+
+          var checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!block.checked;
+          checkbox.addEventListener("change", function () {
+            block.checked = checkbox.checked;
+          });
+          checkRow.appendChild(checkbox);
+
+          var editable = buildEditableContent(block);
+          checkRow.appendChild(editable);
+          wrap.appendChild(checkRow);
+        } else {
+          var toolbar = document.createElement("div");
+          toolbar.className = "block-toolbar";
+          ["bold", "italic"].forEach(function (cmd) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "tb-btn";
+            btn.innerHTML = cmd === "bold" ? "<b>B</b>" : "<i>I</i>";
+            btn.addEventListener("mousedown", function (e) {
+              e.preventDefault();
+              editableEl.focus();
+              document.execCommand(cmd, false, null);
+              block.content = editableEl.innerHTML;
+            });
+            toolbar.appendChild(btn);
+          });
+          wrap.appendChild(toolbar);
+
+          var editableEl = buildEditableContent(block);
+          wrap.appendChild(editableEl);
+        }
+
+        return wrap;
+      }
+
+      function buildEditableContent(block) {
+        var el = document.createElement("div");
+        el.className = "block-content block-content-" + block.type;
+        el.contentEditable = "true";
+        el.setAttribute("data-placeholder", placeholderFor(block.type));
+        el.innerHTML = block.content || "";
+        el.addEventListener("input", function () {
+          block.content = el.innerHTML;
+        });
+        return el;
+      }
+
+      function placeholderFor(type) {
+        if (type === "heading1") return "Heading 1";
+        if (type === "heading2") return "Heading 2";
+        if (type === "heading3") return "Heading 3";
+        if (type === "bullet") return "List item";
+        if (type === "numbered") return "List item";
+        if (type === "checkbox") return "To-do item";
+        return "Type something...";
+      }
+
+      function buildImageBlockUI(block) {
+        var wrap = document.createElement("div");
+        wrap.className = "block-image-row";
+
+        if (block.imageUrl) {
+          var img = document.createElement("img");
+          img.className = "block-image-preview";
+          img.src = block.imageUrl;
+          wrap.appendChild(img);
+
+          var replaceLabel = document.createElement("span");
+          replaceLabel.className = "field-hint";
+          replaceLabel.textContent = "Choose a new file below to replace this image.";
+          wrap.appendChild(replaceLabel);
+        }
+
+        var fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.addEventListener("change", function () {
+          var file = fileInput.files[0];
+          if (!file) return;
+          block._pendingFile = file;
+          block._pendingPreviewUrl = URL.createObjectURL(file);
+          renderBlocks();
+        });
+        wrap.appendChild(fileInput);
+
+        if (block._pendingPreviewUrl) {
+          var previewImg = document.createElement("img");
+          previewImg.className = "block-image-preview";
+          previewImg.src = block._pendingPreviewUrl;
+          wrap.appendChild(previewImg);
+        }
+
+        return wrap;
+      }
+
+      // ---- Add block buttons ----
+      document.querySelectorAll(".add-block-menu [data-add]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var type = btn.getAttribute("data-add");
+          var block = { id: makeBlockId(), type: type, content: "" };
+          if (type === "checkbox") block.checked = false;
+          blocks.push(block);
+          renderBlocks();
+        });
+      });
+
+      // ---- Save lesson (uploads any pending images first) ----
+      document.getElementById("saveLessonBtn").addEventListener("click", function () {
+        var title = document.getElementById("lessonTitleInput").value.trim();
+        var statusEl = document.getElementById("lessonStatus");
+        var saveBtn = document.getElementById("saveLessonBtn");
+
+        if (!title) {
+          statusEl.textContent = "Please enter a lesson title.";
+          statusEl.className = "status-msg error";
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        statusEl.textContent = "";
+        statusEl.className = "status-msg";
+
+        var uploadPromises = blocks.map(function (block) {
+          if (block.type === "image" && block._pendingFile) {
+            var path = "lessons/" + Date.now() + "-" + block._pendingFile.name;
+            var ref = storage.ref(path);
+            return ref
+              .put(block._pendingFile)
+              .then(function () {
+                return ref.getDownloadURL();
+              })
+              .then(function (url) {
+                block.imageUrl = url;
+                delete block._pendingFile;
+                delete block._pendingPreviewUrl;
+              });
+          }
+          return Promise.resolve();
+        });
+
+        Promise.all(uploadPromises)
+          .then(function () {
+            var cleanBlocks = blocks.map(function (b) {
+              var clean = { id: b.id, type: b.type };
+              if (b.type === "image") {
+                clean.imageUrl = b.imageUrl || "";
+              } else {
+                clean.content = b.content || "";
+                if (b.type === "checkbox") clean.checked = !!b.checked;
+              }
+              return clean;
+            });
+
+            var payload = {
+              title: title,
+              blocks: cleanBlocks,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            };
+
+            if (currentLessonId) {
+              return db.collection("lessons").doc(currentLessonId).set(payload, { merge: true });
+            } else {
+              payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+              return db.collection("lessons").add(payload).then(function (docRef) {
+                currentLessonId = docRef.id;
+              });
+            }
+          })
+          .then(function () {
+            statusEl.textContent = "Lesson saved successfully.";
+            statusEl.classList.add("success");
+            document.getElementById("deleteLessonBtn").style.display = "inline-flex";
+          })
+          .catch(function (err) {
+            statusEl.textContent = "Couldn't save. Please try again.";
+            statusEl.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Lesson";
+          });
+      });
+
+      // ---- Delete lesson ----
+      document.getElementById("deleteLessonBtn").addEventListener("click", function () {
+        if (!currentLessonId) return;
+        if (!confirm("Delete this entire lesson? This cannot be undone.")) return;
+
+        db.collection("lessons")
+          .doc(currentLessonId)
+          .delete()
+          .then(function () {
+            showListView();
+          })
+          .catch(function (err) {
+            alert("Couldn't delete this lesson. Please try again.");
+            console.error(err);
+          });
+      });
+    </script>
+  </body>
+</html>

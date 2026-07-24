@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Services — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Café, barista training, coffee gear, roastery, and green beans — explore everything Ouz Coffee & Co. offers." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    <style>
+      /* Scoped to this page only — turns the service tiles into distinct
+         boxed cards in a single auto-sliding horizontal row. */
+      .service-slider-outer {
+        overflow: hidden;
+      }
+      .service-grid {
+        display: flex !important;
+        flex-wrap: nowrap;
+        align-items: stretch !important;
+        gap: 22px;
+        overflow-x: auto;
+        scroll-behavior: auto;
+        padding: 6px 4px 24px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border: none !important;
+        background: none !important;
+        box-shadow: none !important;
+      }
+      .service-grid::-webkit-scrollbar {
+        display: none;
+      }
+      .service-grid .service-card {
+        flex: 0 0 260px;
+        display: flex;
+        flex-direction: column;
+        background: var(--card-cream, #f6ead9);
+        border: 1px solid var(--line, #d8cdbf);
+        border-radius: 14px;
+        padding: 28px 24px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .service-grid .service-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.09);
+      }
+      .service-grid .service-card .note {
+        margin-top: auto;
+      }
+    </style>
+
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="current">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/visit.html" class="navcta">Visit Us</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="pagehead" style="--pagehead-img: url('/assets/wood-nook.png');">
+      <div class="wrap pagehead-inner">
+        <p class="crumb"><a href="/index.html">Home</a> &rsaquo; <a href="/services.html">Services</a> &rsaquo; Services</p>
+        <h1>Five crafts, <em>one counter</em></h1>
+        <p>Café, barista training, coffee gear, our roastery, and green beans — everything a cup of coffee touches, gathered under one roof in Birtamod.</p>
+      </div>
+    </section>
+
+    <section class="services">
+      <div class="wrap">
+        <p class="eyebrow">What We Do</p>
+        <h2>Pick where you want to start</h2>
+        <div class="service-slider-outer">
+        <div class="service-grid" id="serviceGrid">
+          <a href="/training.html" class="service-card" style="text-decoration:none;">
+            <h3>Barista Training</h3>
+            <ul>
+              <li>Beginner Barista</li>
+              <li>Intermediate Brewing &amp; Latte Art</li>
+              <li>Advanced &amp; Competition Prep</li>
+            </ul>
+            <p class="note">See course dates &amp; enroll</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/coffee-gear.html" class="service-card" style="text-decoration:none;">
+            <h3>Coffee Gear</h3>
+            <ul>
+              <li>Grinders</li>
+              <li>Kettles &amp; Drippers</li>
+              <li>Home Brew Kits</li>
+              <li>Roasted Beans, Retail</li>
+            </ul>
+            <p class="note">Browse gear &amp; retail beans</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/cafe.html" class="service-card" style="text-decoration:none;">
+            <h3>Café</h3>
+            <ul>
+              <li>Espresso &amp; Americano</li>
+              <li>Pour Over (V60, Chemex)</li>
+              <li>Cold Brew</li>
+              <li>Signature Ouz Latte</li>
+            </ul>
+            <p class="note">Full menu &amp; pricing at the counter</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/roastery.html" class="service-card" style="text-decoration:none;">
+            <h3>Roastery</h3>
+            <ul>
+              <li>Single Origin</li>
+              <li>House Blend</li>
+              <li>Custom Roast for Cafés</li>
+            </ul>
+            <p class="note">Wholesale &amp; custom roasting</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/green-beans.html" class="service-card" style="text-decoration:none;">
+            <h3>Green Beans</h3>
+            <ul>
+              <li>Single-Origin Green Lots</li>
+              <li>Home Roaster Bags</li>
+              <li>Wholesale Sacks</li>
+            </ul>
+            <p class="note">Unroasted beans, home &amp; wholesale</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+        </div>
+      </div>
+    </section>
+
+<section class="crosslinks">
+      <div class="wrap">
+        <p class="eyebrow">Not Sure Where to Start?</p>
+        <h2>A quick way to decide</h2>
+        <div class="cross-grid">
+          <a href="/cafe.html" class="cross-card">
+            <span class="tag">Just want a great cup</span>
+            <h3>Visit the Café</h3>
+            <p>Walk in, sit down, order a pour-over or espresso drink.</p>
+          </a>
+          <a href="/training.html" class="cross-card">
+            <span class="tag">Want to learn the craft</span>
+            <h3>Join Barista Training</h3>
+            <p>From first pour to competition-level skill, in small cohorts.</p>
+          </a>
+          <a href="/roastery.html" class="cross-card">
+            <span class="tag">Run a café or business</span>
+            <h3>Talk Wholesale</h3>
+            <p>Custom roast profiles and reliable supply for your café.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+      <script src="/nav-toggle.js"></script>
+      <script src="/chat-widget.js"></script>
+    <script>
+      // ---- Auto-sliding Services strip ----
+      // Slides right, then reverses and slides left, looping continuously.
+      // Pauses on hover/touch so cards stay easy to click.
+      (function () {
+        var grid = document.getElementById("serviceGrid");
+        if (!grid) return;
+
+        var direction = 1;
+        var speed = 0.5;
+        var hovering = false;
+        var touching = false;
+
+        grid.addEventListener("mouseenter", function () {
+          hovering = true;
+        });
+        grid.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+        grid.addEventListener(
+          "touchstart",
+          function () {
+            touching = true;
+          },
+          { passive: true }
+        );
+        grid.addEventListener(
+          "touchend",
+          function () {
+            setTimeout(function () {
+              touching = false;
+            }, 1200);
+          },
+          { passive: true }
+        );
+
+        function step() {
+          var maxScroll = grid.scrollWidth - grid.clientWidth;
+          if (!hovering && !touching && maxScroll > 0) {
+            grid.scrollLeft += speed * direction;
+            if (grid.scrollLeft >= maxScroll) direction = -1;
+            else if (grid.scrollLeft <= 0) direction = 1;
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      /* ---- Popup block editor (scoped to this page) ---- */
+      .popup-blocks-editor {
+        border: 1px solid #d8cdbf;
+        border-radius: 8px;
+        padding: 14px 16px;
+        background: #fff;
+        min-height: 120px;
+      }
+      .popup-block {
+        outline: none;
+        margin: 0 0 8px;
+        min-height: 1.4em;
+        line-height: 1.5;
+      }
+      .popup-block:empty::before {
+        content: attr(data-placeholder);
+        color: #a99;
+        pointer-events: none;
+      }
+      .popup-block.block-h1 { font-size: 1.6rem; font-weight: 700; font-family: "Georgia", serif; }
+      .popup-block.block-h2 { font-size: 1.3rem; font-weight: 700; font-family: "Georgia", serif; }
+      .popup-block.block-h3 { font-size: 1.1rem; font-weight: 700; font-family: "Georgia", serif; }
+      .popup-block.block-paragraph { font-size: 0.95rem; }
+
+      .popup-inline-link {
+        color: #7a1b34;
+        text-decoration: underline;
+        cursor: default;
+        padding: 0 1px;
+      }
+
+      .popup-link-block {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 0 0 8px;
+        padding: 8px 10px;
+        background: #f6ead9;
+        border: 1px solid #d8cdbf;
+        border-radius: 6px;
+      }
+      .popup-link-block input {
+        flex: 1 1 160px;
+        padding: 6px 8px;
+        border: 1px solid #d8cdbf;
+        border-radius: 5px;
+        font-size: 0.85rem;
+      }
+      .popup-link-block .popup-link-remove {
+        flex: 0 0 auto;
+        background: none;
+        border: none;
+        color: #a33;
+        cursor: pointer;
+        font-size: 0.8rem;
+        text-decoration: underline;
+      }
+
+      .popup-slash-menu {
+        position: absolute;
+        z-index: 50;
+        background: #fff;
+        border: 1px solid #d8cdbf;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        min-width: 180px;
+        overflow: hidden;
+      }
+      .popup-slash-menu button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 9px 14px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-family: inherit;
+      }
+      .popup-slash-menu button:hover {
+        background: #f6ead9;
+      }
+
+      .popup-color-swatches {
+        position: absolute;
+        z-index: 50;
+        background: #fff;
+        border: 1px solid #d8cdbf;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        padding: 10px;
+        display: flex;
+        gap: 8px;
+      }
+      .popup-color-swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid rgba(0, 0, 0, 0.15);
+      }
+
+      /* ---- Two-column layout: editor + live preview ---- */
+      .popup-editor-layout {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .popup-editor-col {
+        flex: 1 1 340px;
+        min-width: 280px;
+      }
+      .popup-preview-col {
+        flex: 1 1 300px;
+        min-width: 260px;
+        position: sticky;
+        top: 20px;
+      }
+      .popup-preview-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: #6b5c4c;
+      }
+      .popup-preview-frame {
+        background: #ece0cc;
+        border-radius: 12px;
+        padding: 30px 16px;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* ---- Live preview box: mirrors the real popup's styling on the
+         public site, so what you see here matches what visitors see. ---- */
+      .popup-preview-box {
+        width: 280px;
+        max-width: 100%;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+      .popup-preview-box .entry-popup-media img,
+      .popup-preview-box .entry-popup-media video,
+      .popup-preview-box .entry-popup-media iframe {
+        width: 100%;
+        display: block;
+        border: none;
+      }
+      .popup-preview-box .entry-popup-media iframe,
+      .popup-preview-box .entry-popup-media video {
+        aspect-ratio: 16 / 9;
+      }
+      .popup-preview-box .entry-popup-body {
+        padding: 18px 18px 20px;
+      }
+      .popup-preview-box .entry-popup-block {
+        margin: 0 0 10px;
+        line-height: 1.5;
+        font-size: 0.85rem;
+      }
+      .popup-preview-box .entry-popup-block-h1 {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+      .popup-preview-box .entry-popup-block-h2 {
+        font-size: 1.02rem;
+        font-weight: 700;
+      }
+      .popup-preview-box .entry-popup-block-h3 {
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+      .popup-preview-box .entry-popup-block-paragraph {
+        opacity: 0.85;
+      }
+      .popup-preview-box .entry-popup-link-block {
+        display: inline-block;
+        margin: 4px 0 10px;
+        font-size: 0.82rem;
+        padding: 8px 16px;
+      }
+      .popup-preview-empty {
+        color: #a99;
+        font-size: 0.85rem;
+        padding: 30px 18px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link active">Settings</a>
+          <!-- Future sections get added here, e.g.:
+          <a href="/services.html" class="sidebar-link">Services</a>
+          <a href="/enquiries.html" class="sidebar-link">Enquiries</a>
+          -->
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Settings</h2>
+            <p>Site-wide values used across the public site.</p>
+          </div>
+        </div>
+
+        <div class="add-card" style="max-width: 480px;">
+          <h3>WhatsApp Number</h3>
+          <p class="field-hint" style="margin-bottom: 16px;">
+            Used for the WhatsApp button on product cards. Include the country code, e.g. <strong>+977-9705903800</strong>.
+          </p>
+          <div class="field">
+            <label for="whatsappInput">WhatsApp Number</label>
+            <input id="whatsappInput" type="text" placeholder="+977-9705903800" />
+          </div>
+          <button class="btn btn-primary" type="button" id="saveBtn">Save</button>
+          <div class="status-msg" id="saveStatus"></div>
+        </div>
+
+        <div class="add-card" style="max-width: 480px;">
+          <h3>Order Notification Email</h3>
+          <p class="field-hint" style="margin-bottom: 16px;">
+            Where new order alerts get sent. Only visible to you — never shown on the public site.
+          </p>
+          <div class="field">
+            <label for="notifyEmailInput">Notification Email</label>
+            <input id="notifyEmailInput" type="email" placeholder="owner@gmail.com" />
+          </div>
+          <button class="btn btn-primary" type="button" id="saveEmailBtn">Save</button>
+          <div class="status-msg" id="saveEmailStatus"></div>
+        </div>
+
+        <div class="add-card" style="max-width: 640px;">
+          <h3>AI Chatbot — Personal Prompt</h3>
+          <p class="field-hint" style="margin-bottom: 16px;">
+            Instructions for the AI chatbot on the public site — its tone, personality, and how it should talk to
+            customers. The chatbot already automatically knows your Coffee Gear and Roastery product names, prices,
+            and descriptions, and already knows every page on the site (Café, Training, Gear, Roastery, Tutee, Visit,
+            etc.) so it can point confused visitors to the right place — you don't need to list any of that here,
+            just describe how it should behave.
+          </p>
+          <div class="field">
+            <label for="chatbotPromptInput">Personal Prompt</label>
+            <textarea id="chatbotPromptInput" rows="8" placeholder="e.g. Keep replies short and warm. If asked something you don't know, suggest they message us on WhatsApp or visit the Visit page."></textarea>
+          </div>
+          <button class="btn btn-primary" type="button" id="saveChatbotBtn">Save</button>
+          <div class="status-msg" id="saveChatbotStatus"></div>
+        </div>
+
+        <div class="add-card" style="max-width: 640px;">
+          <h3>Contact Details</h3>
+          <p class="field-hint" style="margin-bottom: 16px;">
+            Shown on the Visit page. Add as many phone numbers, emails, or social links as you like.
+          </p>
+
+          <div class="field">
+            <label for="contactAddressInput">Address</label>
+            <textarea id="contactAddressInput" rows="2" placeholder="e.g. Pachim Bus Stand, Birtamod, Jhapa, Nepal" spellcheck="false"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="contactMapUrlInput">Google Maps Link</label>
+            <input id="contactMapUrlInput" type="text" placeholder="e.g. https://maps.app.goo.gl/xxxxx" />
+            <p class="field-hint">Paste a Google Maps share link — used for the "View on Map" button on the Visit page. Open Google Maps, find your location, tap Share, and copy the link.</p>
+          </div>
+
+          <div class="field">
+            <label for="contactHoursInput">Hours</label>
+            <textarea id="contactHoursInput" rows="2" placeholder="e.g. 7:00 AM – 6:00 PM, Daily" spellcheck="false"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Phone Numbers</label>
+            <div id="phonesList" class="repeat-list"></div>
+            <button class="tb-btn" type="button" id="addPhoneBtn">+ Add Phone Number</button>
+          </div>
+
+          <div class="field">
+            <label>Emails</label>
+            <div id="emailsList" class="repeat-list"></div>
+            <button class="tb-btn" type="button" id="addEmailBtn">+ Add Email</button>
+          </div>
+
+          <div class="field">
+            <label>Social Links</label>
+            <p class="field-hint">Platform name (e.g. Instagram, Facebook, TikTok), the text to display, and the full link URL.</p>
+            <div id="socialsList" class="repeat-list"></div>
+            <button class="tb-btn" type="button" id="addSocialBtn">+ Add Social Link</button>
+          </div>
+
+          <button class="btn btn-primary" type="button" id="saveContactBtn" style="margin-top: 20px;">Save Contact Details</button>
+          <div class="status-msg" id="saveContactStatus"></div>
+        </div>
+
+        <div class="add-card" style="max-width: 960px;">
+          <h3>Entry Popup</h3>
+          <p class="field-hint" style="margin-bottom: 16px;">
+            A popup shown to every visitor when they land on the homepage. Add one image or video below, then
+            write the popup's content — type <strong>/</strong> anywhere for options (Heading, Text, Link,
+            Colour). Mix them in any order, as many times as you like. Leave it disabled to turn it off entirely.
+          </p>
+
+          <div class="popup-editor-layout">
+            <div class="popup-editor-col">
+              <div class="field">
+                <label>
+                  <input type="checkbox" id="popupEnabledInput" style="width: auto; margin-right: 8px;" />
+                  Enable this popup on the homepage
+                </label>
+              </div>
+
+              <div class="field">
+                <label for="popupMediaInput">Media — Image or Video (optional, pick one)</label>
+                <input id="popupMediaInput" type="file" accept="image/*,video/*" />
+                <p class="field-hint">Uploading a new file replaces the current one.</p>
+              </div>
+
+              <div id="popupMediaPreviewWrap" style="display: none; margin-bottom: 16px;">
+                <div id="popupMediaPreviewBox" style="max-width: 260px;"></div>
+                <button class="tb-btn tb-clear" type="button" id="popupRemoveMediaBtn" style="margin-top: 8px;">Remove Media</button>
+              </div>
+
+              <div class="field">
+                <label>Content</label>
+                <div id="popupBlocksEditor" class="popup-blocks-editor"></div>
+              </div>
+
+              <button class="btn btn-primary" type="button" id="savePopupBtn" style="margin-top: 16px;">Save Popup</button>
+              <div class="status-msg" id="savePopupStatus"></div>
+            </div>
+
+            <div class="popup-preview-col">
+              <span class="popup-preview-label">Live Preview — how it looks on the site</span>
+              <div class="popup-preview-frame">
+                <div class="entry-popup-box popup-preview-box">
+                  <div class="entry-popup-media" id="popupPreviewMedia"></div>
+                  <div class="entry-popup-body" id="popupPreviewBody"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+      var SETTINGS_DOC = "site";
+
+      // ---- Auth guard: redirect to login if not signed in ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadSettings();
+          loadContactDetails();
+          loadPopupSettings();
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      var whatsappInput = document.getElementById("whatsappInput");
+      var saveBtn = document.getElementById("saveBtn");
+      var saveStatus = document.getElementById("saveStatus");
+      var notifyEmailInput = document.getElementById("notifyEmailInput");
+      var saveEmailBtn = document.getElementById("saveEmailBtn");
+      var saveEmailStatus = document.getElementById("saveEmailStatus");
+      var chatbotPromptInput = document.getElementById("chatbotPromptInput");
+      var saveChatbotBtn = document.getElementById("saveChatbotBtn");
+      var saveChatbotStatus = document.getElementById("saveChatbotStatus");
+
+      function loadSettings() {
+        db.collection("settings")
+          .doc(SETTINGS_DOC)
+          .get()
+          .then(function (docSnap) {
+            if (docSnap.exists) {
+              var data = docSnap.data();
+              whatsappInput.value = data.whatsappNumber || "";
+            }
+          })
+          .catch(function (err) {
+            console.error(err);
+          });
+
+        db.collection("settings")
+          .doc("private")
+          .get()
+          .then(function (docSnap) {
+            if (docSnap.exists) {
+              var data = docSnap.data();
+              notifyEmailInput.value = data.notificationEmail || "";
+              chatbotPromptInput.value = data.chatbotPrompt || "";
+            }
+          })
+          .catch(function (err) {
+            console.error(err);
+          });
+      }
+
+      saveBtn.addEventListener("click", function () {
+        var value = whatsappInput.value.trim();
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        saveStatus.textContent = "";
+        saveStatus.className = "status-msg";
+
+        db.collection("settings")
+          .doc(SETTINGS_DOC)
+          .set({ whatsappNumber: value }, { merge: true })
+          .then(function () {
+            saveStatus.textContent = "Saved successfully.";
+            saveStatus.classList.add("success");
+          })
+          .catch(function (err) {
+            saveStatus.textContent = "Couldn't save. Please try again.";
+            saveStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save";
+          });
+      });
+
+      saveEmailBtn.addEventListener("click", function () {
+        var value = notifyEmailInput.value.trim();
+
+        saveEmailBtn.disabled = true;
+        saveEmailBtn.textContent = "Saving...";
+        saveEmailStatus.textContent = "";
+        saveEmailStatus.className = "status-msg";
+
+        db.collection("settings")
+          .doc("private")
+          .set({ notificationEmail: value }, { merge: true })
+          .then(function () {
+            saveEmailStatus.textContent = "Saved successfully.";
+            saveEmailStatus.classList.add("success");
+          })
+          .catch(function (err) {
+            saveEmailStatus.textContent = "Couldn't save. Please try again.";
+            saveEmailStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            saveEmailBtn.disabled = false;
+            saveEmailBtn.textContent = "Save";
+          });
+      });
+
+      saveChatbotBtn.addEventListener("click", function () {
+        var value = chatbotPromptInput.value.trim();
+
+        saveChatbotBtn.disabled = true;
+        saveChatbotBtn.textContent = "Saving...";
+        saveChatbotStatus.textContent = "";
+        saveChatbotStatus.className = "status-msg";
+
+        db.collection("settings")
+          .doc("private")
+          .set({ chatbotPrompt: value }, { merge: true })
+          .then(function () {
+            saveChatbotStatus.textContent = "Saved successfully.";
+            saveChatbotStatus.classList.add("success");
+          })
+          .catch(function (err) {
+            saveChatbotStatus.textContent = "Couldn't save. Please try again.";
+            saveChatbotStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            saveChatbotBtn.disabled = false;
+            saveChatbotBtn.textContent = "Save";
+          });
+      });
+
+      // ---- Contact Details: repeatable phone / email / social rows ----
+      var contactAddressInput = document.getElementById("contactAddressInput");
+      var contactMapUrlInput = document.getElementById("contactMapUrlInput");
+      var contactHoursInput = document.getElementById("contactHoursInput");
+      var phonesList = document.getElementById("phonesList");
+      var emailsList = document.getElementById("emailsList");
+      var socialsList = document.getElementById("socialsList");
+      var saveContactBtn = document.getElementById("saveContactBtn");
+      var saveContactStatus = document.getElementById("saveContactStatus");
+
+      function addSimpleRow(container, value, placeholder) {
+        var row = document.createElement("div");
+        row.className = "repeat-row";
+        row.innerHTML =
+          '<input type="text" class="repeat-input" placeholder="' + placeholder + '" value="' +
+          (value || "").replace(/"/g, "&quot;") + '" />' +
+          '<button type="button" class="tb-btn tb-clear repeat-remove">Remove</button>';
+        row.querySelector(".repeat-remove").addEventListener("click", function () {
+          row.remove();
+        });
+        container.appendChild(row);
+      }
+
+      function addSocialRow(social) {
+        social = social || {};
+        var row = document.createElement("div");
+        row.className = "repeat-row repeat-row-social";
+        row.innerHTML =
+          '<input type="text" class="repeat-input social-platform" placeholder="Platform (e.g. Facebook)" value="' +
+          (social.platform || "").replace(/"/g, "&quot;") + '" />' +
+          '<input type="text" class="repeat-input social-display" placeholder="Display text (e.g. @ouzcoffee)" value="' +
+          (social.display || "").replace(/"/g, "&quot;") + '" />' +
+          '<input type="text" class="repeat-input social-url" placeholder="Full URL (https://...)" value="' +
+          (social.url || "").replace(/"/g, "&quot;") + '" />' +
+          '<button type="button" class="tb-btn tb-clear repeat-remove">Remove</button>';
+        row.querySelector(".repeat-remove").addEventListener("click", function () {
+          row.remove();
+        });
+        socialsList.appendChild(row);
+      }
+
+      document.getElementById("addPhoneBtn").addEventListener("click", function () {
+        addSimpleRow(phonesList, "", "e.g. 970 590 3800");
+      });
+      document.getElementById("addEmailBtn").addEventListener("click", function () {
+        addSimpleRow(emailsList, "", "e.g. ouzcoffeenco@gmail.com");
+      });
+      document.getElementById("addSocialBtn").addEventListener("click", function () {
+        addSocialRow();
+      });
+
+      function loadContactDetails() {
+        db.collection("settings")
+          .doc(SETTINGS_DOC)
+          .get()
+          .then(function (docSnap) {
+            var data = docSnap.exists ? docSnap.data() : {};
+
+            contactAddressInput.value = data.contactAddress || "";
+            contactMapUrlInput.value = data.contactMapUrl || "";
+            contactHoursInput.value = data.contactHours || "";
+
+            phonesList.innerHTML = "";
+            (data.contactPhones || []).forEach(function (phone) {
+              addSimpleRow(phonesList, phone, "e.g. 970 590 3800");
+            });
+
+            emailsList.innerHTML = "";
+            (data.contactEmails || []).forEach(function (email) {
+              addSimpleRow(emailsList, email, "e.g. ouzcoffeenco@gmail.com");
+            });
+
+            socialsList.innerHTML = "";
+            (data.contactSocials || []).forEach(function (social) {
+              addSocialRow(social);
+            });
+          })
+          .catch(function (err) {
+            console.error(err);
+          });
+      }
+
+      saveContactBtn.addEventListener("click", function () {
+        var phones = Array.prototype.map
+          .call(phonesList.querySelectorAll(".repeat-input"), function (el) {
+            return el.value.trim();
+          })
+          .filter(Boolean);
+
+        var emails = Array.prototype.map
+          .call(emailsList.querySelectorAll(".repeat-input"), function (el) {
+            return el.value.trim();
+          })
+          .filter(Boolean);
+
+        var socials = Array.prototype.map
+          .call(socialsList.querySelectorAll(".repeat-row-social"), function (row) {
+            return {
+              platform: row.querySelector(".social-platform").value.trim(),
+              display: row.querySelector(".social-display").value.trim(),
+              url: row.querySelector(".social-url").value.trim(),
+            };
+          })
+          .filter(function (s) {
+            return s.platform || s.display || s.url;
+          });
+
+        saveContactBtn.disabled = true;
+        saveContactBtn.textContent = "Saving...";
+        saveContactStatus.textContent = "";
+        saveContactStatus.className = "status-msg";
+
+        db.collection("settings")
+          .doc(SETTINGS_DOC)
+          .set(
+            {
+              contactAddress: contactAddressInput.value.trim(),
+              contactMapUrl: contactMapUrlInput.value.trim(),
+              contactHours: contactHoursInput.value.trim(),
+              contactPhones: phones,
+              contactEmails: emails,
+              contactSocials: socials,
+            },
+            { merge: true }
+          )
+          .then(function () {
+            saveContactStatus.textContent = "Saved successfully.";
+            saveContactStatus.classList.add("success");
+          })
+          .catch(function (err) {
+            saveContactStatus.textContent = "Couldn't save. Please try again.";
+            saveContactStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            saveContactBtn.disabled = false;
+            saveContactBtn.textContent = "Save Contact Details";
+          });
+      });
+
+      // ---- Entry Popup ----
+      var popupEnabledInput = document.getElementById("popupEnabledInput");
+      var popupMediaInput = document.getElementById("popupMediaInput");
+      var popupMediaPreviewWrap = document.getElementById("popupMediaPreviewWrap");
+      var popupMediaPreviewBox = document.getElementById("popupMediaPreviewBox");
+      var popupRemoveMediaBtn = document.getElementById("popupRemoveMediaBtn");
+      var popupBlocksEditor = document.getElementById("popupBlocksEditor");
+      var savePopupBtn = document.getElementById("savePopupBtn");
+      var savePopupStatus = document.getElementById("savePopupStatus");
+      var popupPreviewMedia = document.getElementById("popupPreviewMedia");
+      var popupPreviewBody = document.getElementById("popupPreviewBody");
+
+      var currentPopupMediaUrl = "";
+      var currentPopupMediaType = ""; // "image" | "video" | ""
+      var currentPopupMediaStoragePath = "";
+      var pendingRemoveMedia = false; // true if admin clicked "Remove Media" this session
+
+      // What the live preview should currently show — updated immediately
+      // on file selection/removal, independent of whether it's been saved
+      // yet, so the preview always reflects what's in the editor right now.
+      var previewMediaUrl = "";
+      var previewMediaType = "";
+
+      function showPopupMediaPreview(url, type) {
+        popupMediaPreviewBox.innerHTML = "";
+        if (url) {
+          if (type === "video") {
+            popupMediaPreviewBox.innerHTML =
+              '<video src="' + url + '" controls style="width:100%;border-radius:8px;display:block;"></video>';
+          } else {
+            popupMediaPreviewBox.innerHTML =
+              '<img src="' + url + '" alt="" style="max-width:260px;border-radius:8px;display:block;" />';
+          }
+          popupMediaPreviewWrap.style.display = "block";
+        } else {
+          popupMediaPreviewWrap.style.display = "none";
+        }
+        previewMediaUrl = url || "";
+        previewMediaType = type || "";
+        refreshPopupPreview();
+      }
+
+      // Mirrors the exact rendering logic used on the public site (see
+      // index.html's entry popup script) so the preview here matches
+      // reality — same block types, same styling classes.
+      function refreshPopupPreview() {
+        if (!popupPreviewMedia || !popupPreviewBody) return;
+
+        popupPreviewMedia.innerHTML = "";
+        if (previewMediaUrl) {
+          if (previewMediaType === "video") {
+            popupPreviewMedia.innerHTML = '<video src="' + previewMediaUrl + '" muted></video>';
+          } else {
+            popupPreviewMedia.innerHTML = '<img src="' + previewMediaUrl + '" alt="" />';
+          }
+        }
+
+        var blocks = collectBlocksFromEditor();
+        popupPreviewBody.innerHTML = "";
+
+        if (!previewMediaUrl && !blocks.length) {
+          popupPreviewBody.innerHTML = '<div class="popup-preview-empty">Nothing to show yet — add media or start typing.</div>';
+          return;
+        }
+
+        blocks.forEach(function (block) {
+          var tag = block.type === "h1" || block.type === "h2" || block.type === "h3" ? block.type : "p";
+          var el2 = document.createElement(tag);
+          el2.className = "entry-popup-block entry-popup-block-" + block.type;
+          el2.innerHTML = block.html != null ? block.html : escapeHtml(block.text || "");
+          if (block.color) el2.style.color = block.color;
+          popupPreviewBody.appendChild(el2);
+        });
+      }
+
+      // ================= BLOCK EDITOR =================
+      // A lightweight Notion-style block editor: each block is a div in the
+      // editor, styled by CSS class (block-h1/h2/h3/paragraph) or, for
+      // links, a small structured row with its own text+URL inputs. Typing
+      // "/" on an otherwise-empty block opens a menu to pick the block
+      // type; Enter creates a new block below; Backspace on an empty block
+      // removes it. Saved/loaded as an ordered array of plain objects.
+
+      var activeSlashMenu = null;
+      var activeColorSwatches = null;
+
+      function closeFloatingMenus() {
+        if (activeSlashMenu) {
+          activeSlashMenu.remove();
+          activeSlashMenu = null;
+        }
+        if (activeColorSwatches) {
+          activeColorSwatches.remove();
+          activeColorSwatches = null;
+        }
+      }
+      document.addEventListener("click", function (e) {
+        if (
+          activeSlashMenu &&
+          !activeSlashMenu.contains(e.target) &&
+          activeColorSwatches !== e.target
+        ) {
+          // Only close if the click wasn't the block itself opening it
+          if (!e.target.classList || !e.target.classList.contains("popup-block")) {
+            closeFloatingMenus();
+          }
+        }
+      });
+
+      function escapeHtml(str) {
+        var div = document.createElement("div");
+        div.textContent = str || "";
+        return div.innerHTML;
+      }
+
+      // htmlContent is treated as raw HTML (used when restoring saved
+      // blocks, which may contain inline <a> links) — always safe here
+      // since it only ever contains HTML this editor itself produced.
+      function createTextBlock(type, htmlContent, color) {
+        var el = document.createElement("div");
+        el.className = "popup-block block-" + type;
+        el.contentEditable = "true";
+        el.setAttribute("data-placeholder", "Type '/' for options...");
+        el.innerHTML = htmlContent || "";
+        if (color) el.style.color = color;
+        wireBlockEvents(el);
+        return el;
+      }
+
+      function insertBlockAfter(newBlock, referenceBlock) {
+        if (referenceBlock.nextSibling) {
+          popupBlocksEditor.insertBefore(newBlock, referenceBlock.nextSibling);
+        } else {
+          popupBlocksEditor.appendChild(newBlock);
+        }
+      }
+
+      function focusBlockEnd(block) {
+        if (!block || !block.focus) return;
+        block.focus();
+        if (block.contentEditable === "true") {
+          var range = document.createRange();
+          range.selectNodeContents(block);
+          range.collapse(false);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+
+      // ================= RANGE HELPERS =================
+      // These let us insert/remove content at an exact character position
+      // within a block, even when that block already contains nested
+      // elements (like a previously-inserted inline link) — so nothing
+      // typed before or after ever gets clobbered.
+
+      // Finds the DOM text-node + local offset corresponding to a global
+      // character offset within el's flattened text content.
+      function getRangeAtOffset(el, offset) {
+        var remaining = offset;
+        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+        var node;
+        while ((node = walker.nextNode())) {
+          var len = node.textContent.length;
+          if (remaining <= len) {
+            var range = document.createRange();
+            range.setStart(node, remaining);
+            range.collapse(true);
+            return range;
+          }
+          remaining -= len;
+        }
+        var fallback = document.createRange();
+        fallback.selectNodeContents(el);
+        fallback.collapse(false);
+        return fallback;
+      }
+
+      // Removes the single "/" character at slashIndex and returns a
+      // collapsed Range sitting exactly where it used to be — the correct
+      // insertion point for whatever comes next.
+      function deleteSlashAndGetInsertionPoint(block, slashIndex) {
+        var start = getRangeAtOffset(block, slashIndex);
+        var end = getRangeAtOffset(block, slashIndex + 1);
+        var delRange = document.createRange();
+        delRange.setStart(start.startContainer, start.startOffset);
+        delRange.setEnd(end.startContainer, end.startOffset);
+        delRange.deleteContents();
+        delRange.collapse(true);
+        return delRange;
+      }
+
+      function placeCaretAfter(node) {
+        var range = document.createRange();
+        range.setStartAfter(node);
+        range.collapse(true);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      // ================= SLASH MENU =================
+      function showSlashMenu(block, slashIndex) {
+        closeFloatingMenus();
+        var rect = block.getBoundingClientRect();
+        var menu = document.createElement("div");
+        menu.className = "popup-slash-menu";
+        menu.style.top = window.scrollY + rect.bottom + 4 + "px";
+        menu.style.left = window.scrollX + rect.left + "px";
+
+        var options = [
+          { label: "Heading 1", action: function () { convertBlockTypeInPlace(block, slashIndex, "h1"); } },
+          { label: "Heading 2", action: function () { convertBlockTypeInPlace(block, slashIndex, "h2"); } },
+          { label: "Heading 3", action: function () { convertBlockTypeInPlace(block, slashIndex, "h3"); } },
+          { label: "Text", action: function () { convertBlockTypeInPlace(block, slashIndex, "paragraph"); } },
+          { label: "Link", action: function () { insertInlineLink(block, slashIndex); } },
+          { label: "Colour", action: function () { colourBlockInPlace(block, slashIndex); } },
+        ];
+
+        options.forEach(function (opt) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = opt.label;
+          btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            opt.action();
+            closeFloatingMenus();
+            refreshPopupPreview();
+          });
+          menu.appendChild(btn);
+        });
+
+        document.body.appendChild(menu);
+        activeSlashMenu = menu;
+      }
+
+      // Colour: just removes the "/" in place (preserving everything else
+      // exactly as typed) and opens the swatch picker for this block.
+      function colourBlockInPlace(block, slashIndex) {
+        deleteSlashAndGetInsertionPoint(block, slashIndex);
+        focusBlockEnd(block);
+        showColorSwatches(block);
+      }
+
+      // Heading/Text: converts the CURRENT block itself — no new block is
+      // created at all unless there was actual text (or an inline link)
+      // typed after the slash, in which case that trailing content moves
+      // down into its own new block, fully preserved (including any inline
+      // links within it).
+      function convertBlockTypeInPlace(block, slashIndex, newType) {
+        var insertionPoint = deleteSlashAndGetInsertionPoint(block, slashIndex);
+
+        var afterRange = document.createRange();
+        afterRange.setStart(insertionPoint.startContainer, insertionPoint.startOffset);
+        afterRange.setEnd(block, block.childNodes.length);
+
+        var afterFragment = afterRange.cloneContents();
+        var afterHasContent = afterFragment.textContent.trim().length > 0;
+        if (afterHasContent) {
+          afterRange.deleteContents();
+        }
+
+        block.className = "popup-block block-" + newType;
+        focusBlockEnd(block);
+
+        if (afterHasContent) {
+          var tempDiv = document.createElement("div");
+          tempDiv.appendChild(afterFragment);
+          var newBlock = createTextBlock("paragraph", tempDiv.innerHTML);
+          insertBlockAfter(newBlock, block);
+        }
+      }
+
+      // Link: inserts a real inline <a> element exactly where the "/" was
+      // — typing continues in the SAME block, on the SAME line, both
+      // before and after the link. No new block is ever created for this.
+      function insertInlineLink(block, slashIndex) {
+        var insertionPoint = deleteSlashAndGetInsertionPoint(block, slashIndex);
+
+        var linkText = window.prompt("Link text (what the link says):", "");
+        if (linkText === null || !linkText.trim()) {
+          focusBlockEnd(block);
+          return;
+        }
+        var linkUrl = window.prompt("Link URL (e.g. /green-beans.html or https://...):", "");
+        if (linkUrl === null) {
+          focusBlockEnd(block);
+          return;
+        }
+
+        var a = document.createElement("a");
+        a.className = "popup-inline-link";
+        a.href = linkUrl.trim() || "#";
+        a.setAttribute("data-url", linkUrl.trim());
+        a.contentEditable = "false";
+        a.textContent = linkText.trim();
+
+        insertionPoint.insertNode(a);
+        placeCaretAfter(a);
+        block.focus();
+      }
+
+      function showColorSwatches(block) {
+        closeFloatingMenus();
+        var rect = block.getBoundingClientRect();
+        var box = document.createElement("div");
+        box.className = "popup-color-swatches";
+        box.style.top = window.scrollY + rect.bottom + 4 + "px";
+        box.style.left = window.scrollX + rect.left + "px";
+
+        var colors = ["#221a16", "#7a1b34", "#c17f45", "#2f6b3a", "#1f5fa8", "#8134af"];
+        colors.forEach(function (c) {
+          var sw = document.createElement("div");
+          sw.className = "popup-color-swatch";
+          sw.style.background = c;
+          sw.addEventListener("click", function (e) {
+            e.stopPropagation();
+            block.style.color = c;
+            focusBlockEnd(block);
+            closeFloatingMenus();
+            refreshPopupPreview();
+          });
+          box.appendChild(sw);
+        });
+
+        document.body.appendChild(box);
+        activeColorSwatches = box;
+      }
+
+      // Returns the caret's character offset within a contentEditable
+      // element's flattened text content (correctly counting through any
+      // nested inline links too), so we can detect "/" typed anywhere.
+      function getCaretOffset(el) {
+        var sel = window.getSelection();
+        if (!sel.rangeCount) return el.textContent.length;
+        var range = sel.getRangeAt(0);
+        if (!el.contains(range.endContainer)) return el.textContent.length;
+        var preRange = range.cloneRange();
+        preRange.selectNodeContents(el);
+        preRange.setEnd(range.endContainer, range.endOffset);
+        return preRange.toString().length;
+      }
+
+      function wireBlockEvents(block) {
+        block.addEventListener("input", function () {
+          var offset = getCaretOffset(block);
+          if (block.textContent.charAt(offset - 1) === "/") {
+            showSlashMenu(block, offset - 1);
+          } else {
+            closeFloatingMenus();
+          }
+          refreshPopupPreview();
+        });
+
+        block.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            closeFloatingMenus();
+            var newBlock = createTextBlock("paragraph", "");
+            insertBlockAfter(newBlock, block);
+            focusBlockEnd(newBlock);
+            refreshPopupPreview();
+          } else if (e.key === "Backspace" && block.textContent === "") {
+            var prev = block.previousSibling;
+            if (prev && popupBlocksEditor.children.length > 1) {
+              e.preventDefault();
+              block.remove();
+              focusBlockEnd(prev);
+              refreshPopupPreview();
+            }
+          }
+        });
+      }
+
+      function clearEditor() {
+        popupBlocksEditor.innerHTML = "";
+      }
+
+      function addBlockFromData(blockData) {
+        var html = blockData.html != null ? blockData.html : escapeHtml(blockData.text || "");
+        popupBlocksEditor.appendChild(createTextBlock(blockData.type, html, blockData.color));
+      }
+
+      function loadBlocksIntoEditor(blocks) {
+        clearEditor();
+        if (blocks && blocks.length) {
+          blocks.forEach(addBlockFromData);
+        } else {
+          popupBlocksEditor.appendChild(createTextBlock("paragraph", ""));
+        }
+      }
+
+      function collectBlocksFromEditor() {
+        var result = [];
+        Array.prototype.forEach.call(popupBlocksEditor.children, function (el) {
+          var plainText = el.textContent.trim();
+          if (!plainText) return;
+          var type = el.className.replace("popup-block block-", "").trim();
+          var block = { type: type, html: el.innerHTML, text: plainText };
+          if (el.style.color) block.color = el.style.color;
+          result.push(block);
+        });
+        return result;
+      }
+
+      // ================= LOAD / SAVE =================
+      function loadPopupSettings() {
+        db.collection("settings")
+          .doc("popup")
+          .get()
+          .then(function (docSnap) {
+            var data = docSnap.exists ? docSnap.data() : {};
+            popupEnabledInput.checked = !!data.enabled;
+
+            currentPopupMediaUrl = data.mediaUrl || "";
+            currentPopupMediaType = data.mediaType || "";
+            currentPopupMediaStoragePath = data.mediaStoragePath || "";
+            pendingRemoveMedia = false;
+            showPopupMediaPreview(currentPopupMediaUrl, currentPopupMediaType);
+
+            loadBlocksIntoEditor(data.contentBlocks || []);
+            refreshPopupPreview();
+          })
+          .catch(function (err) {
+            console.error(err);
+            loadBlocksIntoEditor([]);
+            refreshPopupPreview();
+          });
+      }
+
+      popupMediaInput.addEventListener("change", function () {
+        var file = popupMediaInput.files[0];
+        if (!file) return;
+        var type = file.type.indexOf("video/") === 0 ? "video" : "image";
+        var objectUrl = URL.createObjectURL(file);
+        showPopupMediaPreview(objectUrl, type);
+        pendingRemoveMedia = false;
+      });
+
+      popupRemoveMediaBtn.addEventListener("click", function () {
+        popupMediaInput.value = "";
+        showPopupMediaPreview("", "");
+        pendingRemoveMedia = true;
+      });
+
+      savePopupBtn.addEventListener("click", function () {
+        var file = popupMediaInput.files[0];
+        var blocks = collectBlocksFromEditor();
+
+        savePopupBtn.disabled = true;
+        savePopupBtn.textContent = "Saving...";
+        savePopupStatus.textContent = "";
+        savePopupStatus.className = "status-msg";
+
+        function finishSave(mediaUrl, mediaType, mediaStoragePath) {
+          db.collection("settings")
+            .doc("popup")
+            .set(
+              {
+                enabled: popupEnabledInput.checked,
+                mediaUrl: mediaUrl || "",
+                mediaType: mediaUrl ? mediaType : "",
+                mediaStoragePath: mediaStoragePath || "",
+                contentBlocks: blocks,
+              },
+              { merge: true }
+            )
+            .then(function () {
+              savePopupStatus.textContent = "Saved successfully.";
+              savePopupStatus.classList.add("success");
+              currentPopupMediaUrl = mediaUrl || "";
+              currentPopupMediaType = mediaUrl ? mediaType : "";
+              currentPopupMediaStoragePath = mediaStoragePath || "";
+              pendingRemoveMedia = false;
+              popupMediaInput.value = "";
+            })
+            .catch(function (err) {
+              savePopupStatus.textContent = "Couldn't save. Please try again.";
+              savePopupStatus.classList.add("error");
+              console.error(err);
+            })
+            .finally(function () {
+              savePopupBtn.disabled = false;
+              savePopupBtn.textContent = "Save Popup";
+            });
+        }
+
+        // Case 1: a new file was chosen — upload it (and delete the old one
+        // if there was one), then save.
+        if (file) {
+          var type = file.type.indexOf("video/") === 0 ? "video" : "image";
+          var oldPath = currentPopupMediaStoragePath;
+          var newPath = "popup/" + Date.now() + "-" + file.name;
+          var storageRef = storage.ref(newPath);
+
+          storageRef
+            .put(file)
+            .then(function () {
+              return storageRef.getDownloadURL();
+            })
+            .then(function (url) {
+              if (oldPath) {
+                storage
+                  .ref(oldPath)
+                  .delete()
+                  .catch(function () {
+                    /* old file may already be gone — ignore */
+                  });
+              }
+              finishSave(url, type, newPath);
+            })
+            .catch(function (err) {
+              savePopupStatus.textContent = "Couldn't upload media. Please try again.";
+              savePopupStatus.classList.add("error");
+              console.error(err);
+              savePopupBtn.disabled = false;
+              savePopupBtn.textContent = "Save Popup";
+            });
+          return;
+        }
+
+        // Case 2: "Remove Media" was clicked this session — delete the old
+        // file, save with no media.
+        if (pendingRemoveMedia) {
+          if (currentPopupMediaStoragePath) {
+            storage
+              .ref(currentPopupMediaStoragePath)
+              .delete()
+              .catch(function () {
+                /* may already be gone — ignore */
+              });
+          }
+          finishSave("", "", "");
+          return;
+        }
+
+        // Case 3: no media change at all — keep whatever's already saved.
+        finishSave(currentPopupMediaUrl, currentPopupMediaType, currentPopupMediaStoragePath);
+      });
+    </script>
+  </body>
+</html>

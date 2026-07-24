@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      .gallery-filter-tabs {
+        display: flex;
+        gap: 8px;
+      }
+      .gallery-filter-btn.active {
+        background: var(--maroon, #7a1b34);
+        color: #fff;
+        border-color: var(--maroon, #7a1b34);
+      }
+      .admin-card .media-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #ece0cc;
+        color: #6b5c4c;
+        margin-right: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link active">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+          <!-- Future sections get added here, e.g.:
+          <a href="/services.html" class="sidebar-link">Services</a>
+          <a href="/enquiries.html" class="sidebar-link">Enquiries</a>
+          -->
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Gallery</h2>
+            <p>Add or remove photos and videos shown across the site — choose which section each one belongs to.</p>
+          </div>
+        </div>
+
+        <div class="add-card">
+          <h3>Add a New Image or Video</h3>
+          <div class="add-layout">
+            <div class="add-left">
+              <div class="field">
+                <label for="imageFile">Image or Video File</label>
+                <input id="imageFile" type="file" accept="image/*,video/*" required />
+              </div>
+
+              <div class="field">
+                <label for="sectionSelect">Section</label>
+                <select id="sectionSelect">
+                  <option value="homepage">Homepage — "Around the Shop"</option>
+                  <option value="training">Barista Training teaser strip</option>
+                  <option value="hero">Hero Background (homepage top)</option>
+                </select>
+                <p class="field-hint">Controls where this appears on the public site. Hero Background only uses image files (videos tagged here won't display there) — one image shows as a static background, multiple images crossfade automatically.</p>
+              </div>
+
+              <div class="field">
+                <label for="captionInput">Caption</label>
+                <input id="captionInput" type="text" placeholder="e.g. The Bar" />
+              </div>
+
+              <button class="btn btn-primary" type="button" id="addBtn">Upload</button>
+              <div class="status-msg" id="addStatus"></div>
+            </div>
+
+            <div class="add-right">
+              <label class="preview-label">Live Preview</label>
+              <div class="preview-frame">
+                <div id="previewPlaceholder" class="preview-placeholder">
+                  Choose a file to preview
+                </div>
+                <img id="previewImg" class="preview-img" alt="" style="display: none;" />
+                <video id="previewVideo" class="preview-img" muted controls style="display: none;"></video>
+                <div id="previewCaption" class="gal-cap preview-cap"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 8px;">
+          <div class="gallery-filter-tabs" id="galleryFilterTabs">
+            <button class="tb-btn gallery-filter-btn active" data-section="all" type="button">All</button>
+            <button class="tb-btn gallery-filter-btn" data-section="homepage" type="button">Homepage</button>
+            <button class="tb-btn gallery-filter-btn" data-section="training" type="button">Training</button>
+            <button class="tb-btn gallery-filter-btn" data-section="hero" type="button">Hero</button>
+          </div>
+        </div>
+
+        <div id="galleryGrid" class="admin-grid"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          No images yet — add your first one above.
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+
+      // ---- Auth guard: redirect to login if not signed in ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadGallery();
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      var allGalleryItems = [];
+      var activeSectionFilter = "all";
+
+      function sectionLabel(section) {
+        if (section === "training") return "Training";
+        if (section === "hero") return "Hero";
+        return "Homepage";
+      }
+
+      // ---- Load & render existing images ----
+      function loadGallery() {
+        db.collection("gallery")
+          .orderBy("uploadedAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            allGalleryItems = [];
+            snapshot.forEach(function (docSnap) {
+              allGalleryItems.push(Object.assign({ id: docSnap.id }, docSnap.data()));
+            });
+            renderGalleryGrid();
+          });
+      }
+
+      function renderGalleryGrid() {
+        var grid = document.getElementById("galleryGrid");
+        var emptyState = document.getElementById("emptyState");
+        grid.innerHTML = "";
+
+        var items = allGalleryItems.filter(function (item) {
+          if (activeSectionFilter === "all") return true;
+          return (item.section || "homepage") === activeSectionFilter;
+        });
+
+        if (!items.length) {
+          emptyState.style.display = "block";
+          return;
+        }
+        emptyState.style.display = "none";
+
+        items.forEach(function (data) {
+          var mediaType = data.mediaType || "image";
+          var mediaHtml =
+            mediaType === "video"
+              ? '<video src="' + data.imageUrl + '" muted></video>'
+              : '<img src="' + data.imageUrl + '" alt="' + (data.caption || "") + '" />';
+
+          var card = document.createElement("div");
+          card.className = "admin-card";
+          card.innerHTML =
+            mediaHtml +
+            '<div class="meta">' +
+            '<div class="cap"><span class="media-badge">' + sectionLabel(data.section) + "</span>" +
+            (mediaType === "video" ? '<span class="media-badge">Video</span>' : "") +
+            (data.caption || "(no caption)") + "</div>" +
+            '<button class="btn btn-danger" data-id="' + data.id + '" data-path="' + data.storagePath + '">Delete</button>' +
+            "</div>";
+          card.querySelector(".btn-danger").addEventListener("click", function (e) {
+            var id = e.target.getAttribute("data-id");
+            var path = e.target.getAttribute("data-path");
+            handleDelete(id, path);
+          });
+          grid.appendChild(card);
+        });
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll(".gallery-filter-btn"), function (btn) {
+        btn.addEventListener("click", function () {
+          Array.prototype.forEach.call(document.querySelectorAll(".gallery-filter-btn"), function (b) {
+            b.classList.remove("active");
+          });
+          btn.classList.add("active");
+          activeSectionFilter = btn.getAttribute("data-section");
+          renderGalleryGrid();
+        });
+      });
+
+      // ---- Live image/video + caption preview ----
+      var imageFileInput = document.getElementById("imageFile");
+      var previewImg = document.getElementById("previewImg");
+      var previewVideo = document.getElementById("previewVideo");
+      var previewPlaceholder = document.getElementById("previewPlaceholder");
+      var previewCaption = document.getElementById("previewCaption");
+      var captionInput = document.getElementById("captionInput");
+      var sectionSelect = document.getElementById("sectionSelect");
+      var currentObjectUrl = null;
+
+      imageFileInput.addEventListener("change", function () {
+        var file = imageFileInput.files[0];
+        if (!file) return;
+
+        if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+        currentObjectUrl = URL.createObjectURL(file);
+
+        var isVideo = file.type.indexOf("video/") === 0;
+        if (isVideo) {
+          previewVideo.src = currentObjectUrl;
+          previewVideo.style.display = "block";
+          previewImg.style.display = "none";
+        } else {
+          previewImg.src = currentObjectUrl;
+          previewImg.style.display = "block";
+          previewVideo.style.display = "none";
+        }
+        previewPlaceholder.style.display = "none";
+      });
+
+      captionInput.addEventListener("input", function () {
+        previewCaption.textContent = captionInput.value;
+      });
+
+      // ---- Add new image ----
+      var addBtn = document.getElementById("addBtn");
+      var addStatus = document.getElementById("addStatus");
+
+      addBtn.addEventListener("click", function () {
+        var file = imageFileInput.files[0];
+        var caption = captionInput.value.trim();
+        var section = sectionSelect.value;
+
+        if (!file) {
+          addStatus.textContent = "Please choose an image or video file first.";
+          addStatus.className = "status-msg error";
+          return;
+        }
+
+        var mediaType = file.type.indexOf("video/") === 0 ? "video" : "image";
+
+        addBtn.disabled = true;
+        addBtn.textContent = "Uploading...";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        var storagePath = "gallery/" + Date.now() + "-" + file.name;
+        var storageRef = storage.ref(storagePath);
+
+        storageRef
+          .put(file)
+          .then(function () {
+            return storageRef.getDownloadURL();
+          })
+          .then(function (imageUrl) {
+            return db.collection("gallery").add({
+              imageUrl: imageUrl,
+              mediaType: mediaType,
+              section: section,
+              storagePath: storagePath,
+              caption: caption,
+              uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          })
+          .then(function () {
+            addStatus.textContent = "Added successfully.";
+            addStatus.classList.add("success");
+
+            imageFileInput.value = "";
+            captionInput.value = "";
+            previewImg.style.display = "none";
+            previewVideo.style.display = "none";
+            previewVideo.src = "";
+            previewPlaceholder.style.display = "block";
+            previewCaption.textContent = "";
+            if (currentObjectUrl) {
+              URL.revokeObjectURL(currentObjectUrl);
+              currentObjectUrl = null;
+            }
+
+            loadGallery();
+          })
+          .catch(function (err) {
+            addStatus.textContent = "Upload failed. Please try again.";
+            addStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            addBtn.disabled = false;
+            addBtn.textContent = "Upload";
+          });
+      });
+
+      // ---- Delete image ----
+      function handleDelete(id, storagePath) {
+        if (!confirm("Remove this image from the gallery?")) return;
+
+        var deleteStorage = storagePath
+          ? storage
+              .ref(storagePath)
+              .delete()
+              .catch(function () {
+                // File may already be gone from Storage; still remove the Firestore record.
+              })
+          : Promise.resolve();
+
+        deleteStorage
+          .then(function () {
+            return db.collection("gallery").doc(id).delete();
+          })
+          .then(function () {
+            loadGallery();
+          })
+          .catch(function (err) {
+            alert("Couldn't delete this image. Please try again.");
+            console.error(err);
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutee — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Private lesson notes for Ouz Coffee & Co. barista training students." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="current">Tutee</a></li>
+            <li><a href="/account.html" class="navcta" id="navAccountBtn">Log In</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section class="pagehead" style="--pagehead-img: url('/assets/wood-nook.png');">
+      <div class="wrap pagehead-inner">
+        <p class="crumb"><a href="/index.html">Home</a> &rsaquo; Tutee</p>
+        <h1>Tutee <em>lesson notes</em></h1>
+        <p>Private, one-on-one lesson notes for registered students. Enter your name and mobile number to view them.</p>
+      </div>
+    </section>
+
+    <section class="about" style="padding-top:56px;">
+      <div class="wrap">
+
+        <!-- ===== LOGIN GATE ===== -->
+        <div class="form-card" id="tuteeLoginCard" style="max-width: 480px;">
+          <h3 style="font-size:1.3rem;color:var(--maroon-deep);">Student Login</h3>
+          <p style="color:#6b5f56;font-size:0.9rem;margin-top:-8px;">
+            Use the same name and mobile number your instructor registered you with.
+          </p>
+
+          <label for="loginName">Full Name</label>
+          <input id="loginName" type="text" placeholder="Your full name" />
+          <div class="order-field-error" id="loginNameError">Please enter your full name.</div>
+
+          <label for="loginPhone">Mobile Number</label>
+          <input id="loginPhone" type="tel" placeholder="e.g. 98XXXXXXXX" />
+          <div class="order-field-error" id="loginPhoneError">Please enter your registered mobile number.</div>
+
+          <button class="btn btn-primary" type="button" id="loginBtn">Enter</button>
+          <div class="status-msg" id="loginStatus"></div>
+        </div>
+
+        <!-- ===== LESSONS VIEW (hidden until login succeeds) ===== -->
+        <div id="tuteeLessonsView" style="display: none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+            <p style="margin:0;color:#6b5f56;">Welcome, <strong id="welcomeName"></strong>.</p>
+            <button class="btn btn-ghost" type="button" id="logoutTuteeBtn">Log Out</button>
+          </div>
+
+          <div id="lessonNavList" class="lesson-nav-list"></div>
+          <div id="lessonContentArea" class="lesson-content-area"></div>
+          <p class="product-empty" id="noLessonsMsg" style="display:none;">
+            No lessons have been added yet — check back soon.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script src="/tutee-auth.js"></script>
+      <script src="/nav-toggle.js"></script>
+      <script src="/chat-widget.js"></script>
+  </body>
+</html>

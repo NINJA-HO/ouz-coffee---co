@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Gear — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link active">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Coffee Gear</h2>
+            <p>Add, edit, or remove products shown on the Coffee Gear page.</p>
+          </div>
+        </div>
+
+        <div class="add-card">
+          <h3 id="formTitle">Add a New Product</h3>
+          <div class="add-layout">
+            <div class="add-left">
+              <div class="field">
+                <label for="imageFiles">Product Images</label>
+                <input id="imageFiles" type="file" accept="image/*" multiple />
+                <p class="field-hint" id="imageFieldHint">Select one or more photos — the first one is used as the main image.</p>
+              </div>
+
+              <div id="currentImagesWrap" style="display: none; margin-bottom: 14px;">
+                <label class="preview-label">Current Images (kept unless you choose new ones above)</label>
+                <div id="currentImages" class="image-thumbs"></div>
+              </div>
+
+              <div id="imageThumbs" class="image-thumbs"></div>
+
+              <div class="field">
+                <label for="nameInput">Name</label>
+                <input id="nameInput" type="text" placeholder="e.g. Manual & Electric Grinders" />
+              </div>
+
+              <div class="field">
+                <label for="priceInput">Price</label>
+                <input id="priceInput" type="text" placeholder="e.g. NPR 3,500 or Ask in-store" />
+              </div>
+
+              <div class="field">
+                <label for="descriptionInput">Description</label>
+                <textarea id="descriptionInput" rows="4" placeholder="Full product description" spellcheck="false"></textarea>
+              </div>
+
+              <button class="btn btn-primary" type="button" id="addBtn">Upload Product</button>
+              <button class="btn btn-ghost" type="button" id="cancelEditBtn" style="display: none; margin-left: 8px;">Cancel Edit</button>
+              <div class="status-msg" id="addStatus"></div>
+            </div>
+
+            <div class="add-right">
+              <label class="preview-label">Live Preview</label>
+              <div class="preview-frame">
+                <div id="previewPlaceholder" class="preview-placeholder">
+                  Choose images to preview
+                </div>
+                <img id="previewImg" class="preview-img" alt="" style="display: none;" />
+              </div>
+              <div class="product-preview-text">
+                <div id="previewName" class="pp-name"></div>
+                <div id="previewPrice" class="pp-price"></div>
+                <div id="previewDesc" class="pp-desc"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="productGrid" class="admin-grid"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          No products yet — add your first one above.
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+      var CATEGORY = "coffee-gear";
+
+      // ---- Auth guard: redirect to login if not signed in ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadProducts();
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      // ---- Edit state: null means "adding a new product" ----
+      var editingProductId = null;
+      var editingExistingImages = [];
+      var editingExistingStoragePaths = [];
+
+      // ---- Load & render existing products ----
+      function loadProducts() {
+        var grid = document.getElementById("productGrid");
+        var emptyState = document.getElementById("emptyState");
+        grid.innerHTML = "";
+
+        db.collection("products")
+          .where("category", "==", CATEGORY)
+          .orderBy("createdAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            if (snapshot.empty) {
+              emptyState.style.display = "block";
+              return;
+            }
+            emptyState.style.display = "none";
+
+            snapshot.forEach(function (docSnap) {
+              var data = docSnap.data();
+              var images = data.images || [];
+              var mainImage = images[0] || "";
+              var card = document.createElement("div");
+              card.className = "admin-card";
+              card.innerHTML =
+                '<img src="' + mainImage + '" alt="' + (data.name || "") + '" />' +
+                '<div class="meta">' +
+                '<div class="cap">' + (data.name || "(no name)") + "</div>" +
+                '<div class="order">' + renderPriceHtml(data.price || "") + "</div>" +
+                '<div class="order">' + images.length + " image" + (images.length === 1 ? "" : "s") + "</div>" +
+                '<div style="display:flex;gap:8px;margin-top:8px;">' +
+                '<button class="btn btn-ghost btn-edit" data-id="' + docSnap.id + '">Edit</button>' +
+                '<button class="btn btn-danger" data-id="' + docSnap.id + '">Delete</button>' +
+                "</div>" +
+                "</div>";
+              card.querySelector(".btn-danger").addEventListener("click", function () {
+                handleDelete(docSnap.id, data.storagePaths || []);
+              });
+              card.querySelector(".btn-edit").addEventListener("click", function () {
+                startEdit(docSnap.id, data);
+              });
+              grid.appendChild(card);
+            });
+          });
+      }
+
+      // ---- Live preview (image + text) ----
+      var imageFilesInput = document.getElementById("imageFiles");
+      var imageThumbs = document.getElementById("imageThumbs");
+      var currentImagesWrap = document.getElementById("currentImagesWrap");
+      var currentImagesEl = document.getElementById("currentImages");
+      var previewImg = document.getElementById("previewImg");
+      var previewPlaceholder = document.getElementById("previewPlaceholder");
+      var nameInput = document.getElementById("nameInput");
+      var priceInput = document.getElementById("priceInput");
+      var descriptionInput = document.getElementById("descriptionInput");
+      var previewName = document.getElementById("previewName");
+      var previewPrice = document.getElementById("previewPrice");
+      var previewDesc = document.getElementById("previewDesc");
+      var formTitle = document.getElementById("formTitle");
+      var addBtn = document.getElementById("addBtn");
+      var addStatus = document.getElementById("addStatus");
+      var cancelEditBtn = document.getElementById("cancelEditBtn");
+      var currentObjectUrls = [];
+
+      imageFilesInput.addEventListener("change", function () {
+        var files = Array.prototype.slice.call(imageFilesInput.files);
+        currentObjectUrls.forEach(function (url) {
+          URL.revokeObjectURL(url);
+        });
+        currentObjectUrls = [];
+        imageThumbs.innerHTML = "";
+
+        if (!files.length) {
+          previewImg.style.display = "none";
+          previewPlaceholder.style.display = "block";
+          // If editing and no new files chosen, fall back to showing the
+          // first existing image in the live preview instead of blank.
+          if (editingProductId && editingExistingImages.length) {
+            previewImg.src = editingExistingImages[0];
+            previewImg.style.display = "block";
+            previewPlaceholder.style.display = "none";
+          }
+          return;
+        }
+
+        files.forEach(function (file, index) {
+          var url = URL.createObjectURL(file);
+          currentObjectUrls.push(url);
+
+          var thumb = document.createElement("img");
+          thumb.src = url;
+          thumb.className = "thumb" + (index === 0 ? " thumb-main" : "");
+          imageThumbs.appendChild(thumb);
+        });
+
+        previewImg.src = currentObjectUrls[0];
+        previewImg.style.display = "block";
+        previewPlaceholder.style.display = "none";
+      });
+
+      function renderPriceHtml(priceStr) {
+        if (!priceStr) return "";
+        var match = priceStr.match(/~~(.*?)~~\s*(.*)/);
+        if (match) {
+          var oldPrice = match[1].trim();
+          var newPrice = match[2].trim();
+          return (
+            '<span style="background:#f3d4d4;color:#8a2f2f;text-decoration:line-through;' +
+            'padding:2px 9px;border-radius:5px;margin-right:8px;font-weight:600;">' +
+            oldPrice +
+            "</span>" +
+            newPrice
+          );
+        }
+        return priceStr;
+      }
+
+      function updateTextPreview() {
+        previewName.textContent = nameInput.value;
+        previewPrice.innerHTML = renderPriceHtml(priceInput.value);
+        previewDesc.textContent = descriptionInput.value;
+      }
+      nameInput.addEventListener("input", updateTextPreview);
+      priceInput.addEventListener("input", updateTextPreview);
+      descriptionInput.addEventListener("input", updateTextPreview);
+
+      // ---- Start editing an existing product ----
+      function startEdit(id, data) {
+        editingProductId = id;
+        editingExistingImages = data.images || [];
+        editingExistingStoragePaths = data.storagePaths || [];
+
+        nameInput.value = data.name || "";
+        priceInput.value = data.price || "";
+        descriptionInput.value = data.description || "";
+        updateTextPreview();
+
+        imageFilesInput.value = "";
+        imageThumbs.innerHTML = "";
+        currentObjectUrls.forEach(function (url) {
+          URL.revokeObjectURL(url);
+        });
+        currentObjectUrls = [];
+
+        if (editingExistingImages.length) {
+          currentImagesEl.innerHTML = "";
+          editingExistingImages.forEach(function (url, index) {
+            var thumb = document.createElement("img");
+            thumb.src = url;
+            thumb.className = "thumb" + (index === 0 ? " thumb-main" : "");
+            currentImagesEl.appendChild(thumb);
+          });
+          currentImagesWrap.style.display = "block";
+          previewImg.src = editingExistingImages[0];
+          previewImg.style.display = "block";
+          previewPlaceholder.style.display = "none";
+        }
+
+        formTitle.textContent = "Edit Product";
+        addBtn.textContent = "Save Changes";
+        cancelEditBtn.style.display = "inline-block";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        document.querySelector(".add-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function exitEditMode() {
+        editingProductId = null;
+        editingExistingImages = [];
+        editingExistingStoragePaths = [];
+
+        imageFilesInput.value = "";
+        imageThumbs.innerHTML = "";
+        currentImagesEl.innerHTML = "";
+        currentImagesWrap.style.display = "none";
+        nameInput.value = "";
+        priceInput.value = "";
+        descriptionInput.value = "";
+        previewImg.style.display = "none";
+        previewPlaceholder.style.display = "block";
+        updateTextPreview();
+        currentObjectUrls.forEach(function (url) {
+          URL.revokeObjectURL(url);
+        });
+        currentObjectUrls = [];
+
+        formTitle.textContent = "Add a New Product";
+        addBtn.textContent = "Upload Product";
+        cancelEditBtn.style.display = "none";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+      }
+      cancelEditBtn.addEventListener("click", exitEditMode);
+
+      // ---- Add new product OR save changes to an existing one ----
+      addBtn.addEventListener("click", function () {
+        var files = Array.prototype.slice.call(imageFilesInput.files);
+        var name = nameInput.value.trim();
+        var price = priceInput.value.trim();
+        var description = descriptionInput.value.trim();
+        var isEditing = !!editingProductId;
+
+        // New products need at least one image; edits can keep the
+        // existing images if no new ones were chosen.
+        if (!isEditing && !files.length) {
+          addStatus.textContent = "Please choose at least one image.";
+          addStatus.className = "status-msg error";
+          return;
+        }
+        if (!name) {
+          addStatus.textContent = "Please enter a product name.";
+          addStatus.className = "status-msg error";
+          return;
+        }
+
+        addBtn.disabled = true;
+        addBtn.textContent = files.length ? "Uploading..." : "Saving...";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        var uploadPromise;
+        if (files.length) {
+          var uploadPromises = files.map(function (file, index) {
+            var storagePath = "products/" + CATEGORY + "/" + Date.now() + "-" + index + "-" + file.name;
+            var storageRef = storage.ref(storagePath);
+            return storageRef.put(file).then(function () {
+              return storageRef.getDownloadURL().then(function (url) {
+                return { url: url, path: storagePath };
+              });
+            });
+          });
+          uploadPromise = Promise.all(uploadPromises).then(function (results) {
+            return {
+              images: results.map(function (r) { return r.url; }),
+              storagePaths: results.map(function (r) { return r.path; }),
+            };
+          });
+        } else {
+          // Editing with no new files chosen — keep the existing images as-is.
+          uploadPromise = Promise.resolve({
+            images: editingExistingImages,
+            storagePaths: editingExistingStoragePaths,
+          });
+        }
+
+        uploadPromise
+          .then(function (imageData) {
+            var productData = {
+              category: CATEGORY,
+              name: name,
+              price: price,
+              description: description,
+              images: imageData.images,
+              storagePaths: imageData.storagePaths,
+            };
+
+            if (isEditing) {
+              // If new images were uploaded, delete the OLD storage files
+              // now that the new ones are safely uploaded and about to be
+              // saved on the product.
+              var oldPathsToDelete = files.length ? editingExistingStoragePaths : [];
+              return db
+                .collection("products")
+                .doc(editingProductId)
+                .update(productData)
+                .then(function () {
+                  oldPathsToDelete.forEach(function (path) {
+                    storage.ref(path).delete().catch(function () {
+                      /* may already be gone — ignore */
+                    });
+                  });
+                });
+            }
+
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            return db.collection("products").add(productData);
+          })
+          .then(function () {
+            addStatus.textContent = isEditing ? "Product updated successfully." : "Product added successfully.";
+            addStatus.classList.add("success");
+            exitEditMode();
+            loadProducts();
+          })
+          .catch(function (err) {
+            addStatus.textContent = (isEditing ? "Update" : "Upload") + " failed. Please try again.";
+            addStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            addBtn.disabled = false;
+            addBtn.textContent = editingProductId ? "Save Changes" : "Upload Product";
+          });
+      });
+
+      // ---- Delete product ----
+      function handleDelete(id, storagePaths) {
+        if (!confirm("Remove this product?")) return;
+        if (editingProductId === id) exitEditMode();
+
+        var deletions = storagePaths.map(function (path) {
+          return storage
+            .ref(path)
+            .delete()
+            .catch(function () {
+              // File may already be gone; ignore and continue.
+            });
+        });
+
+        Promise.all(deletions)
+          .then(function () {
+            return db.collection("products").doc(id).delete();
+          })
+          .then(function () {
+            loadProducts();
+          })
+          .catch(function (err) {
+            alert("Couldn't delete this product. Please try again.");
+            console.error(err);
+          });
+      }
+    </script>
+  </body>
+</html>
