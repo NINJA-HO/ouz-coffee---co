@@ -1,0 +1,1394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ouz Coffee & Co. — Soil to Soul</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="A specialty coffee house, roastery, and training ground in Birtamod, Jhapa — café, barista training, coffee gear, and roastery all under one roof." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    <style>
+      /* Scoped to this page only — turns the service tiles into distinct
+         boxed cards in a single auto-sliding horizontal row. */
+      .service-slider-outer {
+        overflow: hidden;
+      }
+      .service-grid {
+        display: flex !important;
+        flex-wrap: nowrap;
+        align-items: stretch !important;
+        gap: 22px;
+        overflow-x: auto;
+        scroll-behavior: auto;
+        padding: 6px 4px 24px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        border: none !important;
+        background: none !important;
+        box-shadow: none !important;
+      }
+      .service-grid::-webkit-scrollbar {
+        display: none;
+      }
+      .service-grid .service-card {
+        flex: 0 0 260px;
+        display: flex;
+        flex-direction: column;
+        background: var(--card-cream, #f6ead9);
+        border: 1px solid var(--line, #d8cdbf);
+        border-radius: 14px;
+        padding: 28px 24px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .service-grid .service-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.09);
+      }
+      .service-grid .service-card .note {
+        margin-top: auto;
+      }
+
+      /* ---- Barista Training teaser (homepage only) ---- */
+      .training-teaser {
+        padding: 40px 0;
+        background: #f0dfbc;
+        border-top: 1px solid var(--line, #d8cdbf);
+        border-bottom: 1px solid var(--line, #d8cdbf);
+      }
+      .training-teaser-box {
+        max-width: 720px;
+      }
+      .training-teaser-eyebrow {
+        display: block;
+        padding-left: 18px;
+        margin-bottom: 8px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--maroon, #7a1b34);
+        font-weight: 600;
+      }
+      .training-teaser-box h2 {
+        margin: 0 0 12px;
+        padding-left: 18px;
+        border-left: 6px solid var(--maroon, #7a1b34);
+        font-size: 1.7rem;
+      }
+      .training-teaser-desc {
+        opacity: 0.85;
+        line-height: 1.65;
+        margin: 0;
+        padding-left: 18px;
+      }
+      .training-teaser-inline-toggle {
+        background: none;
+        border: none;
+        padding: 0;
+        margin-left: 4px;
+        color: var(--maroon, #7a1b34);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: inherit;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+      .training-teaser-panel {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+      }
+      .training-teaser-panel-inner {
+        padding: 18px 0 4px 16px;
+      }
+      .training-teaser-full-desc {
+        margin-bottom: 16px;
+        line-height: 1.65;
+      }
+      .training-teaser-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .training-teaser-list li {
+        padding-bottom: 10px;
+        border-bottom: 1px dashed var(--line, #d8cdbf);
+        line-height: 1.6;
+      }
+      .training-teaser-form-card {
+        margin-top: 0;
+      }
+
+      /* ---- Gallery auto-sliding strip (homepage only) ---- */
+      #gallery-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        flex-direction: row !important;
+        gap: 20px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-behavior: auto !important;
+        scroll-snap-type: none !important;
+        padding: 6px 4px 22px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      #gallery-grid::-webkit-scrollbar {
+        display: none;
+      }
+      #gallery-grid .gal-item {
+        flex: 0 0 260px !important;
+        width: 260px !important;
+        max-width: none !important;
+        scroll-snap-align: none !important;
+        cursor: pointer;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      #gallery-grid .gal-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+      #gallery-grid .gal-item img,
+      #gallery-grid .gal-item video {
+        width: 100% !important;
+        height: 220px !important;
+        object-fit: cover !important;
+        display: block;
+      }
+
+      /* ---- Training gallery auto-sliding strip (same styling, separate content) ---- */
+      #training-gallery-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        flex-direction: row !important;
+        gap: 18px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scroll-behavior: auto !important;
+        scroll-snap-type: none !important;
+        padding: 6px 4px 18px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      #training-gallery-grid::-webkit-scrollbar {
+        display: none;
+      }
+      #training-gallery-grid .gal-item {
+        flex: 0 0 220px !important;
+        width: 220px !important;
+        max-width: none !important;
+        scroll-snap-align: none !important;
+        cursor: pointer;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      #training-gallery-grid .gal-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+      #training-gallery-grid .gal-item img,
+      #training-gallery-grid .gal-item video {
+        width: 100% !important;
+        height: 170px !important;
+        object-fit: cover !important;
+        display: block;
+      }
+
+      /* ---- Hero background slideshow (admin-controlled, homepage only) ----
+         Hidden by default: if no images have been tagged "Hero Background"
+         in Admin > Gallery, these never activate and the hero looks exactly
+         as it always has (whatever background styles_pages.css already
+         defines for .hero). Only enabled via JS once real image data
+         exists. */
+      .hero {
+        position: relative;
+        background: none !important;
+        background-image: none !important;
+        background-color: var(--espresso-2, #2a1f18) !important;
+      }
+      .hero-bg-layer {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        z-index: 0;
+        opacity: 0;
+        transition: opacity 1.4s ease;
+        display: none;
+      }
+      .hero-bg-layer.enabled {
+        display: block;
+      }
+      .hero-bg-layer.active {
+        opacity: 1;
+      }
+      .hero-bg-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(20, 14, 10, 0.55);
+        z-index: 1;
+        display: none;
+      }
+      .hero-bg-overlay.enabled {
+        display: block;
+      }
+      .hero-inner {
+        position: relative;
+        z-index: 2;
+      }
+
+      /* ---- Entry Popup ----
+         Pinned to the bottom-right corner, sitting just above the chat
+         widget bubble. Deliberately NOT a blocking modal: no dark backdrop,
+         no click-outside-to-close, page stays fully scrollable/clickable
+         underneath. The overlay wrapper itself ignores clicks entirely
+         (pointer-events: none) except for the card, so it never gets in
+         the way of anything else on the page — the only way to dismiss it
+         is the close (×) button. */
+      .entry-popup-overlay {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        z-index: 9999;
+        display: none;
+        pointer-events: none;
+        max-width: calc(100vw - 40px);
+      }
+      .entry-popup-overlay.open {
+        display: block;
+      }
+      .entry-popup-box {
+        pointer-events: auto;
+        background: #fff;
+        border-radius: 14px;
+        width: 320px;
+        max-width: 100%;
+        max-height: 70vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+      }
+      .entry-popup-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(20, 14, 10, 0.55);
+        color: #fff;
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .entry-popup-media img,
+      .entry-popup-media iframe,
+      .entry-popup-media video {
+        width: 100%;
+        display: block;
+        border-radius: 14px 14px 0 0;
+      }
+      .entry-popup-media iframe,
+      .entry-popup-media video {
+        aspect-ratio: 16 / 9;
+        border: none;
+      }
+      .entry-popup-body {
+        padding: 18px 20px 20px;
+      }
+      .entry-popup-body:first-child {
+        padding-top: 22px;
+      }
+      .entry-popup-block {
+        margin: 0 0 12px;
+        line-height: 1.55;
+      }
+      .entry-popup-block-h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .entry-popup-block-h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .entry-popup-block-h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .entry-popup-block-paragraph {
+        opacity: 0.85;
+      }
+      .entry-popup-link-block {
+        display: inline-block;
+        margin: 6px 0 16px;
+      }
+      .popup-inline-link {
+        color: var(--maroon, #7a1b34);
+        text-decoration: underline;
+        font-weight: 600;
+      }
+
+      /* ---- Full 3-ring interactive Flavor Wheel ---- */
+      .wheel-holder-svg {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+        aspect-ratio: 1 / 1;
+      }
+      .wheel-holder-svg svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+      .wheel-center-svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 18%;
+        height: 18%;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+      }
+      .wheel-center-svg img {
+        width: 92%;
+        height: 92%;
+        object-fit: contain;
+      }
+      .flavor-wedge {
+        cursor: pointer;
+        stroke: #fff;
+        stroke-width: 1.1;
+        transition: filter 0.15s ease;
+      }
+      .flavor-wedge:hover {
+        filter: brightness(1.1);
+      }
+      .flavor-wedge.selected {
+        stroke: #221a16;
+        stroke-width: 2.6;
+      }
+      .flavor-label-l1 {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+        font-size: 12px;
+        fill: #fff;
+        pointer-events: none;
+      }
+      .flavor-label-l2 {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+        font-size: 8.5px;
+        fill: #fff;
+        pointer-events: none;
+      }
+      .flavor-label-l3 {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+        font-size: 6.5px;
+        pointer-events: none;
+      }
+
+      /* Fixed min-heights so switching between flavor terms (whose
+         descriptions vary a lot in length) never shifts the wheel or page
+         layout around it. */
+      #wheelPanel {
+        min-height: 260px;
+      }
+      #panelNotes {
+        display: block;
+        min-height: 2.6em;
+      }
+      #panelDesc {
+        display: block;
+        min-height: 4.8em;
+      }
+
+      /* ---- Green Coffee in Nepal teaser (homepage only) ---- */
+      .green-coffee-teaser-section {
+        padding: 48px 0;
+      }
+      .green-coffee-teaser-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid var(--line, #d8cdbf);
+        border-radius: 12px;
+        padding: 28px 32px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+      .green-coffee-teaser-row:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        border-color: var(--maroon, #7a1b34);
+      }
+      .green-coffee-teaser-row h2 {
+        margin: 4px 0 8px;
+      }
+      .green-coffee-teaser-row p {
+        margin: 0;
+        opacity: 0.8;
+        max-width: 520px;
+      }
+      .green-coffee-teaser-row .corner-arrow {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--maroon, #7a1b34);
+        color: #fff;
+        font-size: 1.2rem;
+      }
+    </style>
+    
+  </head>
+  <body>
+    <div class="entry-popup-overlay" id="entryPopupOverlay">
+      <div class="entry-popup-box">
+        <button class="entry-popup-close" id="entryPopupClose" type="button" aria-label="Close">&times;</button>
+        <div class="entry-popup-media" id="entryPopupMedia"></div>
+        <div class="entry-popup-body" id="entryPopupBody"></div>
+      </div>
+    </div>
+
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/account.html" class="navcta" id="navAccountBtn">Log In</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+
+    <section class="hero" id="top">
+      <div class="hero-bg-layer" id="heroBgA"></div>
+      <div class="hero-bg-layer" id="heroBgB"></div>
+      <div class="hero-bg-overlay" id="heroBgOverlay"></div>
+      <div class="hero-inner">
+        <p class="eyebrow">Birtamod &middot; Jhapa &middot; Est. 2025</p>
+        <h1>Soil<br />to <em>Soul</em></h1>
+
+        <p class="ouz-meaning-hero">
+          <strong>O</strong>bsessed with <strong>U</strong>nique <strong>Z</strong>est
+        </p>
+
+        <p>
+          A specialty coffee house, roastery, and training ground — everything a
+          cup of coffee touches, gathered under one roof.
+        </p>
+        <div class="cta-row">
+          <a class="hero-doc-link" href="/green-coffee-in-nepal.html">Green Coffee in Nepal</a>
+          <div class="hero-icon-links" id="heroIconLinks"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="training-teaser" id="trainingTeaser">
+      <div class="wrap">
+        <div class="training-teaser-box">
+          <span class="training-teaser-eyebrow">Barista Training</span>
+          <h2>Master the Art of the Pour</h2>
+          <p class="training-teaser-desc">
+            From your first shot of espresso to competition-level latte art —
+            hands-on training taught the way we actually work the bar, right
+            here in Birtamod.
+            <button class="training-teaser-inline-toggle" id="trainingTeaserToggleBtn" type="button">Read more...</button>
+          </p>
+
+          <div class="training-teaser-panel" id="trainingTeaserPanel">
+            <div class="training-teaser-panel-inner">
+              <p class="training-teaser-full-desc">
+                A hands-on, specialty-focused curriculum for anyone who wants
+                to understand coffee more deeply — or make a career of it.
+                Three tiers, from complete beginner to competition prep,
+                taught on the same bar we brew on every day.
+              </p>
+
+              <div class="training-gallery-slider-outer">
+                <div id="training-gallery-grid" class="gal-grid"></div>
+              </div>
+              <p id="training-gallery-empty" class="product-empty" style="display: none;">
+                Photos and videos from training sessions coming soon.
+              </p>
+
+              <ul class="training-teaser-list">
+                <li><strong>Beginner Barista</strong> — coffee theory, espresso basics, intro to milk texturing</li>
+                <li><strong>Intermediate Brewing &amp; Latte Art</strong> — espresso calibration, latte art, manual brewing (V60, AeroPress)</li>
+                <li><strong>Advanced &amp; Competition Prep</strong> — advanced extraction, signature drink development, competition coaching</li>
+              </ul>
+
+              <div class="form-card training-teaser-form-card" id="ttFormCard">
+                <h3 style="font-size:1.3rem;color:var(--maroon-deep);">Ask About the Next Cohort</h3>
+
+                <label for="ttName">Full Name <span class="required-mark">*</span></label>
+                <input id="ttName" type="text" placeholder="Your name" required />
+                <div class="order-field-error" id="ttNameError">Please enter your full name.</div>
+
+                <label for="ttPhone">Contact Number <span class="required-mark">*</span></label>
+                <input id="ttPhone" type="tel" placeholder="e.g. 98XXXXXXXX" required />
+                <div class="order-field-error" id="ttPhoneError">
+                  Please enter a valid 10-digit number (e.g. 98XXXXXXXX), with or without the +977 country code.
+                </div>
+
+                <label for="ttTier">Interested In</label>
+                <select id="ttTier">
+                  <option>Beginner Barista</option>
+                  <option>Intermediate Brewing &amp; Latte Art</option>
+                  <option>Advanced &amp; Competition Prep</option>
+                  <option>Not sure yet</option>
+                </select>
+
+                <label for="ttMsg">Message <span class="optional-mark">(optional)</span></label>
+                <textarea id="ttMsg" placeholder="Tell us your experience level and availability"></textarea>
+
+                <button class="btn btn-primary" type="button" id="ttSubmitBtn">Send Enquiry</button>
+                <div class="status-msg" id="ttStatus"></div>
+              </div>
+
+              <div class="form-card training-teaser-form-card" id="ttSuccessCard" style="display: none;">
+                <h3 style="font-size: 1.3rem; color: var(--maroon-deep);">Thank you!</h3>
+                <p style="color: #4a4038; margin: 0;">
+                  Your enquiry has been received. We'll reach out shortly to discuss the next cohort.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <div class="wrap about-grid">
+        <div>
+          <p class="eyebrow">Our Roof</p>
+          <h2>Why Ouz<br />Coffee &amp; Co.</h2>
+          <p>
+            From the bean to the cup to the classroom, everything we do
+            traces back to the same five commitments — sourcing it right,
+            teaching it properly, equipping it well, and building something
+            worth being part of.
+          </p>
+        </div>
+        <div class="shelf-list">
+          <div class="shelf-item">
+            <span class="shelf-num">01 — Expertise</span>
+            <h3>Specialty Coffee Expertise</h3>
+            <p>
+              We source and roast top-quality beans from Nepal and abroad,
+              with the precision to keep every batch consistent — backed by
+              baristas and trainers skilled enough to make sure of it.
+            </p>
+            <div class="plank"></div>
+          </div>
+          <div class="shelf-item">
+            <span class="shelf-num">02 — Connection</span>
+            <h3>Local &amp; Global Connection</h3>
+            <p>
+              We support Nepali farmers and local coffee culture while
+              blending in international standards — a Nepali coffee
+              experience for locals and travelers alike.
+            </p>
+            <div class="plank"></div>
+          </div>
+          <div class="shelf-item">
+            <span class="shelf-num">03 — Education</span>
+            <h3>Comprehensive Coffee Education</h3>
+            <p>
+              Hands-on training from beginner to professional — brewing,
+              espresso, roasting, and latte art — for baristas, enthusiasts,
+              and businesses alike.
+            </p>
+            <div class="plank"></div>
+          </div>
+          <div class="shelf-item">
+            <span class="shelf-num">04 — Gear</span>
+            <h3>Premium Coffee Gear &amp; Accessories</h3>
+            <p>
+              In partnership with Brewing House, we offer curated brewing
+              gear — grinders, kettles, cups, and accessories — to recreate
+              specialty coffee at home.
+            </p>
+            <div class="plank"></div>
+          </div>
+          <div class="shelf-item">
+            <span class="shelf-num">05 — Community</span>
+            <h3>Passion for Craft &amp; Community</h3>
+            <p>
+              Coffee is an experience, not just a drink. We're building
+              community and crafting every cup, class, and product with
+              care.
+            </p>
+            <div class="plank"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wheel-section" id="wheel">
+      <div class="wrap">
+        <p class="eyebrow">Taste, Mapped</p>
+        <h2>Our Flavor Wheel</h2>
+        <p>
+          The full Coffee Taster's Flavor Wheel we cup and train with — from
+          broad families down to the exact note. Tap any ring to explore it.
+        </p>
+
+        <div class="wheel-flex">
+          <div class="wheel-holder-svg" id="wheelHolderSvg">
+            <svg id="flavorWheelSvg" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="wheel-center-svg">
+              <img src="/assets/logo.png" alt="Ouz Coffee & Co. mark" />
+            </div>
+          </div>
+          <div class="wheel-panel" id="wheelPanel">
+            <span class="tag" id="panelTag">Category</span>
+            <h3 id="panelTitle">Fruity</h3>
+            <p class="notes" id="panelNotes">
+              Berry &middot; Dried Fruit &middot; Other Fruit &middot; Citrus Fruit
+            </p>
+            <p class="desc" id="panelDesc">
+              Bright, juicy fruit character — berries, stone fruit, dried
+              fruit, and citrus — most common in naturally processed or
+              lighter-roasted beans.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="wrap">
+        <p class="eyebrow">What We Do</p>
+        <h2>Services</h2>
+        <div class="service-slider-outer">
+        <div class="service-grid" id="serviceGrid">
+          <a href="/cafe.html" class="service-card" style="text-decoration:none;">
+            <h3>Café</h3>
+            <ul>
+              <li>Espresso &amp; Americano</li>
+              <li>Pour Over (V60, Chemex)</li>
+              <li>Cold Brew</li>
+              <li>Signature Ouz Latte</li>
+            </ul>
+            <p class="note">Full menu &amp; pricing</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/training.html" class="service-card" style="text-decoration:none;">
+            <h3>Barista Training</h3>
+            <ul>
+              <li>Beginner Barista</li>
+              <li>Intermediate Brewing &amp; Latte Art</li>
+              <li>Advanced &amp; Competition Prep</li>
+            </ul>
+            <p class="note">See course dates &amp; enroll</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/coffee-gear.html" class="service-card" style="text-decoration:none;">
+            <h3>Coffee Gear</h3>
+            <ul>
+              <li>Grinders</li>
+              <li>Kettles &amp; Drippers</li>
+              <li>Home Brew Kits</li>
+              <li>Roasted Beans, Retail</li>
+            </ul>
+            <p class="note">Browse gear &amp; beans</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/roastery.html" class="service-card" style="text-decoration:none;">
+            <h3>Roastery</h3>
+            <ul>
+              <li>Single Origin</li>
+              <li>House Blend</li>
+              <li>Custom Roast for Cafés</li>
+            </ul>
+            <p class="note">Wholesale &amp; custom roasting</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a href="/green-beans.html" class="service-card" style="text-decoration:none;">
+            <h3>Green Beans</h3>
+            <ul>
+              <li>Single-Origin Green Lots</li>
+              <li>Home Roaster Bags</li>
+              <li>Wholesale Sacks</li>
+            </ul>
+            <p class="note">Unroasted beans, home &amp; wholesale</p>
+            <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery" id="gallery">
+      <div class="wrap">
+        <p class="eyebrow">Around the Shop</p>
+        <h2>A look inside</h2>
+        <p class="gal-hint">Scroll to see more — tap a photo to enlarge it.</p>
+        <div class="gal-grid" id="gallery-grid"></div>
+        <p id="gallery-empty" class="gal-empty">
+          Photos coming soon — check back shortly.
+        </p>
+      </div>
+    </section>
+
+    <section class="green-coffee-teaser-section">
+      <div class="wrap">
+        <a href="/green-coffee-in-nepal.html" class="green-coffee-teaser-row">
+          <div>
+            <p class="eyebrow">Read the Story</p>
+            <h2>Green Coffee in Nepal</h2>
+            <p>From the eastern hills of Ilam to your cup — how we grow, process, and source with intention.</p>
+          </div>
+          <span class="corner-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="lightbox" id="lightbox">
+      <div class="lightbox-content">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+        <img id="lightboxImg" src="" alt="" />
+        <video id="lightboxVideo" controls style="display: none; max-width: 100%; max-height: 80vh;"></video>
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+      </div>
+    </div>
+
+    <section class="visit" id="visit">
+      <div class="wrap">
+        <p class="eyebrow">Find Us</p>
+        <h2>Come by, or reach out</h2>
+        <div class="visit-grid">
+          <div id="contactDetails">
+            <div id="contactRows"></div>
+            <p id="contactEmptyMsg" class="product-empty" style="margin-top: 0;">
+              Contact details coming soon — check back shortly.
+            </p>
+            <div class="visit-ctas" id="contactCtas">
+              <a class="btn btn-primary" href="/visit.html">See Full Details &amp; Map</a>
+              <a class="btn btn-ghost" id="callUsBtn" href="#">Call Us</a>
+            </div>
+          </div>
+
+          <div class="form-card" style="margin-top:0;max-width:none;">
+            <h3 style="font-size:1.3rem;color:var(--clay-light);" id="visitFormTitle">Send a Message</h3>
+            <p style="color:var(--clay-light);font-size:0.9rem;margin-top:-8px;margin-bottom:20px;line-height:1.6;">
+              If you're interested in anything or want to know more, fill out the form and we'll get back to you for a follow-up — or you can reach out directly using the contact details.
+            </p>
+
+            <div id="visitFormFields">
+              <label for="vname" style="color:var(--clay-light);">Name <span class="required-mark">*</span></label>
+              <input id="vname" type="text" placeholder="Your name" style="background:var(--espresso-2);border-color:rgba(241,230,211,0.2);color:var(--parchment);" />
+              <div class="order-field-error" id="vnameError">Please enter your full name.</div>
+
+              <label for="vphone" style="color:var(--clay-light);">Contact Number <span class="required-mark">*</span></label>
+              <input id="vphone" type="tel" placeholder="e.g. 98XXXXXXXX" style="background:var(--espresso-2);border-color:rgba(241,230,211,0.2);color:var(--parchment);" />
+              <div class="order-field-error" id="vphoneError">
+                Please enter a valid 10-digit number (e.g. 98XXXXXXXX), with or without the +977 country code.
+              </div>
+
+              <label for="vtopic" style="color:var(--clay-light);">I'm Interested In <span class="required-mark">*</span></label>
+              <select id="vtopic" style="background:var(--espresso-2);border-color:rgba(241,230,211,0.2);color:var(--parchment);">
+                <option>Café / General Visit</option>
+                <option>Barista Training</option>
+                <option>Coffee Gear</option>
+                <option>Roastery / Wholesale</option>
+              </select>
+
+              <label for="vmsg" style="color:var(--clay-light);">Message <span class="optional-mark">(optional)</span></label>
+              <textarea id="vmsg" placeholder="Your message" style="background:var(--espresso-2);border-color:rgba(241,230,211,0.2);color:var(--parchment);"></textarea>
+
+              <button class="btn btn-primary" type="button" id="vSubmitBtn">Send Message</button>
+              <div class="status-msg" id="vStatus"></div>
+            </div>
+
+            <div id="visitSuccessCard" style="display: none;">
+              <p style="color:#fff;font-weight:700;font-size:1.05rem;margin-bottom:8px;">Thank you!</p>
+              <p style="color:var(--clay-light);margin:0;">Your message has been received. We'll get back to you shortly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="/flavor-wheel.js"></script>
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script src="/account-auth.js"></script>
+    <script>
+      // ---- Entry Popup ----
+      // Shown on every homepage load if enabled in Admin > Settings.
+      // Renders a single media item (image or video — video plays if set,
+      // taking priority over an image, since admin only ever saves one at
+      // a time) followed by a flowing sequence of content blocks the admin
+      // composed with the "/" block editor (headings, text, links, in any
+      // order) — rendered in the exact order they were authored.
+      (function () {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        var db = firebase.firestore();
+
+        var overlay = document.getElementById("entryPopupOverlay");
+        var closeBtn = document.getElementById("entryPopupClose");
+        var mediaEl = document.getElementById("entryPopupMedia");
+        var bodyEl = document.getElementById("entryPopupBody");
+        if (!overlay) return;
+
+        // Non-blocking corner popup: the page underneath stays fully
+        // scrollable and clickable at all times. The ONLY way to dismiss
+        // this is the close (×) button — no click-outside, no Escape key.
+        function closePopup() {
+          overlay.classList.remove("open");
+        }
+        closeBtn.addEventListener("click", closePopup);
+
+        // Extracts a YouTube video ID from common URL formats
+        // (watch?v=, youtu.be/, embed/) and returns an embeddable URL, or
+        // null if the link isn't a recognizable YouTube URL. (Kept in case
+        // an older-format popup still has a YouTube link saved as media.)
+        function getYouTubeEmbedUrl(url) {
+          var match = url.match(
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/
+          );
+          return match ? "https://www.youtube.com/embed/" + match[1] : null;
+        }
+
+        function renderMedia(data) {
+          mediaEl.innerHTML = "";
+          if (!data.mediaUrl) return;
+
+          if (data.mediaType === "video") {
+            var ytEmbed = getYouTubeEmbedUrl(data.mediaUrl);
+            if (ytEmbed) {
+              mediaEl.innerHTML =
+                '<iframe src="' + ytEmbed + '" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+            } else {
+              mediaEl.innerHTML = '<video controls autoplay muted src="' + data.mediaUrl + '"></video>';
+            }
+          } else {
+            mediaEl.innerHTML = '<img src="' + data.mediaUrl + '" alt="" />';
+          }
+        }
+
+        function escapeHtml(str) {
+          var div = document.createElement("div");
+          div.textContent = str || "";
+          return div.innerHTML;
+        }
+
+        function renderBlocks(blocks) {
+          bodyEl.innerHTML = "";
+          (blocks || []).forEach(function (block) {
+            var tag = block.type === "h1" || block.type === "h2" || block.type === "h3" ? block.type : "p";
+            var el = document.createElement(tag);
+            el.className = "entry-popup-block entry-popup-block-" + block.type;
+            el.innerHTML = block.html != null ? block.html : escapeHtml(block.text || "");
+            if (block.color) el.style.color = block.color;
+            bodyEl.appendChild(el);
+          });
+
+          // Any inline links inside the rendered blocks: open external URLs
+          // in a new tab, leave internal links (e.g. /green-beans.html)
+          // navigating normally in the same tab.
+          bodyEl.querySelectorAll(".popup-inline-link").forEach(function (a) {
+            var url = a.getAttribute("data-url") || a.getAttribute("href") || "";
+            if (/^https?:\/\//i.test(url)) {
+              a.target = "_blank";
+              a.rel = "noopener";
+            }
+          });
+        }
+
+        db.collection("settings")
+          .doc("popup")
+          .get()
+          .then(function (docSnap) {
+            if (!docSnap.exists) return;
+            var data = docSnap.data();
+            if (!data.enabled) return;
+
+            var hasContent = data.mediaUrl || (data.contentBlocks && data.contentBlocks.length);
+            if (!hasContent) return;
+
+            renderMedia(data);
+            renderBlocks(data.contentBlocks);
+
+            overlay.classList.add("open");
+          })
+          .catch(function (err) {
+            console.warn("Could not load entry popup.", err);
+          });
+      })();
+    </script>
+    <script src="/gallery-loader.js"></script>
+    <script src="/training-gallery-loader.js"></script>
+    <script>
+      // ---- Hero Background Slideshow ----
+      // Pulls images tagged section: "hero" from the same Gallery admin
+      // page. If none exist, this does nothing at all and the hero looks
+      // exactly as it always has. One image = static background. Multiple
+      // images = crossfades between them automatically. Videos tagged
+      // "hero" are ignored here (this only ever sets background-image).
+      (function () {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        var db = firebase.firestore();
+
+        var layerA = document.getElementById("heroBgA");
+        var layerB = document.getElementById("heroBgB");
+        var overlay = document.getElementById("heroBgOverlay");
+        if (!layerA || !layerB || !overlay) return;
+
+        db.collection("gallery")
+          .orderBy("uploadedAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            var heroImages = [];
+            snapshot.forEach(function (doc) {
+              var data = doc.data();
+              if (data.section === "hero" && (data.mediaType || "image") === "image") {
+                heroImages.push(data.imageUrl);
+              }
+            });
+
+            if (!heroImages.length) return; // nothing tagged for Hero — leave everything as-is
+
+            layerA.classList.add("enabled");
+            layerB.classList.add("enabled");
+            overlay.classList.add("enabled");
+
+            var current = layerA;
+            var other = layerB;
+            var index = 0;
+
+            current.style.backgroundImage = 'url("' + heroImages[0] + '")';
+            current.classList.add("active");
+
+            if (heroImages.length > 1) {
+              setInterval(function () {
+                index = (index + 1) % heroImages.length;
+                other.style.backgroundImage = 'url("' + heroImages[index] + '")';
+                other.classList.add("active");
+                current.classList.remove("active");
+                var temp = current;
+                current = other;
+                other = temp;
+              }, 6000);
+            }
+          })
+          .catch(function (err) {
+            console.warn("Could not load hero background images.", err);
+          });
+      })();
+    </script>
+    <script src="/visit-form.js"></script>
+    <script src="/visit-contact.js"></script>
+    <script>
+      // ---- Auto-sliding Services strip ----
+      // Slides right, then reverses and slides left, looping continuously.
+      // Pauses on hover/touch so cards stay easy to click.
+      (function () {
+        var grid = document.getElementById("serviceGrid");
+        if (!grid) return;
+
+        var direction = 1;
+        var speed = 0.5;
+        var hovering = false;
+        var touching = false;
+
+        grid.addEventListener("mouseenter", function () {
+          hovering = true;
+        });
+        grid.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+        grid.addEventListener(
+          "touchstart",
+          function () {
+            touching = true;
+          },
+          { passive: true }
+        );
+        grid.addEventListener(
+          "touchend",
+          function () {
+            setTimeout(function () {
+              touching = false;
+            }, 1200);
+          },
+          { passive: true }
+        );
+
+        function step() {
+          var maxScroll = grid.scrollWidth - grid.clientWidth;
+          if (!hovering && !touching && maxScroll > 0) {
+            grid.scrollLeft += speed * direction;
+            if (grid.scrollLeft >= maxScroll) direction = -1;
+            else if (grid.scrollLeft <= 0) direction = 1;
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })();
+    </script>
+    <script>
+      // ---- Auto-sliding Gallery strip ----
+      // Same behavior as the Services strip: slides right, then reverses and
+      // slides left, looping continuously. Pauses on hover/touch. Photos
+      // load asynchronously from Firestore (gallery-loader.js), but since
+      // this recalculates scroll width every animation frame, it naturally
+      // starts working the moment images are appended — no need to wait.
+      (function () {
+        var grid = document.getElementById("gallery-grid");
+        if (!grid) return;
+
+        // Force-disable scroll-snap directly on the element via JS, with
+        // "important" priority — this beats ANY rule in styles_pages.css,
+        // even one using !important with a more specific selector, since a
+        // JS-applied inline !important always wins over an external
+        // stylesheet's !important. Plain CSS overrides were losing this
+        // fight, so we bypass the cascade entirely here.
+        grid.style.setProperty("scroll-snap-type", "none", "important");
+        grid.style.setProperty("scroll-behavior", "auto", "important");
+
+        // Photos are appended asynchronously by gallery-loader.js after this
+        // script already ran, so watch for them and strip any scroll-snap-
+        // align the same way, with the same "important" JS override.
+        var observer = new MutationObserver(function () {
+          Array.prototype.forEach.call(grid.children, function (child) {
+            child.style.setProperty("scroll-snap-align", "none", "important");
+          });
+        });
+        observer.observe(grid, { childList: true });
+
+        var direction = 1;
+        var speed = 0.5;
+        var hovering = false;
+        var touching = false;
+
+        grid.addEventListener("mouseenter", function () {
+          hovering = true;
+        });
+        grid.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+        grid.addEventListener(
+          "touchstart",
+          function () {
+            touching = true;
+          },
+          { passive: true }
+        );
+        grid.addEventListener(
+          "touchend",
+          function () {
+            setTimeout(function () {
+              touching = false;
+            }, 1200);
+          },
+          { passive: true }
+        );
+
+        function step() {
+          var maxScroll = grid.scrollWidth - grid.clientWidth;
+          if (!hovering && !touching && maxScroll > 0) {
+            grid.scrollLeft += speed * direction;
+            if (grid.scrollLeft >= maxScroll) direction = -1;
+            else if (grid.scrollLeft <= 0) direction = 1;
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })();
+    </script>
+    <script>
+      // ---- Auto-sliding Training Gallery strip ----
+      // Identical mechanism to the homepage Gallery strip above, just
+      // targeting the Training teaser's own grid — kept as a separate
+      // instance since it's a different container with its own content.
+      (function () {
+        var grid = document.getElementById("training-gallery-grid");
+        if (!grid) return;
+
+        grid.style.setProperty("scroll-snap-type", "none", "important");
+        grid.style.setProperty("scroll-behavior", "auto", "important");
+
+        var observer = new MutationObserver(function () {
+          Array.prototype.forEach.call(grid.children, function (child) {
+            child.style.setProperty("scroll-snap-align", "none", "important");
+          });
+        });
+        observer.observe(grid, { childList: true });
+
+        var direction = 1;
+        var speed = 0.5;
+        var hovering = false;
+        var touching = false;
+
+        grid.addEventListener("mouseenter", function () {
+          hovering = true;
+        });
+        grid.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+        grid.addEventListener(
+          "touchstart",
+          function () {
+            touching = true;
+          },
+          { passive: true }
+        );
+        grid.addEventListener(
+          "touchend",
+          function () {
+            setTimeout(function () {
+              touching = false;
+            }, 1200);
+          },
+          { passive: true }
+        );
+
+        function step() {
+          var maxScroll = grid.scrollWidth - grid.clientWidth;
+          if (!hovering && !touching && maxScroll > 0) {
+            grid.scrollLeft += speed * direction;
+            if (grid.scrollLeft >= maxScroll) direction = -1;
+            else if (grid.scrollLeft <= 0) direction = 1;
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      })();
+    </script>
+    <script>
+      // ---- Barista Training teaser: expand/collapse + enquiry form ----
+      // Inlined directly (not a separate .js file) so it can never fail to
+      // load due to a missing/undeployed file — if this page is live, this
+      // script is guaranteed to be live too.
+      (function () {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        var db = firebase.firestore();
+
+        // ---- Expand / collapse ----
+        var toggleBtn = document.getElementById("trainingTeaserToggleBtn");
+        var panel = document.getElementById("trainingTeaserPanel");
+        if (!toggleBtn || !panel) {
+          console.warn("Training teaser: toggle button or panel not found.");
+          return;
+        }
+
+        var isOpen = false;
+
+        function refreshPanelHeight() {
+          if (isOpen) {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
+        }
+
+        toggleBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          isOpen = !isOpen;
+          toggleBtn.textContent = isOpen ? "Show less" : "Read more...";
+          panel.style.maxHeight = isOpen ? panel.scrollHeight + "px" : "0px";
+        });
+
+        window.addEventListener("resize", refreshPanelHeight);
+
+        // ---- Enquiry form (same as training-enquiry.js, unique "tt" IDs) ----
+        var ttName = document.getElementById("ttName");
+        var ttPhone = document.getElementById("ttPhone");
+        var ttTier = document.getElementById("ttTier");
+        var ttMsg = document.getElementById("ttMsg");
+        var ttNameError = document.getElementById("ttNameError");
+        var ttPhoneError = document.getElementById("ttPhoneError");
+        var ttSubmitBtn = document.getElementById("ttSubmitBtn");
+        var ttStatus = document.getElementById("ttStatus");
+        var ttFormCard = document.getElementById("ttFormCard");
+        var ttSuccessCard = document.getElementById("ttSuccessCard");
+
+        if (!ttSubmitBtn) return;
+
+        function clearFieldErrors() {
+          [ttName, ttPhone].forEach(function (el) {
+            el.classList.remove("invalid");
+          });
+          [ttNameError, ttPhoneError].forEach(function (el) {
+            if (el) el.classList.remove("show");
+          });
+        }
+
+        function markFieldInvalid(el, errorEl) {
+          el.classList.add("invalid");
+          if (errorEl) errorEl.classList.add("show");
+        }
+
+        [
+          [ttName, ttNameError],
+          [ttPhone, ttPhoneError],
+        ].forEach(function (pair) {
+          var el = pair[0];
+          var errorEl = pair[1];
+          el.addEventListener("input", function () {
+            el.classList.remove("invalid");
+            if (errorEl) errorEl.classList.remove("show");
+            refreshPanelHeight();
+          });
+        });
+
+        ttSubmitBtn.addEventListener("click", function () {
+          var name = ttName.value.trim();
+          var phone = ttPhone.value.trim();
+          var tier = ttTier.value;
+          var message = ttMsg.value.trim();
+          var phoneDigits = phone.replace(/\D/g, "");
+          var phoneValid =
+            phoneDigits.length === 10 || (phoneDigits.length === 13 && phoneDigits.indexOf("977") === 0);
+
+          clearFieldErrors();
+          var firstInvalid = null;
+
+          if (!name) {
+            markFieldInvalid(ttName, ttNameError);
+            firstInvalid = firstInvalid || ttName;
+          }
+          if (!phone || !phoneValid) {
+            markFieldInvalid(ttPhone, ttPhoneError);
+            firstInvalid = firstInvalid || ttPhone;
+          }
+
+          if (firstInvalid) {
+            ttStatus.textContent = "Please fix the highlighted field(s) above.";
+            ttStatus.className = "status-msg error";
+            firstInvalid.focus();
+            refreshPanelHeight();
+            return;
+          }
+
+          ttSubmitBtn.disabled = true;
+          ttSubmitBtn.textContent = "Sending...";
+          ttStatus.textContent = "";
+          ttStatus.className = "status-msg";
+
+          db.collection("trainingEnquiries")
+            .add({
+              fullName: name,
+              contactNumber: phone,
+              interestedIn: tier,
+              message: message,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            })
+            .then(function () {
+              if (ttFormCard) ttFormCard.style.display = "none";
+              if (ttSuccessCard) ttSuccessCard.style.display = "block";
+              refreshPanelHeight();
+
+              setTimeout(function () {
+                ttName.value = "";
+                ttPhone.value = "";
+                ttTier.selectedIndex = 0;
+                ttMsg.value = "";
+                clearFieldErrors();
+                ttStatus.textContent = "";
+                ttStatus.className = "status-msg";
+
+                if (ttSuccessCard) ttSuccessCard.style.display = "none";
+                if (ttFormCard) ttFormCard.style.display = "block";
+                refreshPanelHeight();
+              }, 3000);
+            })
+            .catch(function (err) {
+              ttStatus.textContent = "Something went wrong. Please try again.";
+              ttStatus.className = "status-msg error";
+              console.error(err);
+              refreshPanelHeight();
+            })
+            .finally(function () {
+              ttSubmitBtn.disabled = false;
+              ttSubmitBtn.textContent = "Send Enquiry";
+            });
+        });
+      })();
+    </script>
+      <script src="/nav-toggle.js"></script>
+      <script src="/chat-widget.js"></script>
+  </body>
+</html>

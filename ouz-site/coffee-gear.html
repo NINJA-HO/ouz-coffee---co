@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Gear — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Grinders, kettles, drippers, espresso machines, and café setup guidance from Ouz Coffee & Co." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="current">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/account.html" class="navcta" id="navAccountBtn">Log In</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="pagehead" style="--pagehead-img: url('/assets/wood-nook.png');">
+      <div class="wrap pagehead-inner">
+        <p class="crumb"><a href="/index.html">Home</a> &rsaquo; <a href="/services.html">Services</a> &rsaquo; Coffee Gear</p>
+        <h1>Tools we <em>actually use</em></h1>
+        <p>Grinders, kettles, and brewers we use ourselves at the bar — ready to take home, or to set up a new café.</p>
+      </div>
+    </section>
+
+    <section class="services" style="padding-top:56px;">
+      <div class="wrap">
+        <p class="eyebrow">Home &amp; Café Equipment</p>
+        <h2>Shop the gear</h2>
+
+        <!-- Breadcrumb for nested categories (hidden until the customer drills into a group) -->
+        <div class="menu-breadcrumb" id="productBreadcrumb" style="display: none; margin-top: 24px;"></div>
+
+        <!-- Intro text for the group the customer is currently inside (the group's description) -->
+        <p class="product-group-intro" id="productGroupIntro" style="display: none;"></p>
+
+        <div id="product-grid" class="product-grid"></div>
+        <p id="product-empty" class="product-empty">
+          New gear is on its way — check back shortly.
+        </p>
+        <p style="margin-top:20px;font-size:0.85rem;color:var(--sage);font-style:italic;">
+          Try before you buy, right at our bar. Message us on Instagram or visit in person for current stock and pricing.
+        </p>
+      </div>
+    </section>
+
+    <!-- Product detail modal (opens on click, shows all images + full description) -->
+    <div class="product-modal" id="productModal">
+      <div class="product-modal-content">
+        <button class="product-modal-close" id="productModalClose" aria-label="Close">&times;</button>
+        <div class="pm-gallery">
+          <img id="pmMainImage" class="pm-main-image" src="" alt="" />
+          <div id="pmThumbRow" class="pm-thumb-row"></div>
+        </div>
+        <div class="pm-info">
+          <h3 id="pmName"></h3>
+          <div id="pmPrice" class="pm-price"></div>
+          <p id="pmDescription" class="pm-description"></p>
+          <div class="pm-action-row">
+            <button class="btn btn-primary" id="pmOrderBtn" type="button">Place Order</button>
+            <a id="pmWhatsappBtn" class="whatsapp-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp about this product">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 2C6.48 2 2 6.02 2 11c0 2.25.9 4.29 2.4 5.9L2 22l5.5-1.8C9 20.7 10.46 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order form modal: name, phone, address; submits to Firestore "orders" -->
+    <div class="order-modal" id="orderModal">
+      <div class="order-modal-content">
+        <button class="order-modal-close" id="orderModalClose" aria-label="Close">&times;</button>
+
+        <div id="orderFormView">
+          <p class="order-modal-eyebrow">Place Order</p>
+          <div class="order-modal-product-row">
+            <img id="orderProductImage" class="order-modal-product-img" src="" alt="" />
+            <div>
+              <h3 id="orderProductName" class="order-modal-product"></h3>
+              <div id="orderProductPrice" class="order-modal-price"></div>
+            </div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderName">Full Name <span class="required-mark">*</span></label>
+            <input id="orderName" type="text" placeholder="Your full name" required />
+            <div class="order-field-error" id="orderNameError">Please enter your full name.</div>
+          </div>
+          <div class="order-field">
+            <label for="orderPhone">Mobile Number <span class="required-mark">*</span></label>
+            <input id="orderPhone" type="tel" placeholder="e.g. 98XXXXXXXX" required />
+            <div class="order-field-error" id="orderPhoneError">Please enter a valid 10-digit mobile number (e.g. 98XXXXXXXX), with or without the +977 country code.</div>
+          </div>
+          <div class="order-field">
+            <label for="orderAddress">Address <span class="required-mark">*</span></label>
+            <textarea id="orderAddress" rows="3" placeholder="Delivery / pickup address" required></textarea>
+            <div class="order-field-error" id="orderAddressError">Please enter your address.</div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderQuantity">Quantity <span class="required-mark">*</span></label>
+            <input id="orderQuantity" type="number" min="1" value="1" />
+            <div class="order-field-error" id="orderQuantityError">Please enter a valid quantity.</div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderMembershipCode">Membership Code <span class="optional-mark">(optional)</span></label>
+            <input id="orderMembershipCode" type="text" placeholder="e.g. 47595" />
+            <div class="order-field-error" id="orderMembershipCodeError">That membership code isn't valid for this order.</div>
+          </div>
+
+          <button class="btn btn-primary" id="orderSubmitBtn" type="button">Submit Order</button>
+          <div class="order-status" id="orderStatus"></div>
+        </div>
+
+        <div id="orderSuccessView" class="order-success" style="display: none;">
+          <h3>Thank you!</h3>
+          <p>Your order has been received. We'll contact you shortly to confirm.</p>
+          <p id="orderSuccessMsg" class="order-status success" style="display: none;"></p>
+          <button class="btn btn-primary" id="orderDoneBtn" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="wheel-section" style="padding-top:0;">
+      <div class="wrap">
+        <div class="b2b-strip">
+          <div>
+            <h3>Setting up a new café?</h3>
+            <p>We help with equipment selection, café setup, and workflow optimization — not just the machines, but how the bar runs.</p>
+          </div>
+          <a href="/visit.html" class="btn btn-primary">Get Setup Guidance</a>
+        </div>
+      </div>
+    </section>
+
+<section class="crosslinks">
+      <div class="wrap">
+        <p class="eyebrow">Keep Exploring</p>
+        <h2>Related to coffee gear</h2>
+        <div class="cross-grid">
+          <a href="/roastery.html" class="cross-card">
+            <span class="tag">Fill your grinder</span>
+            <h3>Roastery</h3>
+            <p>Fresh beans to go with your new brewing setup.</p>
+          </a>
+          <a href="/training.html" class="cross-card">
+            <span class="tag">Learn to use it</span>
+            <h3>Barista Training</h3>
+            <p>Get hands-on guidance on the equipment you just bought.</p>
+          </a>
+          <a href="/visit.html" class="cross-card">
+            <span class="tag">Ask a question</span>
+            <h3>Visit Us</h3>
+            <p>Come try the gear in person before you buy.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script src="/account-auth.js"></script>
+    <script>
+      window.PRODUCT_CATEGORY = "coffee-gear";
+      // Turns on nested categories (groups with sub-items) for this page.
+      // Pages without this flag keep the original flat product list.
+      window.PRODUCT_TREE = true;
+      // Label for the first breadcrumb link (back to the top level).
+      window.PRODUCT_ROOT_LABEL = "Coffee Gear";
+    </script>
+    <script src="/product-loader.js"></script>
+      <script src="/nav-toggle.js"></script>
+      <script src="/chat-widget.js"></script>
+  </body>
+</html>

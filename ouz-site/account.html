@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Account — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Log in or create your Ouz Coffee & Co. account." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    <style>
+      .profile-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+      }
+      .profile-row-bottom {
+        border-bottom: 1px dashed var(--line, #d8cdbf);
+      }
+      .profile-name {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--maroon-deep, #4a1220);
+      }
+      .profile-number {
+        font-size: 1rem;
+        color: #6b5f56;
+      }
+      .profile-logout-btn {
+        background: none;
+        border: none;
+        color: var(--maroon-deep, #4a1220);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0;
+      }
+      .profile-logout-btn:hover {
+        text-decoration: underline;
+      }
+      /* This page's content is much shorter than a typical .about section
+         elsewhere on the site, so override its usual generous padding /
+         min-height (meant for longer content) to avoid a huge dead gap
+         before the footer. */
+      .about {
+        padding-top: 56px !important;
+        padding-bottom: 60px !important;
+      }
+      /* Proper sticky footer: on short-content pages like this one, the
+         footer should sit flush against the bottom of the browser window
+         instead of floating above a block of empty background — this is
+         what actually fixes that, not forcing page height down. */
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+      }
+      footer {
+        margin-top: auto !important;
+      }
+
+      /* ---- Events section ---- */
+      .events-section {
+        margin-top: 44px;
+      }
+      .events-section-title {
+        font-size: 1.05rem;
+        color: var(--maroon-deep, #4a1220);
+        margin-bottom: 16px;
+      }
+      .events-empty-msg {
+        color: #9a8c7d;
+        font-size: 0.9rem;
+      }
+      .event-offer-card {
+        border: 1px solid var(--line, #d8cdbf);
+        border-radius: 8px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .event-offer-title {
+        font-weight: 600;
+        color: var(--maroon-deep, #4a1220);
+        margin-bottom: 4px;
+      }
+      .event-offer-meta {
+        font-size: 0.85rem;
+        color: #6b5f56;
+      }
+      .event-offer-desc {
+        font-size: 0.85rem;
+        color: #6b5f56;
+        margin-top: 6px;
+        max-width: 480px;
+      }
+      .already-applied-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2f6b3a;
+        background: #d3ead6;
+        padding: 8px 16px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .apply-cancel-btn {
+        display: inline-block;
+        background: #fff;
+        border: 1px solid var(--line, #d8cdbf);
+        color: #4a1220;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 10px 22px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .apply-cancel-btn:hover {
+        background: #f3e6d3;
+      }
+      #applyName[readonly],
+      #applyPhone[readonly] {
+        background: #ece0cc;
+        color: #6b5f56;
+        cursor: not-allowed;
+      }
+
+      /* ---- Application status rows ---- */
+      .application-status-row {
+        border: 1px solid var(--line, #d8cdbf);
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+      }
+      .application-status-title {
+        font-weight: 600;
+        color: var(--maroon-deep, #4a1220);
+        margin-bottom: 4px;
+      }
+      .application-status-note {
+        font-size: 0.85rem;
+      }
+      .application-status-note.pending {
+        color: #8a6a1f;
+      }
+      .application-status-note.cancelled {
+        color: #8a2f2f;
+      }
+
+      /* ---- ID Card (approved applications) ---- */
+      .id-card {
+        background: linear-gradient(135deg, #7a1b34, #4a1220);
+        color: #fff;
+        border-radius: 14px;
+        padding: 22px 24px;
+        margin-bottom: 18px;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+      }
+      .id-card-expired {
+        background: linear-gradient(135deg, #6b6560, #4a453f);
+        opacity: 0.85;
+      }
+      .id-card-expired-badge {
+        background: #c0392b;
+        color: #fff;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 999px;
+      }
+      .id-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 18px;
+      }
+      .id-card-brand {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .id-card-code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+      .id-card-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .id-card-contact {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin-bottom: 16px;
+      }
+      .id-card-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        padding: 6px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .id-card-row span:first-child {
+        opacity: 0.75;
+      }
+      .id-card-download-btn {
+        display: block;
+        width: 100%;
+        margin-top: 16px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 10px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .id-card-download-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .account-intro {
+        max-width: 620px;
+        margin-bottom: 32px;
+      }
+      .account-intro h1 {
+        margin-bottom: 12px;
+      }
+      .account-intro p {
+        color: #6b5f56;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/account.html" class="navcta current" id="navAccountBtn">Log In</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section class="about" style="padding-top:56px;">
+      <div class="wrap">
+
+        <div class="account-intro">
+          <h1>Your Ouz Account</h1>
+          <p>
+            Create a free account with just your name and mobile number.
+            Once you're in, you can apply for our Membership Events for exclusive offers and
+            discounts on Coffee Gear, Roastery, and Green Beans — get approved, and your discount
+            code lives right here in a digital ID card which you can pull up (or download) anytime.
+          </p>
+        </div>
+
+        <!-- ===== LOGIN / SIGNUP GATE ===== -->
+        <div id="accountLoginCard">
+          <div class="form-card" id="accountLoginPane" style="max-width: 480px;">
+            <h3 style="font-size:1.3rem;color:var(--maroon-deep);">Log In</h3>
+            <p style="color:#6b5f56;font-size:0.9rem;margin-top:-8px;">
+              Use the same name and mobile number you signed up with.
+            </p>
+
+            <label for="loginName">Full Name</label>
+            <input id="loginName" type="text" placeholder="Your full name" />
+            <div class="order-field-error" id="loginNameError">Please enter your full name.</div>
+
+            <label for="loginPhone">Mobile Number</label>
+            <input id="loginPhone" type="tel" placeholder="e.g. 98XXXXXXXX" />
+            <div class="order-field-error" id="loginPhoneError">
+              Please enter a valid 10-digit mobile number (e.g. 98XXXXXXXX), with or without the +977 country code.
+            </div>
+
+            <button class="btn btn-primary" type="button" id="accountLoginBtn">Log In</button>
+            <div class="status-msg" id="accountLoginStatus"></div>
+
+            <p style="margin-top:16px;font-size:0.9rem;color:#6b5f56;">
+              New here?
+              <a href="#" id="showSignupLink" style="color:var(--maroon-deep);font-weight:600;">Create an account</a>
+            </p>
+          </div>
+
+          <div class="form-card" id="accountSignupPane" style="max-width: 480px; display: none;">
+            <h3 style="font-size:1.3rem;color:var(--maroon-deep);">Create Account</h3>
+            <p style="color:#6b5f56;font-size:0.9rem;margin-top:-8px;">
+              Just your name and mobile number — no password needed.
+            </p>
+
+            <label for="signupName">Full Name</label>
+            <input id="signupName" type="text" placeholder="Your full name" />
+            <div class="order-field-error" id="signupNameError">Please enter your full name.</div>
+
+            <label for="signupPhone">Mobile Number</label>
+            <input id="signupPhone" type="tel" placeholder="e.g. 98XXXXXXXX" />
+            <div class="order-field-error" id="signupPhoneError">
+              Please enter a valid 10-digit mobile number (e.g. 98XXXXXXXX), with or without the +977 country code.
+            </div>
+
+            <button class="btn btn-primary" type="button" id="accountSignupBtn">Create Account</button>
+            <div class="status-msg" id="accountSignupStatus"></div>
+
+            <p style="margin-top:16px;font-size:0.9rem;color:#6b5f56;">
+              Already have an account?
+              <a href="#" id="showLoginLink" style="color:var(--maroon-deep);font-weight:600;">Log in</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ===== PROFILE VIEW (hidden until logged in) ===== -->
+        <div id="accountProfileView" style="display: none;">
+          <div class="profile-row profile-row-top">
+            <span id="profileName" class="profile-name"></span>
+            <button class="profile-logout-btn" type="button" id="accountLogoutBtn">Logout</button>
+          </div>
+          <div class="profile-row profile-row-bottom">
+            <span id="profilePhone" class="profile-number"></span>
+          </div>
+
+          <!-- ---- Available Events ---- -->
+          <div class="events-section">
+            <h3 class="events-section-title">Available Events</h3>
+            <div id="availableEventsList"></div>
+            <p id="noEventsMsg" class="events-empty-msg" style="display: none;">
+              No events available right now — check back soon.
+            </p>
+          </div>
+
+          <!-- ---- Apply Form (opens when "Apply" is clicked on an event) ---- -->
+          <div class="form-card" id="applyFormCard" style="display: none; max-width: 480px;">
+            <h3 style="font-size:1.2rem;color:var(--maroon-deep);">Apply for <span id="applyEventTitle"></span></h3>
+
+            <label for="applyName">Full Name</label>
+            <input id="applyName" type="text" placeholder="Your full name" readonly />
+            <div class="order-field-error" id="applyNameError">Please enter your full name.</div>
+
+            <label for="applyPhone">Mobile Number</label>
+            <input id="applyPhone" type="tel" placeholder="e.g. 98XXXXXXXX" readonly />
+            <p class="field-hint" style="margin-top:-8px;">Locked to your logged-in account — this is how we tell your applications apart.</p>
+            <div class="order-field-error" id="applyPhoneError">
+              Please enter a valid 10-digit mobile number (e.g. 98XXXXXXXX), with or without the +977 country code.
+            </div>
+
+            <label for="applyEmail">Gmail Address</label>
+            <input id="applyEmail" type="email" placeholder="you@gmail.com" />
+            <div class="order-field-error" id="applyEmailError">Please enter a valid email address.</div>
+
+            <button class="btn btn-primary" type="button" id="applySubmitBtn">Submit Application</button>
+            <button class="apply-cancel-btn" type="button" id="applyCancelBtn" style="margin-top:8px;">Cancel</button>
+            <div class="status-msg" id="applyStatus"></div>
+          </div>
+
+          <!-- ---- My Applications / ID Cards ---- -->
+          <div class="events-section">
+            <h3 class="events-section-title">My Applications</h3>
+            <div id="myApplicationsList"></div>
+            <p id="noApplicationsMsg" class="events-empty-msg" style="display: none;">
+              You haven't applied to any events yet.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script src="/account-auth.js"></script>
+      <script src="/nav-toggle.js"></script>
+      <script src="/chat-widget.js"></script>
+  </body>
+</html>

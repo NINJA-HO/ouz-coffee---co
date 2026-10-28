@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Green Beans — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      /* ---------- Image picker (drop zone + image list) ---------- */
+      .img-drop {
+        border: 2px dashed var(--paper-line);
+        border-radius: 8px;
+        padding: 18px;
+        text-align: center;
+        background: var(--parchment);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .img-drop:hover,
+      .img-drop:focus {
+        border-color: var(--maroon);
+        outline: none;
+      }
+      .img-drop.dragover {
+        border-color: var(--maroon);
+        background: #f3e4d6;
+      }
+      .img-drop-title {
+        font-weight: 700;
+        color: var(--maroon-deep);
+        margin-bottom: 4px;
+      }
+      .img-drop-sub {
+        font-size: 0.8rem;
+        color: #6b5f56;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .img-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 12px 0 18px;
+      }
+      .img-tile {
+        width: 92px;
+        position: relative;
+        border: 1px solid var(--paper-line);
+        border-radius: 8px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .img-tile.main {
+        border: 2px solid var(--maroon);
+      }
+      .img-tile img {
+        width: 100%;
+        height: 76px;
+        object-fit: cover;
+        display: block;
+        background: var(--parchment-2);
+      }
+      .img-tile.main img {
+        cursor: default;
+      }
+      .img-tile:not(.main) img {
+        cursor: pointer;
+      }
+      .img-badge {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        background: var(--maroon);
+        color: #fff;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 8px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .img-remove {
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(34, 26, 22, 0.8);
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+      .img-remove:hover {
+        background: #b23a2f;
+      }
+      .img-tile-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px;
+      }
+      .img-tile-actions button {
+        border: 1px solid var(--paper-line);
+        background: var(--parchment);
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+      }
+      .img-tile-actions button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link active">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Green Beans</h2>
+            <p>Build the Green Beans page. <strong>Groups</strong> (e.g. Paper, Cup) are for browsing only and hold other items. <strong>Products</strong> (e.g. Bamboo Paper) are what customers can order. Nest as deep as you need.</p>
+          </div>
+        </div>
+
+        <div class="add-card">
+          <h3 id="formTitle">Add a New Product</h3>
+          <div class="add-layout">
+            <div class="add-left">
+              <div class="field">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="isGroupInput" style="width: auto;" />
+                  This is a group (browse only, no ordering)
+                </label>
+                <p class="field-hint">Groups hold other items. Customers see only the image, name and description, with no price or Place Order button. Leave unchecked for a real product that can be ordered.</p>
+                <p class="field-hint" id="groupWarning" style="display: none; color: #b23a2f;"></p>
+              </div>
+
+              <div class="field">
+                <label for="parentSelect">Nest Under</label>
+                <select id="parentSelect">
+                  <option value="">— Top-Level Item —</option>
+                </select>
+                <p class="field-hint">Only groups appear here. Choose one to nest this item inside it, or leave as top-level.</p>
+              </div>
+
+              <div class="field">
+                <label>Images</label>
+                <div id="dropZone" class="img-drop" tabindex="0" role="button" aria-label="Add images">
+                  <div class="img-drop-title">Drag &amp; drop images here</div>
+                  <div class="img-drop-sub">
+                    or click to browse &middot; you can also paste a copied image (Ctrl+V).<br />
+                    Add from as many folders as you like — every pick is added to the list below.
+                  </div>
+                  <button class="btn btn-ghost" type="button" id="browseBtn">Choose images</button>
+                </div>
+                <input id="imageFiles" type="file" accept="image/*" multiple style="display: none;" />
+                <p class="field-hint" id="imageFieldHint">The first image is the main one. Click an image to make it main, use ◀ ▶ to reorder, × to remove.</p>
+                <p class="field-hint" id="imageNote" style="display: none; color: #b23a2f;"></p>
+                <div id="imageList" class="img-list"></div>
+              </div>
+
+              <div class="field">
+                <label for="nameInput">Name</label>
+                <input id="nameInput" type="text" placeholder="e.g. Ethiopia, Yirgacheffe, Green, 1kg" />
+              </div>
+
+              <div class="field" id="priceField">
+                <label for="priceInput">Price</label>
+                <input id="priceInput" type="text" placeholder="e.g. NPR 800 or Ask in-store" />
+              </div>
+
+              <div class="field">
+                <label for="descriptionInput">Description</label>
+                <textarea id="descriptionInput" rows="4" placeholder="Full description" spellcheck="false"></textarea>
+              </div>
+
+              <button class="btn btn-primary" type="button" id="addBtn">Upload Product</button>
+              <button class="btn btn-ghost" type="button" id="cancelEditBtn" style="display: none; margin-left: 8px;">Cancel Edit</button>
+              <div class="status-msg" id="addStatus"></div>
+            </div>
+
+            <div class="add-right">
+              <label class="preview-label">Live Preview</label>
+              <div class="preview-frame">
+                <div id="previewPlaceholder" class="preview-placeholder">
+                  Choose images to preview
+                </div>
+                <img id="previewImg" class="preview-img" alt="" style="display: none;" />
+              </div>
+              <div class="product-preview-text">
+                <div id="previewName" class="pp-name"></div>
+                <div id="previewPrice" class="pp-price"></div>
+                <div id="previewDesc" class="pp-desc"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-card">
+          <h3>Product Tree</h3>
+          <div id="productTree"></div>
+          <div class="empty-state" id="emptyState" style="display: none;">
+            Nothing here yet — add your first group or product above.
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+      var CATEGORY = "green-beans";
+
+      // ---- Auth guard: redirect to login if not signed in ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadProducts();
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      // ---- Helpers ----
+      function esc(str) {
+        var div = document.createElement("div");
+        div.textContent = str == null ? "" : String(str);
+        return div.innerHTML;
+      }
+
+      // ---- State ----
+      var allProducts = []; // flat list, each with .id
+      var byId = {}; // id -> item
+      var expandedIds = {}; // id -> true when its children are shown in the tree
+
+      // Edit state: null means "adding a new item"
+      var editingProductId = null;
+      var editingOriginalPaths = []; // storage paths the item had when editing started
+
+      // ---- Tree helpers ----
+      // Top-level = no parentId, or its parent no longer exists (so a
+      // stray item can never become invisible).
+      function isRoot(item) {
+        return !item.parentId || !byId[item.parentId];
+      }
+      function getRoots() {
+        return allProducts.filter(isRoot);
+      }
+      function getChildren(parentId) {
+        return allProducts.filter(function (item) {
+          return item.parentId === parentId;
+        });
+      }
+      // A group is flagged isGroup, or (for items created before groups
+      // existed) simply has sub-items.
+      function isGroupItem(item) {
+        return item.isGroup === true || getChildren(item.id).length > 0;
+      }
+      function collectDescendants(parentId) {
+        var direct = getChildren(parentId);
+        var all = direct.slice();
+        direct.forEach(function (child) {
+          all = all.concat(collectDescendants(child.id));
+        });
+        return all;
+      }
+      function expandAncestors(id) {
+        var guard = 0;
+        var current = byId[id];
+        while (current && current.parentId && guard < 50) {
+          expandedIds[current.parentId] = true;
+          current = byId[current.parentId];
+          guard++;
+        }
+      }
+
+      // ---- Load & render existing items ----
+      function loadProducts() {
+        db.collection("products")
+          .where("category", "==", CATEGORY)
+          .orderBy("createdAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            allProducts = [];
+            byId = {};
+            snapshot.forEach(function (docSnap) {
+              var item = Object.assign({ id: docSnap.id }, docSnap.data());
+              allProducts.push(item);
+              byId[item.id] = item;
+            });
+            renderParentDropdown(editingProductId);
+            renderTree();
+          })
+          .catch(function (err) {
+            console.error(err);
+            alert("Couldn't load products. Please refresh the page.");
+          });
+      }
+
+      // ---- Parent dropdown: groups only, indented. When editing, the item
+      // itself and all its descendants are left out so nobody can nest an
+      // item inside itself. ----
+      var parentSelect = document.getElementById("parentSelect");
+
+      function renderParentDropdown(excludeId) {
+        var previousValue = parentSelect.value;
+        var excluded = {};
+        if (excludeId) {
+          excluded[excludeId] = true;
+          collectDescendants(excludeId).forEach(function (d) {
+            excluded[d.id] = true;
+          });
+        }
+
+        parentSelect.innerHTML = '<option value="">— Top-Level Item —</option>';
+
+        function addOptions(items, depth) {
+          items.forEach(function (item) {
+            if (excluded[item.id]) return;
+            if (!isGroupItem(item)) return; // products can't contain items
+            var opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = new Array(depth + 1).join("— ") + (item.name || "(no name)");
+            parentSelect.appendChild(opt);
+            addOptions(getChildren(item.id), depth + 1);
+          });
+        }
+        addOptions(getRoots(), 0);
+
+        var stillThere = Array.prototype.some.call(parentSelect.options, function (o) {
+          return o.value === previousValue;
+        });
+        parentSelect.value = stillThere ? previousValue : "";
+      }
+
+      // ---- Group checkbox ----
+      var isGroupInput = document.getElementById("isGroupInput");
+      var groupWarning = document.getElementById("groupWarning");
+      var priceField = document.getElementById("priceField");
+
+      function updateGroupUI() {
+        var isGroup = isGroupInput.checked;
+        // Groups have no price
+        priceField.style.display = isGroup ? "none" : "block";
+        updateTextPreview();
+
+        // Warn when turning an item that is currently orderable into a group
+        var editing = editingProductId ? byId[editingProductId] : null;
+        if (isGroup && editing && typeof editing.stock === "number" && editing.stock > 0) {
+          groupWarning.textContent =
+            "This item currently has " + editing.stock +
+            " in stock. As a group it can no longer be ordered by customers.";
+          groupWarning.style.display = "block";
+        } else {
+          groupWarning.textContent = "";
+          groupWarning.style.display = "none";
+        }
+      }
+      isGroupInput.addEventListener("change", updateGroupUI);
+
+      // ---- Tree rendering ----
+      function renderTree() {
+        var container = document.getElementById("productTree");
+        var emptyState = document.getElementById("emptyState");
+        container.innerHTML = "";
+
+        if (!allProducts.length) {
+          emptyState.style.display = "block";
+          return;
+        }
+        emptyState.style.display = "none";
+
+        getRoots().forEach(function (item) {
+          container.appendChild(buildItemRow(item));
+        });
+      }
+
+      function buildItemRow(item) {
+        var children = getChildren(item.id);
+        var isGroup = isGroupItem(item);
+        var images = item.images || [];
+        var mainImage = images[0] || "";
+        var isOpen = !!expandedIds[item.id];
+
+        var wrap = document.createElement("div");
+        wrap.className = "menu-node";
+
+        var row = document.createElement("div");
+        row.className = "menu-node-row";
+        row.innerHTML =
+          (children.length
+            ? '<button class="menu-toggle" type="button">' + (isOpen ? "&#9662;" : "&#9656;") + "</button>"
+            : '<span class="menu-toggle-spacer"></span>') +
+          (mainImage
+            ? '<img src="' + esc(mainImage) + '" class="menu-thumb" alt="" />'
+            : '<div class="menu-thumb menu-thumb-empty"></div>') +
+          '<div class="menu-node-info">' +
+          '<div class="menu-node-name">' + esc(item.name || "(no name)") + "</div>" +
+          '<div class="menu-node-meta"></div>' +
+          "</div>" +
+          '<div style="display:flex;gap:8px;flex-shrink:0;">' +
+          '<button class="btn btn-ghost btn-edit" type="button">Edit</button>' +
+          '<button class="btn btn-danger btn-delete" type="button">Delete</button>' +
+          "</div>";
+
+        // Meta line
+        var meta = row.querySelector(".menu-node-meta");
+        meta.style.whiteSpace = "normal";
+        var parts = [];
+        if (isGroup) {
+          parts.push(
+            '<span style="background:#e7d8bd;color:#4e1021;padding:1px 8px;border-radius:10px;' +
+            'font-size:0.7rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">Group</span>'
+          );
+          parts.push(children.length + " item" + (children.length === 1 ? "" : "s"));
+        } else {
+          if (item.price) parts.push(renderPriceHtml(item.price));
+          parts.push(images.length + " image" + (images.length === 1 ? "" : "s"));
+        }
+        meta.innerHTML = parts.join(" &middot; ");
+
+        wrap.appendChild(row);
+
+        var childrenContainer = document.createElement("div");
+        childrenContainer.className = "menu-children";
+        childrenContainer.style.display = isOpen ? "block" : "none";
+        children.forEach(function (child) {
+          childrenContainer.appendChild(buildItemRow(child));
+        });
+        wrap.appendChild(childrenContainer);
+
+        var toggleBtn = row.querySelector(".menu-toggle");
+        if (toggleBtn) {
+          toggleBtn.addEventListener("click", function () {
+            var open = childrenContainer.style.display !== "none";
+            childrenContainer.style.display = open ? "none" : "block";
+            toggleBtn.innerHTML = open ? "&#9656;" : "&#9662;";
+            expandedIds[item.id] = !open;
+          });
+        }
+
+        row.querySelector(".btn-edit").addEventListener("click", function () {
+          startEdit(item.id, item);
+        });
+        row.querySelector(".btn-delete").addEventListener("click", function () {
+          handleDelete(item);
+        });
+
+        return wrap;
+      }
+
+      // ================= IMAGE PICKER =================
+      // The form keeps its own list of images (imageItems). Every pick,
+      // drop or paste is ADDED to that list instead of replacing it, so
+      // images can be gathered from any number of folders. When editing,
+      // the item's existing images are in the same list and can be
+      // removed, reordered or made the main image individually.
+      //   existing: { type: "existing", url, path }
+      //   new:      { type: "new", file, objectUrl, key }
+      var imageItems = [];
+
+      var dropZone = document.getElementById("dropZone");
+      var imageFilesInput = document.getElementById("imageFiles");
+      var imageListEl = document.getElementById("imageList");
+      var imageNote = document.getElementById("imageNote");
+      var previewImg = document.getElementById("previewImg");
+      var previewPlaceholder = document.getElementById("previewPlaceholder");
+      var nameInput = document.getElementById("nameInput");
+      var priceInput = document.getElementById("priceInput");
+      var descriptionInput = document.getElementById("descriptionInput");
+      var previewName = document.getElementById("previewName");
+      var previewPrice = document.getElementById("previewPrice");
+      var previewDesc = document.getElementById("previewDesc");
+      var formTitle = document.getElementById("formTitle");
+      var addBtn = document.getElementById("addBtn");
+      var addStatus = document.getElementById("addStatus");
+      var cancelEditBtn = document.getElementById("cancelEditBtn");
+
+      function itemSrc(it) {
+        return it.type === "new" ? it.objectUrl : it.url;
+      }
+
+      function showImageNote(text) {
+        imageNote.textContent = text || "";
+        imageNote.style.display = text ? "block" : "none";
+      }
+
+      function clearImages() {
+        imageItems.forEach(function (it) {
+          if (it.type === "new") URL.revokeObjectURL(it.objectUrl);
+        });
+        imageItems = [];
+      }
+
+      function addFiles(fileList) {
+        var files = Array.prototype.slice.call(fileList || []);
+        var notImages = 0;
+        var duplicates = 0;
+        var added = 0;
+
+        files.forEach(function (file) {
+          if (!file.type || file.type.indexOf("image/") !== 0) {
+            notImages++;
+            return;
+          }
+          var key = file.name + "|" + file.size + "|" + file.lastModified;
+          var already = imageItems.some(function (it) {
+            return it.type === "new" && it.key === key;
+          });
+          if (already) {
+            duplicates++;
+            return;
+          }
+          imageItems.push({
+            type: "new",
+            file: file,
+            objectUrl: URL.createObjectURL(file),
+            key: key,
+          });
+          added++;
+        });
+
+        var notes = [];
+        if (notImages) notes.push(notImages + " file" + (notImages === 1 ? " was" : "s were") + " skipped (not an image).");
+        if (duplicates) notes.push(duplicates + " duplicate" + (duplicates === 1 ? " was" : "s were") + " skipped.");
+        showImageNote(notes.join(" "));
+
+        renderImageList();
+      }
+
+      function renderImageList() {
+        imageListEl.innerHTML = "";
+
+        imageItems.forEach(function (it, index) {
+          var tile = document.createElement("div");
+          tile.className = "img-tile" + (index === 0 ? " main" : "");
+
+          var img = document.createElement("img");
+          img.src = itemSrc(it);
+          img.alt = "";
+          if (index > 0) {
+            img.title = "Click to make this the main image";
+            img.addEventListener("click", function () {
+              var moved = imageItems.splice(index, 1)[0];
+              imageItems.unshift(moved);
+              renderImageList();
+            });
+          }
+          tile.appendChild(img);
+
+          if (index === 0) {
+            var badge = document.createElement("span");
+            badge.className = "img-badge";
+            badge.textContent = "Main";
+            tile.appendChild(badge);
+          }
+
+          var removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "img-remove";
+          removeBtn.setAttribute("aria-label", "Remove image");
+          removeBtn.innerHTML = "&times;";
+          removeBtn.addEventListener("click", function () {
+            var removed = imageItems.splice(index, 1)[0];
+            if (removed.type === "new") URL.revokeObjectURL(removed.objectUrl);
+            renderImageList();
+          });
+          tile.appendChild(removeBtn);
+
+          var actions = document.createElement("div");
+          actions.className = "img-tile-actions";
+          var leftBtn = document.createElement("button");
+          leftBtn.type = "button";
+          leftBtn.innerHTML = "&#9664;";
+          leftBtn.setAttribute("aria-label", "Move earlier");
+          leftBtn.disabled = index === 0;
+          leftBtn.addEventListener("click", function () {
+            var tmp = imageItems[index - 1];
+            imageItems[index - 1] = imageItems[index];
+            imageItems[index] = tmp;
+            renderImageList();
+          });
+          var rightBtn = document.createElement("button");
+          rightBtn.type = "button";
+          rightBtn.innerHTML = "&#9654;";
+          rightBtn.setAttribute("aria-label", "Move later");
+          rightBtn.disabled = index === imageItems.length - 1;
+          rightBtn.addEventListener("click", function () {
+            var tmp = imageItems[index + 1];
+            imageItems[index + 1] = imageItems[index];
+            imageItems[index] = tmp;
+            renderImageList();
+          });
+          actions.appendChild(leftBtn);
+          actions.appendChild(rightBtn);
+          tile.appendChild(actions);
+
+          imageListEl.appendChild(tile);
+        });
+
+        // Live preview shows the main (first) image
+        if (imageItems.length) {
+          previewImg.src = itemSrc(imageItems[0]);
+          previewImg.style.display = "block";
+          previewPlaceholder.style.display = "none";
+        } else {
+          previewImg.style.display = "none";
+          previewPlaceholder.style.display = "block";
+        }
+      }
+
+      // Browse: click or keyboard on the drop zone opens the file picker.
+      dropZone.addEventListener("click", function () {
+        imageFilesInput.click();
+      });
+      dropZone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          imageFilesInput.click();
+        }
+      });
+      imageFilesInput.addEventListener("change", function () {
+        addFiles(imageFilesInput.files);
+        // Reset so picking the same file again later still fires "change"
+        imageFilesInput.value = "";
+      });
+
+      // Drag & drop onto the zone
+      ["dragenter", "dragover"].forEach(function (evt) {
+        dropZone.addEventListener(evt, function (e) {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+      });
+      ["dragleave", "drop"].forEach(function (evt) {
+        dropZone.addEventListener(evt, function (e) {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+      });
+      dropZone.addEventListener("drop", function (e) {
+        if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+      });
+      // A file dropped outside the zone shouldn't make the browser navigate away
+      window.addEventListener("dragover", function (e) {
+        e.preventDefault();
+      });
+      window.addEventListener("drop", function (e) {
+        e.preventDefault();
+      });
+
+      // Paste a copied image (e.g. a screenshot) anywhere on the page
+      document.addEventListener("paste", function (e) {
+        var files = e.clipboardData && e.clipboardData.files;
+        if (files && files.length) {
+          var hasImage = Array.prototype.some.call(files, function (f) {
+            return f.type && f.type.indexOf("image/") === 0;
+          });
+          if (hasImage) {
+            e.preventDefault();
+            addFiles(files);
+          }
+        }
+      });
+
+      // Supports "~~old price~~ new price" strike-through discounts.
+      // All text is escaped before being placed into HTML.
+      function renderPriceHtml(priceStr) {
+        if (!priceStr) return "";
+        var match = priceStr.match(/~~(.*?)~~\s*(.*)/);
+        if (match) {
+          var oldPrice = match[1].trim();
+          var newPrice = match[2].trim();
+          return (
+            '<span style="background:#f3d4d4;color:#8a2f2f;text-decoration:line-through;' +
+            'padding:2px 9px;border-radius:5px;margin-right:8px;font-weight:600;">' +
+            esc(oldPrice) +
+            "</span>" +
+            esc(newPrice)
+          );
+        }
+        return esc(priceStr);
+      }
+
+      function updateTextPreview() {
+        previewName.textContent = nameInput.value;
+        previewPrice.innerHTML = isGroupInput.checked ? "" : renderPriceHtml(priceInput.value);
+        previewDesc.textContent = descriptionInput.value;
+      }
+      nameInput.addEventListener("input", updateTextPreview);
+      priceInput.addEventListener("input", updateTextPreview);
+      descriptionInput.addEventListener("input", updateTextPreview);
+
+      // ---- Start editing an existing item ----
+      function startEdit(id, data) {
+        editingProductId = id;
+
+        // Rebuild the dropdown without this item and its descendants,
+        // then select its current parent.
+        renderParentDropdown(id);
+        var currentParent = data.parentId && byId[data.parentId] ? data.parentId : "";
+        parentSelect.value = currentParent;
+
+        isGroupInput.checked = isGroupItem(data);
+
+        nameInput.value = data.name || "";
+        priceInput.value = data.price || "";
+        descriptionInput.value = data.description || "";
+        updateGroupUI();
+
+        // Load the item's existing images into the editable image list
+        clearImages();
+        var urls = data.images || [];
+        var paths = data.storagePaths || [];
+        editingOriginalPaths = paths.filter(function (p) {
+          return !!p;
+        });
+        urls.forEach(function (url, i) {
+          imageItems.push({ type: "existing", url: url, path: paths[i] || "" });
+        });
+        showImageNote("");
+        renderImageList();
+
+        formTitle.textContent = "Edit Item";
+        addBtn.textContent = "Save Changes";
+        cancelEditBtn.style.display = "inline-block";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        document.querySelector(".add-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function exitEditMode(keepParentId) {
+        editingProductId = null;
+        editingOriginalPaths = [];
+
+        clearImages();
+        showImageNote("");
+        renderImageList();
+
+        nameInput.value = "";
+        priceInput.value = "";
+        descriptionInput.value = "";
+        isGroupInput.checked = false;
+
+        renderParentDropdown(null);
+        parentSelect.value = typeof keepParentId === "string" ? keepParentId : "";
+        updateGroupUI();
+
+        formTitle.textContent = "Add a New Product";
+        addBtn.textContent = "Upload Product";
+        cancelEditBtn.style.display = "none";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+      }
+      cancelEditBtn.addEventListener("click", function () {
+        exitEditMode();
+      });
+
+      // ---- Add new item OR save changes to an existing one ----
+      addBtn.addEventListener("click", function () {
+        var name = nameInput.value.trim();
+        var isGroup = isGroupInput.checked;
+        var price = isGroup ? "" : priceInput.value.trim();
+        var description = descriptionInput.value.trim();
+        var parentId = parentSelect.value || "";
+        var isEditing = !!editingProductId;
+
+        function fail(msg) {
+          addStatus.textContent = msg;
+          addStatus.className = "status-msg error";
+        }
+
+        // Every item needs at least one image
+        if (!imageItems.length) return fail("Please add at least one image.");
+        if (!name) return fail("Please enter a name.");
+
+        // Parent must be a group
+        if (parentId && (!byId[parentId] || !isGroupItem(byId[parentId]))) {
+          return fail("Items can only be nested under a group.");
+        }
+        if (isEditing) {
+          // Never nest an item inside itself or its own descendants
+          if (parentId) {
+            var blocked = [editingProductId].concat(
+              collectDescendants(editingProductId).map(function (d) {
+                return d.id;
+              })
+            );
+            if (blocked.indexOf(parentId) !== -1) {
+              return fail("An item can't be nested inside itself or its own sub-items.");
+            }
+          }
+          // A group that still holds items can't be turned back into a product
+          if (!isGroup && getChildren(editingProductId).length > 0) {
+            return fail("This group still has items inside it. Move or delete them before turning it into a product.");
+          }
+        }
+
+        addBtn.disabled = true;
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        // Upload only the NEW images; existing ones are kept as they are.
+        var newItems = imageItems.filter(function (it) {
+          return it.type === "new";
+        });
+        var uploadedPaths = []; // for cleanup if saving fails
+        var doneCount = 0;
+        addBtn.textContent = newItems.length ? "Uploading 0/" + newItems.length + "..." : "Saving...";
+
+        var stamp = Date.now();
+        var uploadPromises = newItems.map(function (it, idx) {
+          var safeName = it.file.name.replace(/[^\w.\-]+/g, "_");
+          var storagePath = "products/" + CATEGORY + "/" + stamp + "-" + idx + "-" + safeName;
+          var storageRef = storage.ref(storagePath);
+          return storageRef
+            .put(it.file)
+            .then(function () {
+              uploadedPaths.push(storagePath);
+              return storageRef.getDownloadURL();
+            })
+            .then(function (url) {
+              it.uploaded = { url: url, path: storagePath };
+              doneCount++;
+              addBtn.textContent = "Uploading " + doneCount + "/" + newItems.length + "...";
+            });
+        });
+
+        Promise.all(uploadPromises)
+          .then(function () {
+            // Final images, in the order shown in the list
+            var images = [];
+            var storagePaths = [];
+            imageItems.forEach(function (it) {
+              if (it.type === "new") {
+                images.push(it.uploaded.url);
+                storagePaths.push(it.uploaded.path);
+              } else {
+                images.push(it.url);
+                storagePaths.push(it.path || "");
+              }
+            });
+
+            var productData = {
+              category: CATEGORY,
+              name: name,
+              price: price,
+              description: description,
+              parentId: parentId,
+              isGroup: isGroup,
+              images: images,
+              storagePaths: storagePaths,
+            };
+
+            if (isEditing) {
+              // Existing images the admin removed: delete their files
+              // once the item has been saved without them.
+              var keptPaths = storagePaths;
+              var removedPaths = editingOriginalPaths.filter(function (p) {
+                return keptPaths.indexOf(p) === -1;
+              });
+              return db
+                .collection("products")
+                .doc(editingProductId)
+                .update(productData)
+                .then(function () {
+                  removedPaths.forEach(function (path) {
+                    storage.ref(path).delete().catch(function () {
+                      /* may already be gone — ignore */
+                    });
+                  });
+                });
+            }
+
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            return db.collection("products").add(productData);
+          })
+          .then(function () {
+            // Open the tree down to where the item was saved, so it's visible.
+            if (parentId) {
+              expandedIds[parentId] = true;
+              expandAncestors(parentId);
+            }
+
+            // When adding, keep the same parent selected so several items
+            // can be added in a row.
+            exitEditMode(isEditing ? "" : parentId);
+            addStatus.textContent = isEditing ? "Saved successfully." : "Added successfully.";
+            addStatus.className = "status-msg success";
+            loadProducts();
+          })
+          .catch(function (err) {
+            // Saving failed — remove any files that were already uploaded
+            // so they don't pile up unused in Storage.
+            uploadedPaths.forEach(function (path) {
+              storage.ref(path).delete().catch(function () {});
+            });
+            newItems.forEach(function (it) {
+              delete it.uploaded;
+            });
+            addStatus.textContent = (isEditing ? "Update" : "Upload") + " failed. Please try again.";
+            addStatus.className = "status-msg error";
+            console.error(err);
+          })
+          .finally(function () {
+            addBtn.disabled = false;
+            addBtn.textContent = editingProductId ? "Save Changes" : "Upload Product";
+          });
+      });
+
+      // ---- Delete (cascades to all descendants + their images) ----
+      function handleDelete(item) {
+        var descendants = collectDescendants(item.id);
+        var label = item.name || "this item";
+        var message =
+          descendants.length > 0
+            ? 'Delete "' + label + '" and its ' + descendants.length +
+              " sub-item" + (descendants.length === 1 ? "" : "s") + "? This cannot be undone."
+            : 'Remove "' + label + '"? This cannot be undone.';
+
+        if (!confirm(message)) return;
+
+        var toDelete = [item].concat(descendants);
+
+        // If the item being edited is about to be deleted, leave edit mode.
+        var deletingIds = toDelete.map(function (i) { return i.id; });
+        if (editingProductId && deletingIds.indexOf(editingProductId) !== -1) exitEditMode();
+
+        var deletePromises = toDelete.map(function (i) {
+          var storageDeletions = (i.storagePaths || [])
+            .filter(function (path) {
+              return !!path;
+            })
+            .map(function (path) {
+              return storage
+                .ref(path)
+                .delete()
+                .catch(function () {
+                  /* file may already be gone — ignore */
+                });
+            });
+          return Promise.all(storageDeletions).then(function () {
+            return db.collection("products").doc(i.id).delete();
+          });
+        });
+
+        Promise.all(deletePromises)
+          .then(function () {
+            loadProducts();
+          })
+          .catch(function (err) {
+            alert("Couldn't delete this item. Please try again.");
+            console.error(err);
+            loadProducts();
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Green Coffee in Nepal — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Our coffee farm in the eastern hills of Nepal — location, cultivation, production, and processing methods, from soil to soul." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    <style>
+      /* Scoped to this page's farm-stats band only — new class names, so this
+         cannot affect any other page that shares styles_pages.css. */
+      .farm-stats-section {
+        background: var(--maroon, #7a1b34);
+        padding: 88px 0;
+      }
+      .farm-stats-section .eyebrow {
+        color: var(--copper, #d99a5b);
+      }
+      .farm-stats-section h2 {
+        color: #fff;
+        max-width: 720px;
+        margin-bottom: 22px;
+      }
+      .farm-stats-intro {
+        max-width: 660px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.75;
+        margin-bottom: 52px;
+      }
+      .farm-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+      }
+      .farm-stat-card {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .farm-stat-number {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: clamp(1.35rem, 2.1vw, 1.85rem);
+        color: #fff;
+        margin-bottom: 10px;
+        line-height: 1.2;
+      }
+      .farm-stat-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--copper, #d99a5b);
+      }
+      @media (max-width: 860px) {
+        .farm-stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 520px) {
+        .farm-stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ---- Farm Products slider (scoped to this page) ---- */
+      .farm-products-section {
+        padding: 88px 0;
+        background: var(--parchment, #f3e6d3);
+      }
+      .farm-products-intro {
+        max-width: 620px;
+        color: var(--ink, #3a2f28);
+        opacity: 0.85;
+        margin-bottom: 40px;
+      }
+      .product-slider-outer {
+        overflow: hidden;
+      }
+      #product-grid.product-slider {
+        display: flex;
+        gap: 22px;
+        overflow-x: auto;
+        scroll-behavior: auto;
+        padding: 6px 20px 26px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      #product-grid.product-slider::-webkit-scrollbar {
+        display: none;
+      }
+      #product-grid.product-slider .product-card {
+        flex: 0 0 280px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/visit.html" class="navcta">Visit Us</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section class="pagehead" style="--pagehead-img: url('/assets/coffee-process-illustration.png');">
+      <div class="wrap pagehead-inner">
+        <p class="crumb"><a href="/index.html">Home</a> &rsaquo; Green Coffee in Nepal</p>
+        <h1>Green Coffee <em>in Nepal</em></h1>
+        <p>From the eastern hills of Ilam to your cup — how we grow, process, and source with intention.</p>
+      </div>
+    </section>
+
+    <section class="about">
+      <div class="wrap">
+        <p class="eyebrow">Green Coffee</p>
+        <h2>Green coffee in Nepal.</h2>
+        <div class="float-text-block">
+          <img class="float-img" src="/assets/coffee-cherries.jpg" alt="Ripe coffee cherries growing on the branch at a Nepali coffee farm" />
+          <p>
+            Green coffee is the raw, unroasted seed straight from the ripe
+            cherry &mdash; before it's ever touched by heat. In Nepal, it almost
+            always starts the same way: on a small hillside farm, hand-picked
+            cherry by cherry, often growing in the shade of other trees rather
+            than in open, cleared fields.
+          </p>
+          <p>
+            That farming style is shaped as much by geography as by choice.
+            Nepal's coffee-growing hills sit between subtropical lowlands and
+            cooler highland air, and most farmers work small plots without
+            heavy fertilizers or chemical inputs &mdash; less a certification
+            strategy, more simply how farming has always been done there. The
+            result is a coffee sector that's naturally close to organic, and
+            farms that double as genuine biodiversity, supporting birds and
+            other wildlife alongside the crop itself.
+          </p>
+          <p>
+            Nepal's coffee industry is still young, and national production
+            remains modest &mdash; a few hundred tonnes a year across the whole
+            country. That makes Nepali coffee genuinely rare on the world
+            market, especially next to long-established origins. But that
+            scarcity is increasingly working in its favor: as specialty
+            roasters look past saturated, well-known origins for something
+            more traceable and distinctive, interest in Nepali coffee has been
+            steadily climbing, both from international buyers and from a
+            growing domestic café culture in cities like Kathmandu and
+            Pokhara.
+          </p>
+          <p>
+            Right now, the sector sits at an inflection point &mdash; small-scale
+            but improving quickly, with more producers experimenting with
+            processing methods, investing in better infrastructure, and
+            building the kind of reputation that takes an origin from
+            "unknown" to "sought-after." It's a story still being written, and
+            every farm contributing to it, including ours, is part of shaping
+            where Nepali coffee goes next.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="farm-stats-section">
+      <div class="wrap">
+        <p class="eyebrow">Our Coffee Farm</p>
+        <h2>Grown in the hills, shaped with intention.</h2>
+        <p class="farm-stats-intro">
+          Our farm sits in the lower Ilam region, near the Ilam&ndash;Jhapa
+          transition belt &mdash; a microclimate blending Terai warmth with hill
+          elevation for balanced Arabica growing conditions. The cultivated
+          area is planned for long-term soil health rather than maximum
+          yield, with coffee as our primary crop grown in the shade of
+          banana and avocado trees, enriched through organic composting, and
+          carefully spaced and pruned for plant health.
+        </p>
+        <div class="farm-stats-grid">
+          <div class="farm-stat-card">
+            <div class="farm-stat-number">800&ndash;1,200m</div>
+            <div class="farm-stat-label">Elevation</div>
+          </div>
+          <div class="farm-stat-card">
+            <div class="farm-stat-number">~1.69 ha</div>
+            <div class="farm-stat-label">Cultivated Area</div>
+          </div>
+          <div class="farm-stat-card">
+            <div class="farm-stat-number">Shade&#8209;Grown</div>
+            <div class="farm-stat-label">Cultivation Style</div>
+          </div>
+          <div class="farm-stat-card">
+            <div class="farm-stat-number">400&ndash;700 kg</div>
+            <div class="farm-stat-label">Annual Production</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="process-section">
+      <div class="wrap">
+        <p class="eyebrow">How We Process</p>
+        <h2>Processing Methods</h2>
+        <p class="process-intro">
+          At Ouz Coffee &amp; Co., processing is where we shape the final
+          character of our coffee. We apply controlled and intentional methods
+          to highlight sweetness, clarity, and unique flavor profiles.
+        </p>
+
+        <div class="process-list">
+          <div class="process-item">
+            <span class="process-num">01</span>
+            <div>
+              <h3>Natural Process <span class="process-sub">(Sun-Dried Cherry)</span></h3>
+              <p>
+                Fully ripe cherries are carefully handpicked and dried on raised
+                beds under the sun. This slow drying process allows the beans to
+                absorb sugars from the fruit, resulting in a cup profile that is
+                fruity, sweet, and full-bodied.
+              </p>
+            </div>
+          </div>
+          <div class="process-item">
+            <span class="process-num">02</span>
+            <div>
+              <h3>Washed Process <span class="process-sub">(Clean &amp; Bright)</span></h3>
+              <p>
+                Selected cherries are pulped and fermented to remove mucilage
+                before being washed and dried. This method enhances clarity,
+                brightness, and crisp acidity, showcasing the true origin
+                character.
+              </p>
+            </div>
+          </div>
+          <div class="process-item">
+            <span class="process-num">03</span>
+            <div>
+              <h3>Anaerobic &amp; Experimental Lots</h3>
+              <p>
+                For select micro-lots, we explore controlled fermentation
+                techniques, including anaerobic processing. Cherries are
+                fermented in sealed environments to develop complex, wine-like,
+                and expressive flavor notes. These lots are produced in limited
+                quantities with careful monitoring.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="farm-products-section">
+      <div class="wrap">
+        <p class="eyebrow">From Our Farm</p>
+        <h2>Products from the Farm</h2>
+        <p class="farm-products-intro">
+          The same lots described above, available to take home or order in
+          bulk — harvested, processed, and offered in limited quantities each
+          season.
+        </p>
+
+        <!-- Breadcrumb for nested categories (hidden until the customer drills into a group) -->
+        <div class="menu-breadcrumb" id="productBreadcrumb" style="display: none; margin: 0 0 16px;"></div>
+
+        <!-- Intro text for the group the customer is currently inside (the group's description) -->
+        <p class="product-group-intro" id="productGroupIntro" style="display: none; margin-bottom: 20px;"></p>
+      </div>
+      <div class="product-slider-outer">
+        <div id="product-grid" class="product-grid product-slider"></div>
+      </div>
+      <p id="product-empty" class="product-empty" style="text-align:center;">
+        New lots are on their way — check back shortly.
+      </p>
+    </section>
+
+    <!-- Product detail modal (opens on click, shows all images + full description) -->
+    <div class="product-modal" id="productModal">
+      <div class="product-modal-content">
+        <button class="product-modal-close" id="productModalClose" aria-label="Close">&times;</button>
+        <div class="pm-gallery">
+          <img id="pmMainImage" class="pm-main-image" src="" alt="" />
+          <div id="pmThumbRow" class="pm-thumb-row"></div>
+        </div>
+        <div class="pm-info">
+          <h3 id="pmName"></h3>
+          <div id="pmPrice" class="pm-price"></div>
+          <p id="pmDescription" class="pm-description"></p>
+          <div class="pm-action-row">
+            <button class="btn btn-primary" id="pmOrderBtn" type="button">Place Order</button>
+            <a id="pmWhatsappBtn" class="whatsapp-btn" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp about this product">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 2C6.48 2 2 6.02 2 11c0 2.25.9 4.29 2.4 5.9L2 22l5.5-1.8C9 20.7 10.46 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order form modal: name, phone, address; submits via the placeOrder Cloud Function -->
+    <div class="order-modal" id="orderModal">
+      <div class="order-modal-content">
+        <button class="order-modal-close" id="orderModalClose" aria-label="Close">&times;</button>
+
+        <div id="orderFormView">
+          <p class="order-modal-eyebrow">Place Order</p>
+          <div class="order-modal-product-row">
+            <img id="orderProductImage" class="order-modal-product-img" src="" alt="" />
+            <div>
+              <h3 id="orderProductName" class="order-modal-product"></h3>
+              <div id="orderProductPrice" class="order-modal-price"></div>
+            </div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderName">Full Name <span class="required-mark">*</span></label>
+            <input id="orderName" type="text" placeholder="Your full name" required />
+            <div class="order-field-error" id="orderNameError">Please enter your full name.</div>
+          </div>
+          <div class="order-field">
+            <label for="orderPhone">Mobile Number <span class="required-mark">*</span></label>
+            <input id="orderPhone" type="tel" placeholder="e.g. 98XXXXXXXX" required />
+            <div class="order-field-error" id="orderPhoneError">Please enter a valid 10-digit mobile number (e.g. 98XXXXXXXX), with or without the +977 country code.</div>
+          </div>
+          <div class="order-field">
+            <label for="orderAddress">Address <span class="required-mark">*</span></label>
+            <textarea id="orderAddress" rows="3" placeholder="Delivery / pickup address" required></textarea>
+            <div class="order-field-error" id="orderAddressError">Please enter your address.</div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderQuantity">Quantity <span class="required-mark">*</span></label>
+            <input id="orderQuantity" type="number" min="1" value="1" />
+            <div class="order-field-error" id="orderQuantityError">Please enter a valid quantity.</div>
+          </div>
+
+          <div class="order-field">
+            <label for="orderMembershipCode">Membership Code <span class="optional-mark">(optional)</span></label>
+            <input id="orderMembershipCode" type="text" placeholder="e.g. 47595" />
+            <div class="order-field-error" id="orderMembershipCodeError">That membership code isn't valid for this order.</div>
+          </div>
+
+          <button class="btn btn-primary" id="orderSubmitBtn" type="button">Submit Order</button>
+          <div class="order-status" id="orderStatus"></div>
+        </div>
+
+        <div id="orderSuccessView" class="order-success" style="display: none;">
+          <h3>Thank you!</h3>
+          <p>Your order has been received. We'll contact you shortly to confirm.</p>
+          <p id="orderSuccessMsg" class="order-status success" style="display: none;"></p>
+          <button class="btn btn-primary" id="orderDoneBtn" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="about">
+      <div class="wrap">
+        <div class="philosophy-quote">
+          <p class="eyebrow" style="text-align:center;">Our Philosophy</p>
+          <p class="philosophy-text">
+            At Ouz Coffee &amp; Co., we believe great coffee begins at origin.
+            Our farm reflects our commitment to quality, sustainability, and
+            traceability &mdash; from soil to soul.
+          </p>
+          <p class="philosophy-sub">
+            By controlling the process from cultivation to roasting, we ensure
+            that every cup represents authenticity, craftsmanship, and the true
+            essence of Nepali coffee.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="/nav-toggle.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script>
+      window.PRODUCT_CATEGORY = "green-beans";
+      // Turns on nested categories (groups with sub-items) for this page.
+      window.PRODUCT_TREE = true;
+      // Label for the first breadcrumb link (back to the top level).
+      window.PRODUCT_ROOT_LABEL = "Green Beans";
+    </script>
+    <script src="/product-loader.js"></script>
+    <script>
+      // ---- Auto-sliding product strip ----
+      // Continuously slides the product row right, then reverses and slides
+      // left, looping indefinitely. Pauses on hover/touch and while any
+      // product/order modal is open, so cards stay fully clickable — Place
+      // Order and WhatsApp buttons work exactly as on the Green Beans page.
+      (function () {
+        var grid = document.getElementById("product-grid");
+        if (!grid) return;
+
+        var direction = 1; // 1 = sliding right, -1 = sliding left
+        var speed = 0.6; // pixels per animation frame
+        var hovering = false;
+        var touching = false;
+
+        // When the customer opens a group (or goes back), the grid is redrawn:
+        // restart the strip from the left so the first card is always visible.
+        new MutationObserver(function () {
+          grid.scrollLeft = 0;
+          direction = 1;
+        }).observe(grid, { childList: true });
+
+        grid.addEventListener("mouseenter", function () {
+          hovering = true;
+        });
+        grid.addEventListener("mouseleave", function () {
+          hovering = false;
+        });
+        grid.addEventListener(
+          "touchstart",
+          function () {
+            touching = true;
+          },
+          { passive: true }
+        );
+        grid.addEventListener(
+          "touchend",
+          function () {
+            setTimeout(function () {
+              touching = false;
+            }, 1200);
+          },
+          { passive: true }
+        );
+
+        function modalIsOpen() {
+          // product-loader.js sets body overflow to "hidden" while any of its
+          // modals are open, and clears it on close — reuse that as the signal.
+          return document.body.style.overflow === "hidden";
+        }
+
+        function step() {
+          var maxScroll = grid.scrollWidth - grid.clientWidth;
+
+          if (!hovering && !touching && !modalIsOpen() && maxScroll > 0) {
+            grid.scrollLeft += speed * direction;
+
+            if (grid.scrollLeft >= maxScroll) {
+              direction = -1;
+            } else if (grid.scrollLeft <= 0) {
+              direction = 1;
+            }
+          }
+
+          requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+      })();
+    </script>
+    <script src="/chat-widget.js"></script>
+  </body>
+</html>

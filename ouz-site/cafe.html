@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Café — Ouz Coffee & Co.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7a1b34" />
+    <meta name="description" content="Espresso, pour-over, and cold brew at the Ouz Coffee & Co. café bar in Birtamod." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles_base.css" />
+    <link rel="stylesheet" href="/styles_pages.css" />
+    
+  </head>
+  <body>
+    <header>
+      <div class="navwrap">
+        <a class="brand" href="/index.html">
+          <img src="/assets/logo.png" alt="Ouz Coffee & Co. logo">
+          <span>Ouz Coffee &amp; Co.</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="siteNav">
+          <ul>
+            <li><a href="/index.html#about" class="">About</a></li>
+            <li><a href="/collections.html" class="">Collections</a></li>
+            <li><a href="/services.html" class="current">Services</a></li>
+            <li><a href="/index.html#wheel" class="">Flavor Wheel</a></li>
+            <li><a href="/index.html#gallery" class="">Gallery</a></li>
+            <li><a href="/tutee.html" class="">Tutee</a></li>
+            <li><a href="/visit.html" class="navcta">Visit Us</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="pagehead" style="--pagehead-img: url('/assets/bar-station.png');">
+      <div class="wrap pagehead-inner">
+        <p class="crumb"><a href="/index.html">Home</a> &rsaquo; <a href="/services.html">Services</a> &rsaquo; Café</p>
+        <h1>Brewed to <em>order</em></h1>
+        <p>Espresso, pour-over, and cold brew — made at the bar, the same way we teach it and equip others to make it.</p>
+      </div>
+    </section>
+
+    <section class="services" style="padding-top:56px;">
+      <div class="wrap">
+        <p class="eyebrow">On The Menu</p>
+        <h2>What's brewing</h2>
+
+        <div class="menu-breadcrumb" id="menuBreadcrumb" style="display: none;"></div>
+        <div class="product-grid" id="menu-grid"></div>
+        <p class="product-empty" id="menu-empty" style="display: none;">
+          Menu coming soon — check back shortly.
+        </p>
+      </div>
+    </section>
+
+    <!-- Menu item info popup (image / price / description — informational only, no ordering) -->
+    <div class="product-modal" id="menuItemModal">
+      <div class="product-modal-content">
+        <button class="product-modal-close" id="menuItemModalClose" aria-label="Close">&times;</button>
+        <div class="pm-gallery">
+          <img id="menuItemImage" class="pm-main-image" src="" alt="" />
+        </div>
+        <div class="pm-info">
+          <h3 id="menuItemName"></h3>
+          <div id="menuItemPrice" class="pm-price"></div>
+          <p id="menuItemDesc" class="pm-description"></p>
+        </div>
+      </div>
+    </div>
+
+    <section class="about">
+      <div class="wrap about-grid">
+        <div>
+          <p class="eyebrow">The Bar</p>
+          <h2>A café built around the craft.</h2>
+          <p>
+            Our brew bar isn't tucked in the back — it's the center of the
+            room. The same grinders, kettles, and beans you see us using are
+            the ones we teach with and sell. Sit at the counter and you'll
+            likely watch your own cup being made, start to finish.
+          </p>
+        </div>
+      </div>
+    </section>
+
+<section class="crosslinks">
+      <div class="wrap">
+        <p class="eyebrow">Keep Exploring</p>
+        <h2>Related to the café</h2>
+        <div class="cross-grid">
+          <a href="/roastery.html" class="cross-card">
+            <span class="tag">What's in the cup</span>
+            <h3>Roastery</h3>
+            <p>See the beans behind the menu, and take a bag home.</p>
+          </a>
+          <a href="/training.html" class="cross-card">
+            <span class="tag">Learn to make it</span>
+            <h3>Barista Training</h3>
+            <p>Learn the same espresso and pour-over methods we serve.</p>
+          </a>
+          <a href="/visit.html" class="cross-card">
+            <span class="tag">Come by</span>
+            <h3>Visit Us</h3>
+            <p>Hours, address, and directions to the café.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-flex">
+        <span>&copy; 2026 Ouz Coffee &amp; Co. — Soil to Soul.</span>
+        <div class="foot-links">
+          <a href="/index.html#about">About</a>
+          <a href="/services.html">Services</a>
+          <a href="/index.html#wheel">Flavor Wheel</a>
+          <a
+            href="https://instagram.com/ouz_coffee_nco"
+            target="_blank"
+            rel="noopener"
+            >Instagram</a
+          >
+        </div>
+      </div>
+    </footer>
+      <script src="/nav-toggle.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+      <script src="/firebase-config.js"></script>
+      <script src="/menu-loader.js"></script>
+      <script src="/chat-widget.js"></script>
+  </body>
+</html>

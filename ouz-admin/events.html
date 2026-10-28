@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      .events-filter-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .events-filter-btn.active {
+        background: #7a1b34;
+        color: #fff;
+        border-color: #7a1b34;
+      }
+      .status-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .status-badge.pending {
+        background: #f3e0b8;
+        color: #8a6a1f;
+      }
+      .status-badge.approved {
+        background: #d3ead6;
+        color: #2f6b3a;
+      }
+      .status-badge.cancelled {
+        background: #ecd3d3;
+        color: #8a2f2f;
+      }
+      .event-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .event-card-cats {
+        font-size: 0.8rem;
+        color: #6b5f56;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link active">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Events</h2>
+            <p>Create offer campaigns customers can apply to from their account page, then approve or cancel each application.</p>
+          </div>
+        </div>
+
+        <div class="add-card" style="max-width: 560px;">
+          <h3>Create Event</h3>
+          <div class="field">
+            <label for="eventTitleInput">Event Name</label>
+            <input id="eventTitleInput" type="text" placeholder="e.g. Monsoon Coffee Gear Sale" />
+          </div>
+          <div class="field">
+            <label for="eventDurationInput">Duration (days)</label>
+            <input id="eventDurationInput" type="number" min="1" placeholder="e.g. 60, 90, 365" />
+            <p class="field-hint">How long the offer stays valid once a customer is approved.</p>
+          </div>
+          <div class="field">
+            <label for="eventOfferInput">Offer</label>
+            <input id="eventOfferInput" type="text" placeholder="e.g. 10% off, Buy 1 Get 1" />
+          </div>
+          <div class="field">
+            <label for="eventDescriptionInput">Description (optional)</label>
+            <textarea id="eventDescriptionInput" rows="3" placeholder="Tell customers more about this event — what it's for, any terms, etc."></textarea>
+          </div>
+          <div class="field">
+            <label>Categories</label>
+            <p class="field-hint">Which products this offer applies to — pick one, two, or all three.</p>
+            <label style="display:block;font-weight:400;margin-bottom:4px;">
+              <input type="checkbox" class="event-cat-checkbox" value="coffee-gear" style="width:auto;margin-right:8px;" />
+              Coffee Gear
+            </label>
+            <label style="display:block;font-weight:400;margin-bottom:4px;">
+              <input type="checkbox" class="event-cat-checkbox" value="roastery" style="width:auto;margin-right:8px;" />
+              Roastery
+            </label>
+            <label style="display:block;font-weight:400;">
+              <input type="checkbox" class="event-cat-checkbox" value="green-beans" style="width:auto;margin-right:8px;" />
+              Green Beans
+            </label>
+          </div>
+          <div class="field">
+            <label>
+              <input type="checkbox" id="eventActiveInput" checked style="width:auto;margin-right:8px;" />
+              Active (visible to customers on the site)
+            </label>
+          </div>
+          <button class="btn btn-primary" type="button" id="createEventBtn">Create Event</button>
+          <div class="status-msg" id="createEventStatus"></div>
+        </div>
+
+        <div class="add-card">
+          <h3>Current Events</h3>
+          <div id="eventsListArea"></div>
+          <div class="empty-state" id="eventsEmptyState" style="display: none;">
+            No events created yet.
+          </div>
+        </div>
+
+        <div class="add-card">
+          <h3>Applications</h3>
+          <div class="field" style="max-width: 320px; margin-bottom: 16px;">
+            <label for="appEventFilter">Filter by Event</label>
+            <select id="appEventFilter">
+              <option value="all">All Events</option>
+            </select>
+          </div>
+          <div class="events-filter-tabs" id="appFilterTabs">
+            <button class="tb-btn events-filter-btn active" data-status="all" type="button">All</button>
+            <button class="tb-btn events-filter-btn" data-status="pending" type="button">Pending</button>
+            <button class="tb-btn events-filter-btn" data-status="approved" type="button">Approved</button>
+            <button class="tb-btn events-filter-btn" data-status="cancelled" type="button">Cancelled</button>
+          </div>
+          <div id="applicationsListArea" class="orders-list"></div>
+          <div class="empty-state" id="applicationsEmptyState" style="display: none;">
+            No applications yet.
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadEvents();
+          loadApplications();
+        }
+      });
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      function categoryLabel(cat) {
+        if (cat === "roastery") return "Roastery";
+        if (cat === "green-beans") return "Green Beans";
+        return "Coffee Gear";
+      }
+      function formatDate(timestamp) {
+        if (!timestamp || !timestamp.toDate) return "";
+        var d = timestamp.toDate();
+        return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+
+      // ================= CREATE EVENT =================
+      var eventTitleInput = document.getElementById("eventTitleInput");
+      var eventDurationInput = document.getElementById("eventDurationInput");
+      var eventOfferInput = document.getElementById("eventOfferInput");
+      var eventDescriptionInput = document.getElementById("eventDescriptionInput");
+      var eventActiveInput = document.getElementById("eventActiveInput");
+      var createEventBtn = document.getElementById("createEventBtn");
+      var createEventStatus = document.getElementById("createEventStatus");
+
+      createEventBtn.addEventListener("click", function () {
+        var title = eventTitleInput.value.trim();
+        var duration = parseInt(eventDurationInput.value, 10);
+        var offer = eventOfferInput.value.trim();
+        var description = eventDescriptionInput.value.trim();
+        var categories = Array.prototype.slice
+          .call(document.querySelectorAll(".event-cat-checkbox"))
+          .filter(function (cb) {
+            return cb.checked;
+          })
+          .map(function (cb) {
+            return cb.value;
+          });
+
+        if (!title || !duration || duration < 1 || !offer || !categories.length) {
+          createEventStatus.textContent = "Please fill in the event name, a valid duration, the offer, and pick at least one category.";
+          createEventStatus.className = "status-msg error";
+          return;
+        }
+
+        createEventBtn.disabled = true;
+        createEventBtn.textContent = "Creating...";
+        createEventStatus.textContent = "";
+        createEventStatus.className = "status-msg";
+
+        db.collection("events")
+          .add({
+            title: title,
+            durationDays: duration,
+            offerText: offer,
+            description: description,
+            categories: categories,
+            active: eventActiveInput.checked,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .then(function () {
+            createEventStatus.textContent = "Event created successfully.";
+            createEventStatus.classList.add("success");
+            eventTitleInput.value = "";
+            eventDurationInput.value = "";
+            eventOfferInput.value = "";
+            eventDescriptionInput.value = "";
+            eventActiveInput.checked = true;
+            Array.prototype.forEach.call(document.querySelectorAll(".event-cat-checkbox"), function (cb) {
+              cb.checked = false;
+            });
+            loadEvents();
+          })
+          .catch(function (err) {
+            createEventStatus.textContent = "Couldn't create event. Please try again.";
+            createEventStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            createEventBtn.disabled = false;
+            createEventBtn.textContent = "Create Event";
+          });
+      });
+
+      // ================= LOAD / MANAGE EVENTS =================
+      function loadEvents() {
+        var area = document.getElementById("eventsListArea");
+        var empty = document.getElementById("eventsEmptyState");
+        area.innerHTML = "";
+
+        db.collection("events")
+          .orderBy("createdAt", "desc")
+          .get()
+          .then(function (snapshot) {
+            if (snapshot.empty) {
+              empty.style.display = "block";
+              return;
+            }
+            empty.style.display = "none";
+
+            snapshot.forEach(function (docSnap) {
+              var data = docSnap.data();
+              var row = document.createElement("div");
+              row.className = "order-row event-card-row";
+              row.style.marginBottom = "10px";
+              row.innerHTML =
+                "<div>" +
+                '<div class="order-row-pname">' + (data.title || "") + "</div>" +
+                '<div class="event-card-cats">' +
+                (data.categories || []).map(categoryLabel).join(", ") +
+                " &middot; " + (data.durationDays || 0) + " days &middot; " + (data.offerText || "") +
+                "</div>" +
+                (data.description ? '<div class="event-card-cats" style="margin-top:4px;font-style:italic;">' + data.description + "</div>" : "") +
+                "</div>" +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<span class="status-badge ' + (data.active ? "approved" : "cancelled") + '">' +
+                (data.active ? "Active" : "Inactive") +
+                "</span>" +
+                '<button class="btn btn-ghost toggle-active-btn" data-id="' + docSnap.id + '" data-active="' + !!data.active + '">' +
+                (data.active ? "Deactivate" : "Activate") +
+                "</button>" +
+                '<button class="btn btn-danger delete-event-btn" data-id="' + docSnap.id + '">Delete</button>' +
+                "</div>";
+
+              row.querySelector(".toggle-active-btn").addEventListener("click", function () {
+                db.collection("events").doc(docSnap.id).update({ active: !data.active }).then(loadEvents);
+              });
+              row.querySelector(".delete-event-btn").addEventListener("click", function () {
+                if (!confirm('Delete "' + data.title + '"? This won\'t affect existing applications.')) return;
+                db.collection("events").doc(docSnap.id).delete().then(loadEvents);
+              });
+
+              area.appendChild(row);
+            });
+          });
+      }
+
+      // ================= APPLICATIONS =================
+      var allApplications = [];
+      var activeAppFilter = "all";
+      var activeEventFilter = "all";
+
+      function loadApplications() {
+        db.collection("eventApplications")
+          .orderBy("createdAt", "desc")
+          .get()
+          .then(function (snapshot) {
+            allApplications = [];
+            snapshot.forEach(function (docSnap) {
+              allApplications.push(Object.assign({ id: docSnap.id }, docSnap.data()));
+            });
+            populateEventFilterOptions();
+            renderApplications();
+          });
+      }
+
+      // Builds the "Filter by Event" dropdown from whatever events actually
+      // appear in the applications loaded above — so it always matches
+      // what you can actually filter to, including events that have since
+      // been deleted or deactivated (their applications still show up
+      // here, grouped under their original title).
+      function populateEventFilterOptions() {
+        var select = document.getElementById("appEventFilter");
+        var previousValue = select.value || "all";
+        var seen = {};
+        var options = [];
+
+        allApplications.forEach(function (app) {
+          var key = app.eventId || app.eventTitle;
+          if (!key || seen[key]) return;
+          seen[key] = true;
+          options.push({ id: app.eventId || "", title: app.eventTitle || "(untitled event)" });
+        });
+
+        select.innerHTML = '<option value="all">All Events</option>';
+        options.forEach(function (opt) {
+          var el = document.createElement("option");
+          el.value = opt.id || opt.title;
+          el.textContent = opt.title;
+          select.appendChild(el);
+        });
+
+        // Restore whatever was selected before reloading, if it still exists.
+        if (Array.prototype.some.call(select.options, function (o) { return o.value === previousValue; })) {
+          select.value = previousValue;
+          activeEventFilter = previousValue;
+        }
+      }
+
+      document.getElementById("appEventFilter").addEventListener("change", function (e) {
+        activeEventFilter = e.target.value;
+        renderApplications();
+      });
+
+      function renderApplications() {
+        var area = document.getElementById("applicationsListArea");
+        var empty = document.getElementById("applicationsEmptyState");
+        area.innerHTML = "";
+
+        var items = allApplications.filter(function (a) {
+          var statusMatch = activeAppFilter === "all" || a.status === activeAppFilter;
+          var eventMatch = activeEventFilter === "all" || (a.eventId || a.eventTitle) === activeEventFilter;
+          return statusMatch && eventMatch;
+        });
+
+        if (!items.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+
+        items.forEach(function (data) {
+          var status = data.status || "pending";
+          var isExpired = status === "approved" && data.expiresAt && data.expiresAt.toDate && data.expiresAt.toDate().getTime() < Date.now();
+          var displayStatus = isExpired ? "expired" : status;
+          var row = document.createElement("div");
+          row.className = "order-row";
+          row.innerHTML =
+            '<div class="order-row-product">' +
+            '<div class="order-row-noimg"></div>' +
+            "<div>" +
+            '<div class="order-row-pname">' + (data.fullName || "") + "</div>" +
+            '<div class="order-row-pprice">' + (data.eventTitle || "") + " &middot; " + formatDate(data.createdAt) + "</div>" +
+            "</div>" +
+            "</div>" +
+            '<div class="order-row-customer">' +
+            '<div class="order-row-label">Contact</div>' +
+            "<div>" + (data.mobileNumber || "") + "<br />" + (data.email || "") + "</div>" +
+            "</div>" +
+            '<div class="order-row-meta">' +
+            '<span class="status-badge ' + (isExpired ? "cancelled" : status) + '">' + displayStatus + "</span>" +
+            (data.uniqueCode ? '<div style="margin-top:6px;font-family:monospace;font-weight:700;">#' + data.uniqueCode + "</div>" : "") +
+            (status === "pending"
+              ? '<div style="margin-top:8px;display:flex;gap:8px;">' +
+                '<button class="btn btn-primary approve-btn" data-id="' + data.id + '">Approve</button>' +
+                '<button class="btn btn-danger cancel-btn" data-id="' + data.id + '">Cancel</button>' +
+                "</div>"
+              : "") +
+            "</div>";
+
+          if (status === "pending") {
+            row.querySelector(".approve-btn").addEventListener("click", function () {
+              approveApplication(data);
+            });
+            row.querySelector(".cancel-btn").addEventListener("click", function () {
+              if (!confirm("Cancel this application? The customer will be emailed.")) return;
+              db.collection("eventApplications").doc(data.id).update({
+                status: "cancelled",
+                respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              }).then(loadApplications);
+            });
+          }
+
+          area.appendChild(row);
+        });
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll(".events-filter-btn"), function (btn) {
+        btn.addEventListener("click", function () {
+          Array.prototype.forEach.call(document.querySelectorAll(".events-filter-btn"), function (b) {
+            b.classList.remove("active");
+          });
+          btn.classList.add("active");
+          activeAppFilter = btn.getAttribute("data-status");
+          renderApplications();
+        });
+      });
+
+      // ---- Approve: generate a unique 5-digit code, set expiry, save ----
+      function generateCandidateCode() {
+        return String(Math.floor(10000 + Math.random() * 90000));
+      }
+
+      function approveApplication(data) {
+        db.collection("eventApplications")
+          .where("status", "==", "approved")
+          .get()
+          .then(function (snapshot) {
+            var usedCodes = {};
+            snapshot.forEach(function (doc) {
+              var c = doc.data().uniqueCode;
+              if (c) usedCodes[c] = true;
+            });
+
+            var code = generateCandidateCode();
+            var attempts = 0;
+            while (usedCodes[code] && attempts < 30) {
+              code = generateCandidateCode();
+              attempts++;
+            }
+
+            var durationDays = data.eventDurationDays || 0;
+            var expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+            return db.collection("eventApplications").doc(data.id).update({
+              status: "approved",
+              uniqueCode: code,
+              expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+              respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          })
+          .then(function () {
+            loadApplications();
+          })
+          .catch(function (err) {
+            alert("Couldn't approve this application. Please try again.");
+            console.error(err);
+          });
+      }
+    </script>
+  </body>
+</html>

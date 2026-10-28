@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customers — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      /* Profile view: swaps in place of the customer list within
+         admin-main, so the header and sidebar always stay visible. */
+      .profile-view-panel {
+        max-width: 900px;
+      }
+      .profile-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+      }
+      .profile-row-bottom {
+        border-bottom: 1px dashed #d8cdbf;
+      }
+      .profile-name {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #4a1220;
+      }
+      .profile-number {
+        font-size: 1rem;
+        color: #6b5f56;
+      }
+      .profile-close-btn {
+        background: none;
+        border: none;
+        color: #4a1220;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0;
+      }
+      .profile-close-btn:hover {
+        text-decoration: underline;
+      }
+      .order-row {
+        cursor: pointer;
+      }
+      .status-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .status-badge.pending {
+        background: #f3e0b8;
+        color: #8a6a1f;
+      }
+      .status-badge.approved {
+        background: #d3ead6;
+        color: #2f6b3a;
+      }
+      .status-badge.cancelled {
+        background: #ecd3d3;
+        color: #8a2f2f;
+      }
+      .customer-app-row {
+        border: 1px solid #d8cdbf;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        cursor: pointer;
+      }
+      .customer-app-title {
+        font-weight: 600;
+        color: #221a16;
+      }
+      .customer-app-meta {
+        font-size: 0.8rem;
+        color: #6b5f56;
+      }
+      .event-active-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 9px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-right: 6px;
+      }
+      .event-active-badge.on {
+        background: #d3ead6;
+        color: #2f6b3a;
+      }
+      .event-active-badge.off {
+        background: #e6e0d6;
+        color: #6b5f56;
+      }
+
+      /* ---- ID card modal (admin view of an approved application) ---- */
+      .id-card-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 14, 10, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 20px;
+      }
+      .id-card-modal-overlay.open {
+        display: flex;
+      }
+      .id-card-modal-box {
+        max-width: 380px;
+        width: 100%;
+      }
+      .id-card-modal-close {
+        display: block;
+        margin: 12px auto 0;
+        background: none;
+        border: none;
+        color: #6b5f56;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      .id-card {
+        background: linear-gradient(135deg, #7a1b34, #4a1220);
+        color: #fff;
+        border-radius: 14px;
+        padding: 22px 24px;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+      }
+      .id-card-expired {
+        background: linear-gradient(135deg, #6b6560, #4a453f);
+        opacity: 0.9;
+      }
+      .id-card-expired-badge {
+        background: #c0392b;
+        color: #fff;
+        font-family: monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 999px;
+      }
+      .id-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 18px;
+      }
+      .id-card-brand {
+        font-family: monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .id-card-code {
+        font-family: monospace;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+      .id-card-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .id-card-contact {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin-bottom: 16px;
+      }
+      .id-card-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        padding: 6px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .id-card-row span:first-child {
+        opacity: 0.75;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div id="customersMainView">
+          <div class="section-title">
+            <div>
+              <h2>Customers</h2>
+              <p>Registered customer accounts for the public site's "Log In" / "Create Account" feature. You can register a customer here yourself, or they can sign up on the site directly.</p>
+            </div>
+          </div>
+
+          <div class="add-card" style="max-width: 480px;">
+            <h3>Register a Customer</h3>
+            <div class="field">
+              <label for="nameInput">Full Name</label>
+              <input id="nameInput" type="text" placeholder="Customer's full name" />
+            </div>
+            <div class="field">
+              <label for="phoneInput">Mobile Number</label>
+              <input id="phoneInput" type="tel" placeholder="e.g. 98XXXXXXXX" />
+            </div>
+            <button class="btn btn-primary" type="button" id="addBtn">Register Customer</button>
+            <div class="status-msg" id="addStatus"></div>
+          </div>
+
+          <div class="customer-search-wrap" style="margin-bottom: 16px;">
+            <input
+              type="text"
+              id="customerSearch"
+              placeholder="Search by membership code, name, or mobile number…"
+              autocomplete="off"
+              style="width:100%;max-width:420px;padding:10px 14px;border:1px solid var(--line, #d8cdbf);border-radius:8px;font-size:0.95rem;font-family:inherit;background:#fff;"
+            />
+            <span id="customerSearchCount" style="display:block;margin-top:6px;font-size:0.8rem;color:var(--sage, #7a8a76);"></span>
+          </div>
+
+          <div id="customersList" class="orders-list"></div>
+          <div class="empty-state" id="emptyState" style="display: none;">
+            No customer accounts yet.
+          </div>
+          <div class="empty-state" id="customerNoResultsState" style="display: none;">
+            No customers match your search.
+          </div>
+        </div>
+
+        <!-- Customer profile view (click any row in the list to open) —
+             matches the public site's account.html profile view exactly:
+             no card border, no appbar, just Name+Close and a full-width
+             dashed divider. Swaps in place of the list above, inside the
+             normal admin-main content area, so the header and sidebar
+             always stay visible. -->
+        <div id="customerProfileView" class="profile-view-panel" style="display: none;">
+          <div class="profile-row profile-row-top">
+            <span id="modalProfileName" class="profile-name"></span>
+            <button class="profile-close-btn" id="profileModalClose" type="button">Close</button>
+          </div>
+          <div class="profile-row profile-row-bottom">
+            <span id="modalProfilePhone" class="profile-number"></span>
+          </div>
+
+          <!-- ---- Admin: apply on this customer's behalf ---- -->
+          <div class="add-card" style="max-width: 480px; margin-top: 24px;">
+            <h3>Apply for Event</h3>
+            <div class="field">
+              <label for="adminApplyEventSelect">Event</label>
+              <select id="adminApplyEventSelect">
+                <option value="">— Select an active event —</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminApplyEmail">Customer's Email</label>
+              <input id="adminApplyEmail" type="email" placeholder="customer@gmail.com" />
+              <p class="field-hint">Not stored on the customer record — enter it fresh each time you apply for them.</p>
+            </div>
+            <button class="btn btn-primary" type="button" id="adminApplyBtn">Apply</button>
+            <div class="status-msg" id="adminApplyStatus"></div>
+          </div>
+
+          <!-- ---- This customer's existing applications ---- -->
+          <div style="margin-top: 24px;">
+            <h3 style="font-size:1.05rem;color:#4a1220;margin-bottom:12px;">Event Applications</h3>
+            <div id="customerApplicationsList"></div>
+            <p id="customerApplicationsEmpty" class="field-hint" style="display: none;">
+              No event applications yet.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ID card modal — opens when clicking an approved application row -->
+    <div class="id-card-modal-overlay" id="idCardModalOverlay">
+      <div class="id-card-modal-box">
+        <div id="idCardModalContent"></div>
+        <button class="id-card-modal-close" id="idCardModalClose" type="button">Close</button>
+      </div>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+
+      // ---- Auth guard: redirect to login if not signed in ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadCustomers();
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      var nameInput = document.getElementById("nameInput");
+      var phoneInput = document.getElementById("phoneInput");
+      var addBtn = document.getElementById("addBtn");
+      var addStatus = document.getElementById("addStatus");
+
+      function categoryLabel(cat) {
+        if (cat === "roastery") return "Roastery";
+        if (cat === "green-beans") return "Green Beans";
+        return "Coffee Gear";
+      }
+      function formatDate(timestamp) {
+        if (!timestamp || !timestamp.toDate) return "";
+        var d = timestamp.toDate();
+        return d.toLocaleDateString();
+      }
+
+      addBtn.addEventListener("click", function () {
+        var name = nameInput.value.trim();
+        var phone = phoneInput.value.trim();
+
+        if (!name || !phone) {
+          addStatus.textContent = "Please enter both name and mobile number.";
+          addStatus.className = "status-msg error";
+          return;
+        }
+
+        addBtn.disabled = true;
+        addBtn.textContent = "Registering...";
+        addStatus.textContent = "";
+        addStatus.className = "status-msg";
+
+        db.collection("customers")
+          .add({
+            fullName: name,
+            mobileNumber: phone,
+            source: "admin",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          })
+          .then(function () {
+            addStatus.textContent = "Customer registered successfully.";
+            addStatus.classList.add("success");
+            nameInput.value = "";
+            phoneInput.value = "";
+            loadCustomers();
+          })
+          .catch(function (err) {
+            addStatus.textContent = "Couldn't register customer. Please try again.";
+            addStatus.classList.add("error");
+            console.error(err);
+          })
+          .finally(function () {
+            addBtn.disabled = false;
+            addBtn.textContent = "Register Customer";
+          });
+      });
+
+      var allCustomers = []; // cached in memory: [{ id, data, codes: [...] }]
+
+      function loadCustomers() {
+        Promise.all([
+          db.collection("customers").orderBy("createdAt", "desc").get(),
+          db.collection("eventApplications").where("status", "==", "approved").get(),
+        ]).then(function (results) {
+          var customersSnap = results[0];
+          var approvedAppsSnap = results[1];
+
+          // Build a phone -> [codes] lookup, so each customer can be
+          // matched by ANY membership code tied to their account, even
+          // though codes live on eventApplications, not the customer
+          // record itself.
+          var codesByPhone = {};
+          approvedAppsSnap.forEach(function (doc) {
+            var app = doc.data();
+            if (!app.uniqueCode) return;
+            var phone = (app.mobileNumber || "").replace(/\D/g, "");
+            if (!phone) return;
+            if (!codesByPhone[phone]) codesByPhone[phone] = [];
+            codesByPhone[phone].push(app.uniqueCode);
+          });
+
+          allCustomers = [];
+          customersSnap.forEach(function (docSnap) {
+            var data = docSnap.data();
+            var phone = (data.mobileNumber || "").replace(/\D/g, "");
+            allCustomers.push({ id: docSnap.id, data: data, codes: codesByPhone[phone] || [] });
+          });
+
+          renderCustomers(getFilteredCustomers(document.getElementById("customerSearch").value));
+        });
+      }
+
+      // Scores a customer against the search query — an exact or partial
+      // MEMBERSHIP CODE match ranks highest (that's the primary use case
+      // here), then name/mobile matches as a fallback.
+      function scoreCustomer(customer, query) {
+        var q = query.toLowerCase().trim();
+        if (!q) return 0;
+
+        var codeMatch = customer.codes.some(function (code) {
+          return code.toLowerCase().indexOf(q) > -1;
+        });
+        if (codeMatch) return 1000;
+
+        var name = (customer.data.fullName || "").toLowerCase();
+        var phone = (customer.data.mobileNumber || "").toLowerCase();
+
+        if (name.indexOf(q) > -1) return 500;
+        if (phone.indexOf(q) > -1) return 400;
+
+        return -1;
+      }
+
+      function getFilteredCustomers(query) {
+        var trimmed = (query || "").trim();
+        if (!trimmed) return allCustomers.slice();
+
+        return allCustomers
+          .map(function (c) {
+            return { customer: c, score: scoreCustomer(c, trimmed) };
+          })
+          .filter(function (entry) {
+            return entry.score > -1;
+          })
+          .sort(function (a, b) {
+            return b.score - a.score;
+          })
+          .map(function (entry) {
+            return entry.customer;
+          });
+      }
+
+      function renderCustomers(customers) {
+        var list = document.getElementById("customersList");
+        var emptyState = document.getElementById("emptyState");
+        var noResultsState = document.getElementById("customerNoResultsState");
+        var countEl = document.getElementById("customerSearchCount");
+        var query = document.getElementById("customerSearch").value.trim();
+
+        list.innerHTML = "";
+
+        if (allCustomers.length === 0) {
+          emptyState.style.display = "block";
+          noResultsState.style.display = "none";
+          countEl.textContent = "";
+          return;
+        }
+        emptyState.style.display = "none";
+
+        if (customers.length === 0) {
+          noResultsState.style.display = "block";
+        } else {
+          noResultsState.style.display = "none";
+        }
+
+        if (query) {
+          countEl.textContent = customers.length + " match" + (customers.length === 1 ? "" : "es") + ' for "' + query + '"';
+        } else {
+          countEl.textContent = "";
+        }
+
+        customers.forEach(function (customer) {
+          var data = customer.data;
+          var docId = customer.id;
+          var row = document.createElement("div");
+          row.className = "order-row";
+          row.innerHTML =
+            '<div class="order-row-product">' +
+            '<div class="order-row-noimg"></div>' +
+            "<div>" +
+            '<div class="order-row-pname">' + (data.fullName || "") + "</div>" +
+            '<div class="order-row-pprice">Registered ' + formatDate(data.createdAt) +
+            (customer.codes.length ? ' &middot; Code' + (customer.codes.length > 1 ? "s" : "") + ": #" + customer.codes.join(", #") : "") +
+            "</div>" +
+            "</div>" +
+            "</div>" +
+            '<div class="order-row-customer">' +
+            '<div class="order-row-label">Mobile Number</div>' +
+            '<div>' + (data.mobileNumber || "") + "</div>" +
+            "</div>" +
+            '<div class="order-row-meta">' +
+            '<button class="btn btn-danger" data-id="' + docId + '">Delete</button>' +
+            "</div>";
+
+          row.querySelector(".btn-danger").addEventListener("click", function (e) {
+            e.stopPropagation();
+            handleDelete(docId, data.mobileNumber);
+          });
+
+          row.addEventListener("click", function () {
+            openProfileModal(data);
+          });
+
+          list.appendChild(row);
+        });
+      }
+
+      document.getElementById("customerSearch").addEventListener("input", function (e) {
+        renderCustomers(getFilteredCustomers(e.target.value));
+      });
+
+      // ---- Customer profile view (click a row to view) ----
+      var customersMainView = document.getElementById("customersMainView");
+      var customerProfileView = document.getElementById("customerProfileView");
+      var profileModalClose = document.getElementById("profileModalClose");
+      var modalProfileName = document.getElementById("modalProfileName");
+      var modalProfilePhone = document.getElementById("modalProfilePhone");
+      var adminApplyEventSelect = document.getElementById("adminApplyEventSelect");
+      var adminApplyEmail = document.getElementById("adminApplyEmail");
+      var adminApplyBtn = document.getElementById("adminApplyBtn");
+      var adminApplyStatus = document.getElementById("adminApplyStatus");
+      var customerApplicationsList = document.getElementById("customerApplicationsList");
+      var customerApplicationsEmpty = document.getElementById("customerApplicationsEmpty");
+      var currentModalCustomer = null;
+
+      var APPLY_TO_EVENT_URL = "https://us-central1-ouz-coffee-co.cloudfunctions.net/applyToEvent";
+
+      function openProfileModal(data) {
+        currentModalCustomer = data;
+        modalProfileName.textContent = data.fullName || "";
+        modalProfilePhone.textContent = data.mobileNumber || "";
+        adminApplyEmail.value = "";
+        adminApplyStatus.textContent = "";
+        adminApplyStatus.className = "status-msg";
+        customersMainView.style.display = "none";
+        customerProfileView.style.display = "block";
+        populateAdminApplyEventOptions();
+        loadCustomerApplications(data);
+      }
+      function closeProfileModal() {
+        customerProfileView.style.display = "none";
+        customersMainView.style.display = "block";
+      }
+      profileModalClose.addEventListener("click", closeProfileModal);
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && customerProfileView.style.display === "block") closeProfileModal();
+      });
+
+      function populateAdminApplyEventOptions() {
+        adminApplyEventSelect.innerHTML = '<option value="">— Select an active event —</option>';
+        db.collection("events")
+          .where("active", "==", true)
+          .get()
+          .then(function (snapshot) {
+            var docs = [];
+            snapshot.forEach(function (docSnap) {
+              docs.push({ id: docSnap.id, data: docSnap.data() });
+            });
+            docs.sort(function (a, b) {
+              var at = a.data.createdAt ? a.data.createdAt.toMillis() : 0;
+              var bt = b.data.createdAt ? b.data.createdAt.toMillis() : 0;
+              return bt - at;
+            });
+            docs.forEach(function (item) {
+              var opt = document.createElement("option");
+              opt.value = item.id;
+              opt.textContent = item.data.title || "(untitled event)";
+              adminApplyEventSelect.appendChild(opt);
+            });
+          });
+      }
+
+      adminApplyBtn.addEventListener("click", function () {
+        if (!currentModalCustomer) return;
+        var eventId = adminApplyEventSelect.value;
+        var email = adminApplyEmail.value.trim();
+
+        if (!eventId) {
+          adminApplyStatus.textContent = "Please select an event.";
+          adminApplyStatus.className = "status-msg error";
+          return;
+        }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          adminApplyStatus.textContent = "Please enter a valid email address.";
+          adminApplyStatus.className = "status-msg error";
+          return;
+        }
+
+        adminApplyBtn.disabled = true;
+        adminApplyBtn.textContent = "Applying...";
+        adminApplyStatus.textContent = "";
+        adminApplyStatus.className = "status-msg";
+
+        fetch(APPLY_TO_EVENT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventId: eventId,
+            fullName: currentModalCustomer.fullName,
+            mobileNumber: currentModalCustomer.mobileNumber,
+            email: email,
+            source: "admin",
+          }),
+        })
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (result) {
+            if (result.success) {
+              adminApplyStatus.textContent = "Applied successfully.";
+              adminApplyStatus.classList.add("success");
+              adminApplyEventSelect.value = "";
+              adminApplyEmail.value = "";
+              loadCustomerApplications(currentModalCustomer);
+            } else if (result.error === "already_applied") {
+              adminApplyStatus.textContent = "This customer has already applied to that event.";
+              adminApplyStatus.className = "status-msg error";
+            } else {
+              adminApplyStatus.textContent = "Couldn't apply. Please try again.";
+              adminApplyStatus.className = "status-msg error";
+            }
+          })
+          .catch(function (err) {
+            adminApplyStatus.textContent = "Couldn't apply. Please try again.";
+            adminApplyStatus.className = "status-msg error";
+            console.error(err);
+          })
+          .finally(function () {
+            adminApplyBtn.disabled = false;
+            adminApplyBtn.textContent = "Apply";
+          });
+      });
+
+      function loadCustomerApplications(customer) {
+        customerApplicationsList.innerHTML = "";
+        Promise.all([db.collection("eventApplications").get(), db.collection("events").get()]).then(
+          function (results) {
+            var appsSnapshot = results[0];
+            var eventsSnapshot = results[1];
+
+            // Look up each event's CURRENT active state (the application
+            // itself only stores a snapshot of the event's details from
+            // when it was submitted, not whether the event is still open).
+            var eventActiveById = {};
+            eventsSnapshot.forEach(function (doc) {
+              eventActiveById[doc.id] = !!doc.data().active;
+            });
+
+            var matches = [];
+            appsSnapshot.forEach(function (doc) {
+              var d = doc.data();
+              // Match by MOBILE NUMBER only — the actual identity anchor.
+              // A customer can type a different name on an individual
+              // application (e.g. a nickname or correction), so requiring
+              // an exact name match too would hide applications that
+              // genuinely belong to them.
+              if ((d.mobileNumber || "").replace(/\D/g, "") === (customer.mobileNumber || "").replace(/\D/g, "")) {
+                matches.push(d);
+              }
+            });
+
+            if (!matches.length) {
+              customerApplicationsEmpty.style.display = "block";
+              return;
+            }
+            customerApplicationsEmpty.style.display = "none";
+
+            matches.forEach(function (app) {
+              var status = app.status || "pending";
+              var isExpired = status === "approved" && app.expiresAt && app.expiresAt.toDate && app.expiresAt.toDate().getTime() < Date.now();
+              var displayStatus = isExpired ? "expired" : status;
+              // If the event was deleted since this application was made,
+              // there's nothing to look up — just omit the badge.
+              var eventStillExists = app.eventId && Object.prototype.hasOwnProperty.call(eventActiveById, app.eventId);
+              var eventIsActive = eventStillExists && eventActiveById[app.eventId];
+
+              var row = document.createElement("div");
+              row.className = "customer-app-row";
+              row.innerHTML =
+                "<div>" +
+                '<div class="customer-app-title">' + (app.eventTitle || "") + "</div>" +
+                '<div class="customer-app-meta">' +
+                (app.eventCategories || []).map(categoryLabel).join(", ") +
+                " &middot; " + (app.eventDurationDays || 0) + " days &middot; " + (app.eventOfferText || "") +
+                "</div>" +
+                "</div>" +
+                '<div style="text-align:right;">' +
+                (eventStillExists
+                  ? '<span class="event-active-badge ' + (eventIsActive ? "on" : "off") + '">' +
+                    (eventIsActive ? "Event Active" : "Event Inactive") +
+                    "</span>"
+                  : "") +
+                '<span class="status-badge ' + (isExpired ? "cancelled" : status) + '">' + displayStatus +
+                (app.uniqueCode ? " &middot; #" + app.uniqueCode : "") +
+                "</span>" +
+                "</div>";
+
+              if (status === "approved") {
+                row.addEventListener("click", function () {
+                  openIdCardModal(app, customer, isExpired);
+                });
+              }
+
+              customerApplicationsList.appendChild(row);
+            });
+          }
+        );
+      }
+
+      // ---- ID card modal (click an approved application row) ----
+      var idCardModalOverlay = document.getElementById("idCardModalOverlay");
+      var idCardModalContent = document.getElementById("idCardModalContent");
+      var idCardModalClose = document.getElementById("idCardModalClose");
+
+      function escapeHtmlAdmin(str) {
+        var div = document.createElement("div");
+        div.textContent = str || "";
+        return div.innerHTML;
+      }
+
+      function openIdCardModal(app, customer, isExpired) {
+        var expiresText = "";
+        if (app.expiresAt && app.expiresAt.toDate) {
+          expiresText = app.expiresAt.toDate().toLocaleDateString();
+        }
+        idCardModalContent.innerHTML =
+          '<div class="id-card' + (isExpired ? " id-card-expired" : "") + '">' +
+          '<div class="id-card-top">' +
+          '<span class="id-card-brand">Ouz Coffee &amp; Co.</span>' +
+          (isExpired
+            ? '<span class="id-card-expired-badge">Expired</span>'
+            : '<span class="id-card-code">#' + escapeHtmlAdmin(app.uniqueCode || "") + "</span>") +
+          "</div>" +
+          '<div class="id-card-name">' + escapeHtmlAdmin(customer.fullName || "") + "</div>" +
+          '<div class="id-card-contact">' + escapeHtmlAdmin(customer.mobileNumber || "") + " &middot; " + escapeHtmlAdmin(app.email || "") + "</div>" +
+          '<div class="id-card-row"><span>Event</span><span>' + escapeHtmlAdmin(app.eventTitle || "") + "</span></div>" +
+          '<div class="id-card-row"><span>Offer</span><span>' + escapeHtmlAdmin(app.eventOfferText || "") + "</span></div>" +
+          '<div class="id-card-row"><span>Categories</span><span>' +
+          (app.eventCategories || []).map(categoryLabel).join(", ") +
+          "</span></div>" +
+          '<div class="id-card-row"><span>Duration</span><span>' + (app.eventDurationDays || 0) + " days</span></div>" +
+          (expiresText ? '<div class="id-card-row"><span>Valid Until</span><span>' + expiresText + "</span></div>" : "") +
+          (isExpired ? '<div class="id-card-row"><span>Code</span><span>#' + escapeHtmlAdmin(app.uniqueCode || "") + "</span></div>" : "") +
+          "</div>";
+        idCardModalOverlay.classList.add("open");
+      }
+      function closeIdCardModal() {
+        idCardModalOverlay.classList.remove("open");
+      }
+      idCardModalClose.addEventListener("click", closeIdCardModal);
+      idCardModalOverlay.addEventListener("click", function (e) {
+        if (e.target === idCardModalOverlay) closeIdCardModal();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && idCardModalOverlay.classList.contains("open")) closeIdCardModal();
+      });
+
+      function handleDelete(id, mobileNumber) {
+        if (!confirm("Remove this customer account? They will no longer be able to log into the site, and all of their event applications will be deleted too.")) return;
+
+        var normalizedPhone = (mobileNumber || "").replace(/\D/g, "");
+
+        // Cascade delete: find every application tied to this customer
+        // (matched by phone number, the same identity anchor used
+        // everywhere else) and remove those first, then the account
+        // itself — so no orphaned applications are left behind in Events.
+        db.collection("eventApplications")
+          .get()
+          .then(function (snapshot) {
+            var deletions = [];
+            snapshot.forEach(function (doc) {
+              var appPhone = (doc.data().mobileNumber || "").replace(/\D/g, "");
+              if (appPhone && appPhone === normalizedPhone) {
+                deletions.push(doc.ref.delete());
+              }
+            });
+            return Promise.all(deletions);
+          })
+          .then(function () {
+            return db.collection("customers").doc(id).delete();
+          })
+          .then(function () {
+            loadCustomers();
+          })
+          .catch(function (err) {
+            alert("Couldn't remove this customer. Please try again.");
+            console.error(err);
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory — Ouz Coffee & Co. Admin</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#221a16" />
+    <link rel="stylesheet" href="/admin.css" />
+    <style>
+      .inventory-filter-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .inventory-filter-btn.active {
+        background: #7a1b34;
+        color: #fff;
+        border-color: #7a1b34;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="wrap">
+        <div class="brand">Ouz Coffee & Co. <span>Admin</span></div>
+        <div class="who">
+          <span id="whoEmail"></span>
+          <button class="btn btn-ghost" id="logoutBtn" type="button">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+          <a href="/dashboard.html" class="sidebar-link">Dashboard</a>
+          <a href="/gallery.html" class="sidebar-link">Gallery</a>
+          <a href="/coffee-gear.html" class="sidebar-link">Coffee Gear</a>
+          <a href="/roastery.html" class="sidebar-link">Roastery</a>
+          <a href="/green-beans.html" class="sidebar-link">Green Beans</a>
+          <a href="/menu.html" class="sidebar-link">Menu</a>
+          <a href="/inventory.html" class="sidebar-link active">Inventory</a>
+          <a href="/orders.html" class="sidebar-link">Orders</a>
+          <a href="/customers.html" class="sidebar-link">Customers</a>
+          <a href="/events.html" class="sidebar-link">Events</a>
+          <a href="/training-enquiries.html" class="sidebar-link">Enquiries</a>
+          <a href="/tutee-students.html" class="sidebar-link">Tutee Students</a>
+          <a href="/lessons.html" class="sidebar-link">Lessons</a>
+          <a href="/settings.html" class="sidebar-link">Settings</a>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <div class="section-title">
+          <div>
+            <h2>Inventory</h2>
+            <p>Stock levels for every product. Stock automatically decreases when a customer places an order.</p>
+          </div>
+        </div>
+
+        <div class="inventory-search-wrap" style="margin-bottom: 20px;">
+          <input
+            type="text"
+            id="inventorySearch"
+            placeholder="Search products by name…"
+            autocomplete="off"
+            style="width:100%;max-width:420px;padding:10px 14px;border:1px solid var(--line, #d8cdbf);border-radius:8px;font-size:0.95rem;font-family:inherit;background:#fff;"
+          />
+          <span id="inventorySearchCount" style="display:block;margin-top:6px;font-size:0.8rem;color:var(--sage, #7a8a76);"></span>
+        </div>
+
+        <div class="inventory-filter-tabs" id="inventoryFilterTabs">
+          <button class="tb-btn inventory-filter-btn active" data-category="all" type="button">All</button>
+          <button class="tb-btn inventory-filter-btn" data-category="coffee-gear" type="button">Coffee Gear</button>
+          <button class="tb-btn inventory-filter-btn" data-category="roastery" type="button">Roastery</button>
+          <button class="tb-btn inventory-filter-btn" data-category="green-beans" type="button">Green Beans</button>
+        </div>
+
+        <div id="inventoryList" class="inventory-list"></div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          No products yet — add some in Coffee Gear, Roastery, or Green Beans first.
+        </div>
+        <div class="empty-state" id="noResultsState" style="display: none;">
+          No products match your search.
+        </div>
+      </main>
+    </div>
+
+    <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+
+    <script>
+      firebase.initializeApp(firebaseConfig);
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+
+      var allProducts = []; // cached in memory: [{ id, data }]
+      var activeCategory = "all"; // "all" | "coffee-gear" | "roastery" | "green-beans"
+
+      // ---- Auth guard ----
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "/index.html";
+        } else {
+          document.getElementById("whoEmail").textContent = user.email;
+          loadInventory();
+        }
+      });
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        auth.signOut().then(function () {
+          window.location.href = "/index.html";
+        });
+      });
+
+      function categoryLabel(cat) {
+        if (cat === "roastery") return "Roastery";
+        if (cat === "green-beans") return "Green Beans";
+        return "Coffee Gear";
+      }
+
+      // ================= SEARCH: fuzzy match + relevance ranking =================
+      function fuzzyScore(text, query) {
+        if (!text) return -1;
+        var t = text.toLowerCase();
+        var q = query.toLowerCase();
+        if (!q) return 0;
+
+        if (t === q) return 1000;
+
+        var idx = t.indexOf(q);
+        if (idx === 0) return 900 - t.length;
+
+        if (idx > -1) {
+          var precedingChar = t.charAt(idx - 1);
+          var atWordStart = precedingChar === " " || precedingChar === "-" || precedingChar === "/";
+          return (atWordStart ? 750 : 600) - idx;
+        }
+
+        var ti = 0;
+        var firstMatch = -1;
+        var lastMatch = -1;
+        var matchedAll = true;
+
+        for (var qi = 0; qi < q.length; qi++) {
+          var ch = q.charAt(qi);
+          var found = false;
+          while (ti < t.length) {
+            if (t.charAt(ti) === ch) {
+              if (firstMatch === -1) firstMatch = ti;
+              lastMatch = ti;
+              ti++;
+              found = true;
+              break;
+            }
+            ti++;
+          }
+          if (!found) {
+            matchedAll = false;
+            break;
+          }
+        }
+
+        if (matchedAll) {
+          var span = lastMatch - firstMatch + 1;
+          return Math.max(1, 400 - span);
+        }
+
+        return -1;
+      }
+
+      function scoreProduct(product, query) {
+        var name = product.data.name || "";
+        var category = categoryLabel(product.data.category);
+
+        var nameScore = fuzzyScore(name, query);
+        var categoryScore = fuzzyScore(category, query);
+
+        if (nameScore === -1 && categoryScore === -1) return -1;
+        if (nameScore === -1) return categoryScore * 0.3;
+        if (categoryScore === -1) return nameScore;
+        return Math.max(nameScore, categoryScore * 0.3);
+      }
+
+      function getFilteredSortedProducts(query) {
+        var trimmed = (query || "").trim();
+
+        var base =
+          activeCategory === "all"
+            ? allProducts.slice()
+            : allProducts.filter(function (product) {
+                return product.data.category === activeCategory;
+              });
+
+        if (!trimmed) {
+          return base; // original createdAt order, just category-filtered
+        }
+
+        return base
+          .map(function (product) {
+            return { product: product, score: scoreProduct(product, trimmed) };
+          })
+          .filter(function (entry) {
+            return entry.score > -1;
+          })
+          .sort(function (a, b) {
+            return b.score - a.score;
+          })
+          .map(function (entry) {
+            return entry.product;
+          });
+      }
+
+      // ================= LOAD (once) =================
+      function loadInventory() {
+        db.collection("products")
+          .orderBy("createdAt", "asc")
+          .get()
+          .then(function (snapshot) {
+            allProducts = [];
+            snapshot.forEach(function (docSnap) {
+              allProducts.push({ id: docSnap.id, data: docSnap.data() });
+            });
+
+            var emptyState = document.getElementById("emptyState");
+            if (allProducts.length === 0) {
+              emptyState.style.display = "block";
+            } else {
+              emptyState.style.display = "none";
+            }
+
+            renderInventory(getFilteredSortedProducts(document.getElementById("inventorySearch").value));
+          });
+      }
+
+      // ================= RENDER (called on load, search, and filter changes) =================
+      function renderInventory(products) {
+        var list = document.getElementById("inventoryList");
+        var noResultsState = document.getElementById("noResultsState");
+        var countEl = document.getElementById("inventorySearchCount");
+        var query = document.getElementById("inventorySearch").value.trim();
+
+        list.innerHTML = "";
+
+        if (allProducts.length > 0 && products.length === 0) {
+          noResultsState.style.display = "block";
+        } else {
+          noResultsState.style.display = "none";
+        }
+
+        if (query) {
+          countEl.textContent =
+            products.length + " match" + (products.length === 1 ? "" : "es") + ' for "' + query + '"';
+        } else {
+          countEl.textContent = "";
+        }
+
+        products.forEach(function (product) {
+          list.appendChild(buildInventoryRow(product.id, product.data));
+        });
+      }
+
+      // ================= CATEGORY FILTER TABS =================
+      Array.prototype.forEach.call(document.querySelectorAll(".inventory-filter-btn"), function (btn) {
+        btn.addEventListener("click", function () {
+          Array.prototype.forEach.call(document.querySelectorAll(".inventory-filter-btn"), function (b) {
+            b.classList.remove("active");
+          });
+          btn.classList.add("active");
+          activeCategory = btn.getAttribute("data-category");
+          renderInventory(getFilteredSortedProducts(document.getElementById("inventorySearch").value));
+        });
+      });
+
+      // ================= BUILD A SINGLE ROW =================
+      function buildInventoryRow(productId, data) {
+        var images = data.images || [];
+        var mainImage = images[0] || "";
+        var stockValue = typeof data.stock === "number" ? data.stock : "";
+
+        var row = document.createElement("div");
+        row.className = "inventory-row";
+        if (typeof data.stock === "number" && data.stock <= 0) {
+          row.classList.add("inv-out");
+        } else if (typeof data.stock === "number" && data.stock < 5) {
+          row.classList.add("inv-low");
+        }
+
+        row.innerHTML =
+          '<div class="inventory-product">' +
+          (mainImage
+            ? '<img src="' + mainImage + '" alt="" />'
+            : '<div class="order-row-noimg"></div>') +
+          "<div>" +
+          '<div class="inventory-name">' + (data.name || "(no name)") + "</div>" +
+          '<div class="inventory-meta">' + categoryLabel(data.category) + " &middot; " + (data.price || "") + "</div>" +
+          '<div class="inventory-current-stock">Current stock: <strong class="stock-number">' +
+          (stockValue === "" ? "Not tracked" : stockValue) +
+          "</strong></div>" +
+          "</div>" +
+          "</div>" +
+
+          '<div class="inventory-quick-adjust">' +
+          '<label>Offline Sale / Restock</label>' +
+          '<div class="quick-adjust-row">' +
+          '<input type="number" min="1" value="1" class="quick-adjust-input" />' +
+          '<button class="btn btn-danger quick-sell-btn" type="button" title="Record an offline sale">&minus; Sell</button>' +
+          '<button class="btn btn-ghost quick-restock-btn" type="button" title="New stock arrived">+ Restock</button>' +
+          "</div>" +
+          '<span class="status-msg inventory-quick-status"></span>' +
+          "</div>" +
+
+          '<div class="inventory-stock-field">' +
+          '<label>Set Exact Number</label>' +
+          '<input type="number" min="0" class="inventory-stock-input" value="' + stockValue + '" placeholder="Not tracked" />' +
+          '<button class="btn btn-primary inventory-save-btn" type="button">Save</button>' +
+          '<span class="status-msg inventory-row-status"></span>' +
+          "</div>";
+
+        var stockNumberEl = row.querySelector(".stock-number");
+        var input = row.querySelector(".inventory-stock-input");
+        var saveBtn = row.querySelector(".inventory-save-btn");
+        var statusEl = row.querySelector(".inventory-row-status");
+        var quickInput = row.querySelector(".quick-adjust-input");
+        var sellBtn = row.querySelector(".quick-sell-btn");
+        var restockBtn = row.querySelector(".quick-restock-btn");
+        var quickStatusEl = row.querySelector(".inventory-quick-status");
+
+        function updateRowHighlight(newStock) {
+          row.classList.remove("inv-out", "inv-low");
+          if (typeof newStock === "number") {
+            if (newStock <= 0) row.classList.add("inv-out");
+            else if (newStock < 5) row.classList.add("inv-low");
+          }
+        }
+
+        function refreshDisplayedStock(newStock) {
+          stockNumberEl.textContent = typeof newStock === "number" ? newStock : "Not tracked";
+          input.value = typeof newStock === "number" ? newStock : "";
+          updateRowHighlight(newStock);
+
+          var cached = allProducts.filter(function (p) {
+            return p.id === productId;
+          })[0];
+          if (cached) cached.data.stock = newStock;
+        }
+
+        function quickAdjust(delta, isSell) {
+          var amount = parseInt(quickInput.value, 10);
+          if (isNaN(amount) || amount < 1) {
+            quickStatusEl.textContent = "Enter a number first.";
+            quickStatusEl.className = "status-msg inventory-quick-status error";
+            return;
+          }
+
+          sellBtn.disabled = true;
+          restockBtn.disabled = true;
+          quickStatusEl.textContent = "Saving...";
+          quickStatusEl.className = "status-msg inventory-quick-status";
+
+          var productRef = db.collection("products").doc(productId);
+
+          db.runTransaction(function (transaction) {
+            return transaction.get(productRef).then(function (snap) {
+              var current = typeof snap.data().stock === "number" ? snap.data().stock : 0;
+              var updated = isSell ? Math.max(0, current - amount) : current + amount;
+              transaction.update(productRef, { stock: updated });
+              return updated;
+            });
+          })
+            .then(function (updated) {
+              quickStatusEl.textContent = isSell
+                ? "Recorded sale of " + amount + "."
+                : "Restocked " + amount + ".";
+              quickStatusEl.classList.add("success");
+              quickInput.value = 1;
+              refreshDisplayedStock(updated);
+            })
+            .catch(function (err) {
+              quickStatusEl.textContent = "Couldn't save.";
+              quickStatusEl.classList.add("error");
+              console.error(err);
+            })
+            .finally(function () {
+              sellBtn.disabled = false;
+              restockBtn.disabled = false;
+            });
+        }
+        sellBtn.addEventListener("click", function () {
+          quickAdjust(-1, true);
+        });
+        restockBtn.addEventListener("click", function () {
+          quickAdjust(1, false);
+        });
+
+        saveBtn.addEventListener("click", function () {
+          var raw = input.value.trim();
+          var newStock = raw === "" ? firebase.firestore.FieldValue.delete() : parseInt(raw, 10);
+
+          if (raw !== "" && (isNaN(newStock) || newStock < 0)) {
+            statusEl.textContent = "Enter 0 or more.";
+            statusEl.className = "status-msg inventory-row-status error";
+            return;
+          }
+
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Saving...";
+          statusEl.textContent = "";
+          statusEl.className = "status-msg inventory-row-status";
+
+          db.collection("products")
+            .doc(productId)
+            .update({ stock: newStock })
+            .then(function () {
+              statusEl.textContent = "Saved.";
+              statusEl.classList.add("success");
+              refreshDisplayedStock(raw === "" ? undefined : parseInt(raw, 10));
+            })
+            .catch(function (err) {
+              statusEl.textContent = "Couldn't save.";
+              statusEl.classList.add("error");
+              console.error(err);
+            })
+            .finally(function () {
+              saveBtn.disabled = false;
+              saveBtn.textContent = "Save";
+            });
+        });
+
+        return row;
+      }
+
+      // ================= SEARCH INPUT WIRING =================
+      document.getElementById("inventorySearch").addEventListener("input", function (e) {
+        renderInventory(getFilteredSortedProducts(e.target.value));
+      });
+    </script>
+  </body>
+</html>

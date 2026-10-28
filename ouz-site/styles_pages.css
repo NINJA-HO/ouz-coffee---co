@@ -1,0 +1,1309 @@
+/* ---------- INNER PAGE HEADER (replaces full hero on sub-pages) ---------- */
+.pagehead {
+  position: relative;
+  padding: 64px 0 56px;
+  overflow: hidden;
+}
+.pagehead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(27,18,14,0.72) 0%, rgba(27,18,14,0.88) 100%),
+    var(--pagehead-img, none);
+  background-size: cover;
+  background-position: center;
+}
+.pagehead-inner {
+  position: relative;
+  z-index: 2;
+  color: var(--parchment);
+}
+.pagehead .crumb {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clay-light);
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pagehead .crumb a { text-decoration: none; color: var(--clay-light); }
+.pagehead .crumb a:hover { color: #fff; }
+.pagehead h1 {
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  color: #fff;
+  line-height: 1.02;
+  font-weight: 700;
+}
+.pagehead p {
+  max-width: 560px;
+  margin: 18px 0 0;
+  color: rgba(241,230,211,0.85);
+  font-size: 1.05rem;
+}
+
+/* ---------- BREADCRUMB LINK ROW (for footer nav between related pages) ---------- */
+.crosslinks {
+  background: var(--espresso);
+  color: var(--parchment);
+  padding: 56px 0;
+}
+.crosslinks .eyebrow { color: var(--clay-light); }
+.crosslinks h2 { color: #fff; font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: 28px; }
+.cross-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 760px) { .cross-grid { grid-template-columns: 1fr; } }
+.cross-card {
+  border: 1px solid rgba(241,230,211,0.18);
+  border-radius: 6px;
+  padding: 22px;
+  text-decoration: none;
+  color: var(--parchment);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  display: block;
+}
+.cross-card:hover { border-color: var(--clay-light); transform: translateY(-3px); }
+.cross-card .tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clay-light);
+  display: block;
+  margin-bottom: 8px;
+}
+.cross-card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.cross-card p { font-size: 0.88rem; color: rgba(241,230,211,0.72); margin: 0; }
+
+/* ---------- PRODUCT / PRICING CARDS ---------- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+}
+@media (max-width: 900px) { .product-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .product-grid { gap: 10px; } }
+.product-card {
+  background: var(--parchment-2);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  padding: 18px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.product-card .kicker {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 10px;
+  display: block;
+}
+.product-card h3 { font-size: 1.05rem; color: var(--maroon-deep); margin-bottom: 4px; }
+.product-card p { font-size: 0.9rem; color: #4a4038; margin-bottom: 14px; }
+.product-card .price {
+  font-family: "Fraunces", serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.product-card .price span {
+  font-family: "Work Sans", sans-serif;
+  font-size: 0.8rem;
+  color: var(--sage);
+  font-weight: 400;
+}
+
+/* ---------- PRODUCT CARD IMAGE + CLICKABLE (dynamic products) ---------- */
+.product-card-img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  background: var(--parchment);
+}
+.product-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.product-card-clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -14px rgba(42, 33, 27, 0.35);
+}
+.product-card-clickable:hover .product-card-img img {
+  transform: scale(1.05);
+}
+.product-card-desc {
+  font-size: 0.88rem;
+  color: #4a4038;
+  margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  max-height: 2.8em;
+}
+.product-empty {
+  margin-top: 44px;
+  padding: 48px 20px;
+  text-align: center;
+  border: 1px dashed var(--paper-line);
+  border-radius: 6px;
+  color: var(--sage);
+  font-size: 0.95rem;
+  display: none;
+}
+
+/* ---------- PRODUCT DETAIL MODAL ---------- */
+.product-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 12, 0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+.product-modal.open {
+  display: flex;
+}
+.product-modal-content {
+  position: relative;
+  background: var(--parchment);
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+  max-height: 88vh;
+}
+@media (max-width: 760px) {
+  .product-modal-content {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+}
+.product-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--maroon);
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pm-gallery {
+  background: var(--parchment-2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.pm-main-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--parchment);
+}
+.pm-thumb-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.pm-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  opacity: 0.7;
+}
+.pm-thumb:hover {
+  opacity: 1;
+}
+.pm-thumb.active {
+  border-color: var(--maroon);
+  opacity: 1;
+}
+.pm-info {
+  padding: 32px 28px;
+  overflow-y: auto;
+  height: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+.pm-info h3 {
+  font-size: 1.4rem;
+  color: var(--maroon-deep);
+  margin-bottom: 10px;
+}
+.pm-price {
+  font-family: "Fraunces", serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.pm-description {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4a4038;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  margin-bottom: 20px;
+}
+.pm-action-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+#pmOrderBtn {
+  flex: 1;
+}
+
+/* ---------- TIER / TRAINING CARDS ---------- */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+@media (max-width: 900px) { .tier-grid { grid-template-columns: 1fr; } }
+.tier-card {
+  background: var(--parchment-2);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  padding: 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.tier-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+}
+.tier-card.featured { border-color: var(--clay); box-shadow: 0 12px 30px -12px rgba(42,33,27,0.3); }
+.tier-card .badge {
+  position: absolute;
+  top: -12px;
+  right: 24px;
+  background: var(--maroon);
+  color: var(--parchment);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.tier-card h3 { font-size: 1.3rem; color: var(--maroon-deep); margin-bottom: 4px; }
+.tier-card .duration { font-size: 0.82rem; color: var(--sage); margin-bottom: 16px; display: block; }
+.tier-card ul { list-style: none; padding: 0; margin: 0 0 20px; }
+.tier-card li {
+  font-size: 0.9rem;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--paper-line);
+  color: #4a4038;
+}
+.tier-card li:last-child { border-bottom: none; }
+
+/* ---------- CURRICULUM STEPS ---------- */
+.curric-list { margin-top: 40px; display: flex; flex-direction: column; }
+.curric-item {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--paper-line);
+}
+.curric-item:last-child { border-bottom: none; }
+.curric-num {
+  font-family: "Fraunces", serif;
+  font-size: 1.6rem;
+  color: var(--clay);
+  font-weight: 600;
+  flex-shrink: 0;
+  width: 48px;
+}
+.curric-item h3 { font-size: 1.15rem; color: var(--maroon-deep); margin-bottom: 6px; }
+.curric-item p { font-size: 0.92rem; color: #4a4038; margin: 0; max-width: 56ch; }
+
+/* ---------- AUDIENCE / WHO-ITS-FOR PILLS ---------- */
+.audience-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.audience-pill {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  background: var(--parchment-2);
+  border: 1px solid var(--paper-line);
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+/* ---------- SIMPLE FORM ---------- */
+.form-card {
+  background: var(--parchment-2);
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  padding: 32px;
+  margin-top: 40px;
+  max-width: 560px;
+}
+.form-card label {
+  display: block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin: 16px 0 6px;
+}
+.form-card label:first-child { margin-top: 0; }
+.form-card input,
+.form-card select,
+.form-card textarea {
+  width: 100%;
+  font-family: "Work Sans", sans-serif;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  background: var(--parchment);
+  color: var(--ink);
+}
+.form-card textarea { min-height: 100px; resize: vertical; }
+.form-card .btn { margin-top: 22px; border: none; cursor: pointer; }
+
+/* ---------- WHOLESALE / B2B STRIP ---------- */
+.b2b-strip {
+  background: var(--maroon-deep);
+  color: var(--parchment);
+  border-radius: 8px;
+  padding: 36px;
+  margin-top: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.b2b-strip h3 { color: #fff; font-size: 1.4rem; margin-bottom: 6px; }
+.b2b-strip p { color: rgba(241,230,211,0.8); margin: 0; max-width: 46ch; font-size: 0.92rem; }
+
+/* current nav item indicator */
+nav a.current::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--clay);
+}
+
+/* ---------- PRODUCT CARD: PLACE ORDER BUTTON ---------- */
+.product-card-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  align-items: stretch;
+}
+.product-card-order-btn {
+  flex: 1;
+  width: auto;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.whatsapp-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.whatsapp-btn:hover {
+  background: #1ebe5b;
+  transform: scale(1.05);
+}
+
+/* ---------- ORDER FORM MODAL ---------- */
+.order-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 12, 0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  z-index: 1100;
+  overflow-y: auto;
+}
+.order-modal.open {
+  display: flex;
+}
+.order-modal-content {
+  position: relative;
+  background: var(--parchment);
+  border-radius: 8px;
+  max-width: 440px;
+  width: 100%;
+  padding: 32px 28px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.order-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--maroon);
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order-modal-eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin: 0 0 6px;
+}
+.order-modal-product-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.order-modal-product-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--parchment-2);
+  flex-shrink: 0;
+}
+.order-modal-product {
+  font-size: 1.15rem;
+  color: var(--maroon-deep);
+  margin: 0 0 2px;
+}
+.order-modal-price {
+  font-family: "Fraunces", serif;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+.order-field {
+  margin-bottom: 16px;
+}
+.order-field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.order-field input,
+.order-field textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.92rem;
+  font-family: "Work Sans", sans-serif;
+}
+.order-field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+.order-status {
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+.order-status.error {
+  color: #b23a2f;
+}
+.order-success h3 {
+  color: var(--maroon-deep);
+  margin-bottom: 10px;
+}
+.order-success p {
+  color: #4a4038;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* ---------- COMPACT PRODUCT CARDS ON SMALL PHONES ---------- */
+@media (max-width: 480px) {
+  .product-card {
+    padding: 10px;
+  }
+  .product-card h3 {
+    font-size: 0.88rem;
+    margin-bottom: 2px;
+  }
+  .product-card .price {
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+  }
+  .product-card-desc {
+    font-size: 0.76rem;
+    margin-bottom: 8px;
+  }
+  .product-card-img {
+    margin-bottom: 8px;
+  }
+  .product-card-order-btn {
+    padding: 8px 6px;
+    font-size: 0.74rem;
+  }
+  .whatsapp-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .whatsapp-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* ---------- ORDER FORM: REQUIRED FIELD INDICATORS ---------- */
+.required-mark {
+  color: var(--maroon);
+  font-weight: 700;
+}
+input.invalid,
+textarea.invalid,
+select.invalid {
+  border-color: #b23a2f !important;
+  background: #fdf1ef !important;
+}
+.optional-mark {
+  color: #8a7d70;
+  font-weight: 400;
+  font-size: 0.85em;
+  font-style: italic;
+}
+.order-field-error {
+  font-size: 0.78rem;
+  color: #b23a2f;
+  margin-top: 4px;
+  display: none;
+}
+.order-field-error.show {
+  display: block;
+}
+
+/* ---------- GENERIC FORM STATUS MESSAGE (training enquiry form, etc.) ---------- */
+.status-msg {
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+.status-msg.success {
+  color: #2f7a3d;
+}
+.status-msg.error {
+  color: #b23a2f;
+}
+
+/* ---------- TRAINING PAGE: CTA MESSAGE BEFORE FORM ---------- */
+.training-cta-msg {
+  margin-top: 48px;
+  font-size: 1rem;
+  color: var(--ink);
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+/* ---------- TUTEE PAGE: LESSON NAV + CONTENT ---------- */
+.lesson-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.lesson-nav-item {
+  padding: 10px 18px;
+  border: 1px solid var(--paper-line);
+  border-radius: 20px;
+  background: var(--parchment-2);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lesson-nav-item:hover {
+  border-color: var(--maroon);
+}
+.lesson-nav-item.active {
+  background: var(--maroon);
+  color: #fff;
+  border-color: var(--maroon);
+}
+
+.lesson-content-area {
+  background: var(--parchment-2);
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  padding: 36px;
+  max-width: 720px;
+}
+.lesson-title {
+  font-size: 1.6rem;
+  color: var(--maroon-deep);
+  margin-bottom: 24px;
+}
+.lesson-block {
+  margin-bottom: 14px;
+  line-height: 1.7;
+  color: #3a322c;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.lesson-heading1 {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--maroon-deep);
+  margin-top: 28px;
+}
+.lesson-heading2 {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--maroon-deep);
+  margin-top: 22px;
+}
+.lesson-heading3 {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--maroon-deep);
+  margin-top: 18px;
+}
+.lesson-bullet {
+  padding-left: 22px;
+  position: relative;
+}
+.lesson-bullet:before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  color: var(--maroon);
+}
+.lesson-numbered {
+  padding-left: 26px;
+  position: relative;
+}
+.lesson-numbered:before {
+  content: attr(data-num);
+  position: absolute;
+  left: 0;
+  color: var(--maroon);
+  font-weight: 600;
+}
+.lesson-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.lesson-checkbox input[type="checkbox"] {
+  margin-top: 5px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.lesson-image img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+/* ---------- LOG OUT BUTTON ON LIGHT BACKGROUND (Tutee page) ---------- */
+#logoutTuteeBtn.btn-ghost {
+  border-color: var(--maroon);
+  color: var(--maroon-deep);
+}
+#logoutTuteeBtn.btn-ghost:hover {
+  background: rgba(122, 27, 43, 0.08);
+}
+
+/* ---------- CONTACT DETAILS EMPTY STATE (dark background variant) ---------- */
+#contactDetails .product-empty {
+  text-align: left;
+  border-color: rgba(241, 230, 211, 0.25);
+  color: var(--clay-light);
+  padding: 24px;
+}
+
+/* ---------- FLOATING AI CHAT WIDGET ---------- */
+#ouzChatWidget {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 2000;
+  font-family: "Work Sans", sans-serif;
+}
+#ouzChatToggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--maroon);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px -8px rgba(29, 23, 18, 0.45);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+#ouzChatToggle:hover {
+  background: var(--maroon-deep);
+  transform: scale(1.06);
+}
+.ouz-chat-panel {
+  position: absolute;
+  bottom: 68px;
+  right: 0;
+  width: min(340px, 88vw);
+  height: min(460px, 70vh);
+  background: var(--parchment);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px -16px rgba(29, 23, 18, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ouz-chat-panel.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.ouz-chat-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+.ouz-chat-header button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+.ouz-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ouz-msg {
+  max-width: 82%;
+  padding: 10px 13px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+.ouz-msg-bot {
+  align-self: flex-start;
+  background: var(--parchment-2);
+  color: var(--ink);
+  border-bottom-left-radius: 3px;
+}
+.ouz-msg-user {
+  align-self: flex-end;
+  background: var(--maroon);
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+.ouz-msg-typing {
+  opacity: 0.6;
+  font-style: italic;
+}
+.ouz-chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--paper-line);
+  flex-shrink: 0;
+  background: var(--parchment);
+}
+.ouz-chat-input-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: 20px;
+  font-size: 16px;
+  background: #fff;
+}
+.ouz-chat-input-row input:focus {
+  outline: none;
+  border-color: var(--maroon);
+}
+.ouz-chat-input-row button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--maroon);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ouz-chat-input-row button:hover {
+  background: var(--maroon-deep);
+}
+.ouz-chat-input-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+@media (max-width: 600px) {
+  body.ouz-chat-open {
+    overflow: hidden;
+  }
+  body.ouz-chat-open #ouzChatToggle {
+    display: none;
+  }
+  .ouz-chat-panel {
+    position: fixed;
+    inset: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+  .ouz-chat-resize {
+    display: none;
+  }
+  .ouz-chat-header {
+    padding: 16px;
+    font-size: 1.05rem;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+  .ouz-chat-header button {
+    font-size: 1.7rem;
+    padding: 4px 8px;
+  }
+  .ouz-chat-input-row {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- CHAT RESIZE HANDLE ---------- */
+.ouz-chat-resize {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  cursor: nwse-resize;
+  z-index: 5;
+  touch-action: none;
+}
+.ouz-chat-resize::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid rgba(29, 23, 18, 0.35);
+  border-left: 2px solid rgba(29, 23, 18, 0.35);
+  border-radius: 2px 0 0 0;
+}
+.ouz-chat-resize:hover::before {
+  border-color: var(--maroon);
+}
+
+/* ---------- MARKDOWN CONTENT INSIDE BOT MESSAGES ---------- */
+.ouz-msg-bot p {
+  margin: 0 0 8px;
+}
+.ouz-msg-bot p:last-child {
+  margin-bottom: 0;
+}
+.ouz-msg-bot ul,
+.ouz-msg-bot ol {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+.ouz-msg-bot li {
+  margin-bottom: 4px;
+}
+.ouz-msg-bot strong {
+  color: var(--maroon-deep);
+  font-weight: 700;
+}
+
+/* ---------- LINKS INSIDE BOT CHAT MESSAGES ---------- */
+.ouz-msg-bot a {
+  color: var(--maroon);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.ouz-msg-bot a:hover {
+  color: var(--maroon-deep);
+}
+
+/* ---------- ORDER FORM: QUANTITY + STOCK ---------- */
+.field-hint {
+  font-size: 0.78rem;
+  color: var(--clay-light);
+  margin-top: 6px;
+}
+#orderQuantity {
+  max-width: 120px;
+}
+
+/* ---------- OUT OF STOCK ---------- */
+.out-of-stock-badge {
+  display: inline-block;
+  background: #b23a2f;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.product-card-order-btn.out-of-stock,
+#pmOrderBtn.out-of-stock {
+  background: #9c8f80;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.product-card-order-btn.out-of-stock:hover,
+#pmOrderBtn.out-of-stock:hover {
+  background: #9c8f80;
+}
+
+/* ---------- OUZ ACRONYM MEANING (Hero section, under "Soil to Soul") ---------- */
+.ouz-meaning-hero {
+  font-family: "Work Sans", sans-serif;
+  font-size: 0.95rem;
+  color: rgba(241, 230, 211, 0.8);
+  margin: 10px 0 20px;
+  letter-spacing: 0.02em;
+}
+.ouz-meaning-hero strong {
+  color: var(--clay-light);
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+}
+
+/* ---------- HERO CONTACT ICONS (WhatsApp, Email, Phone, Address, Socials) ---------- */
+.hero-icon-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding-left: 14px;
+  border-left: 1px solid rgba(241, 230, 211, 0.25);
+}
+@media (max-width: 560px) {
+  .hero-icon-links {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+.hero-icon-link {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgba(241, 230, 211, 0.12);
+  border: 1px solid rgba(241, 230, 211, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-icon-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- DOCUMENT PAGE: ARTICLE SUBHEADS + LISTS ---------- */
+.doc-subhead {
+  font-size: 1.15rem;
+  color: var(--maroon-deep);
+  margin-top: 32px;
+  margin-bottom: 10px;
+}
+.doc-list {
+  margin: 8px 0 16px;
+  padding-left: 22px;
+}
+.doc-list li {
+  font-size: 0.95rem;
+  color: #4a4038;
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+
+/* ---------- PROCESSING METHODS (dark, emphasized section) ---------- */
+.process-section {
+  background: var(--espresso);
+  color: var(--parchment);
+  padding: 96px 0;
+}
+.process-section .eyebrow {
+  color: var(--clay-light);
+}
+.process-section h2 {
+  color: #fff;
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  margin-bottom: 18px;
+}
+.process-intro {
+  color: rgba(241, 230, 211, 0.8);
+  max-width: 62ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.process-list {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+}
+.process-item {
+  display: flex;
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid rgba(241, 230, 211, 0.15);
+}
+.process-item:last-child {
+  border-bottom: none;
+}
+.process-num {
+  font-family: "Fraunces", serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--clay-light);
+  flex-shrink: 0;
+  width: 48px;
+}
+.process-item h3 {
+  font-size: 1.15rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.process-sub {
+  font-size: 0.85rem;
+  color: var(--clay-light);
+  font-weight: 400;
+}
+.process-item p {
+  font-size: 0.92rem;
+  color: rgba(241, 230, 211, 0.78);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 62ch;
+}
+
+/* ---------- PHILOSOPHY PULL-QUOTE ---------- */
+.philosophy-quote {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px 0;
+}
+.philosophy-text {
+  font-family: "Fraunces", serif;
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.8vw, 1.7rem);
+  color: var(--maroon-deep);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.philosophy-sub {
+  font-size: 0.98rem;
+  color: #4a4038;
+  line-height: 1.7;
+}
+
+/* ---------- HERO: GREEN COFFEE IN NEPAL DOC LINK ---------- */
+.hero-doc-link {
+  color: var(--clay-light);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 8px 0;
+}
+.hero-doc-link:hover {
+  color: #fff;
+}
+
+/* ---------- FLOATED IMAGE WITH TEXT WRAPPING AROUND IT ---------- */
+.float-text-block {
+  max-width: 720px;
+}
+.float-text-block p {
+  max-width: none;
+}
+.float-text-block::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.float-img {
+  float: right;
+  width: 320px;
+  max-width: 40%;
+  margin: 4px 0 20px 32px;
+  border-radius: 8px;
+  box-shadow: 0 20px 44px -18px rgba(27, 18, 14, 0.35);
+}
+@media (max-width: 640px) {
+  .float-img {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 20px;
+  }
+}
+
+/* ---------- CAFÉ MENU: BREADCRUMB NAVIGATION ---------- */
+.menu-breadcrumb {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--sage);
+  margin-bottom: 20px;
+}
+.menu-breadcrumb a {
+  color: var(--maroon);
+  text-decoration: none;
+}
+.menu-breadcrumb a:hover {
+  text-decoration: underline;
+}
+.menu-breadcrumb-current {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- MENU ITEM MODAL: NO-IMAGE STATE ---------- */
+.product-modal-content.no-image {
+  grid-template-columns: 1fr;
+  max-width: 480px;
+}
+
+/* ---------- NESTED CATEGORIES: GROUP CARDS + INTRO (append to the end of styles_pages.css) ---------- */
+.product-card-group {
+  border-left: 3px solid var(--maroon);
+}
+.product-card-group h3 {
+  margin-bottom: 6px;
+}
+.product-group-hint {
+  margin-top: auto;
+  padding-top: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--maroon);
+}
+.product-group-intro {
+  max-width: 62ch;
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4a4038;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+@media (max-width: 480px) {
+  .product-group-hint {
+    font-size: 0.62rem;
+    padding-top: 4px;
+  }
+  .product-group-intro {
+    font-size: 0.85rem;
+  }
+}
