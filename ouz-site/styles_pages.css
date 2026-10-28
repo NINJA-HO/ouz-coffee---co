@@ -1271,3 +1271,39 @@ select.invalid {
   grid-template-columns: 1fr;
   max-width: 480px;
 }
+
+/* ---------- NESTED CATEGORIES: GROUP CARDS + INTRO (append to the end of styles_pages.css) ---------- */
+.product-card-group {
+  border-left: 3px solid var(--maroon);
+}
+.product-card-group h3 {
+  margin-bottom: 6px;
+}
+.product-group-hint {
+  margin-top: auto;
+  padding-top: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--maroon);
+}
+.product-group-intro {
+  max-width: 62ch;
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4a4038;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+@media (max-width: 480px) {
+  .product-group-hint {
+    font-size: 0.62rem;
+    padding-top: 4px;
+  }
+  .product-group-intro {
+    font-size: 0.85rem;
+  }
+}

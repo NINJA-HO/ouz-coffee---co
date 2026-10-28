@@ -100,6 +100,13 @@
       <div class="wrap">
         <p class="eyebrow">Retail Beans</p>
         <h2>Take a bag home</h2>
+
+        <!-- Breadcrumb for nested categories (hidden until the customer drills into a group) -->
+        <div class="menu-breadcrumb" id="productBreadcrumb" style="display: none; margin-top: 24px;"></div>
+
+        <!-- Intro text for the group the customer is currently inside (the group's description) -->
+        <p class="product-group-intro" id="productGroupIntro" style="display: none;"></p>
+
         <div id="product-grid" class="product-grid"></div>
         <p id="product-empty" class="product-empty">
           New bags are on their way — check back shortly.
@@ -245,6 +252,10 @@
     <script src="/firebase-config.js"></script>
     <script>
       window.PRODUCT_CATEGORY = "roastery";
+      // Turns on nested categories (groups with sub-items) for this page.
+      window.PRODUCT_TREE = true;
+      // Label for the first breadcrumb link (back to the top level).
+      window.PRODUCT_ROOT_LABEL = "Roastery";
     </script>
     <script src="/product-loader.js"></script>
       <script src="/nav-toggle.js"></script>

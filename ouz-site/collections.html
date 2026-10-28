@@ -164,6 +164,12 @@
           <button class="collections-filter-btn" data-category="green-beans" type="button">Green Beans</button>
         </div>
 
+        <!-- Breadcrumb for nested categories (hidden until the customer opens a group) -->
+        <div class="menu-breadcrumb" id="productBreadcrumb" style="display: none; margin-bottom: 16px;"></div>
+
+        <!-- Intro text for the group the customer is currently inside (the group's description) -->
+        <p class="product-group-intro" id="productGroupIntro" style="display: none; margin-bottom: 20px;"></p>
+
         <div id="product-grid" class="product-grid"></div>
         <p id="product-empty" class="product-empty">
           New products are on their way — check back shortly.

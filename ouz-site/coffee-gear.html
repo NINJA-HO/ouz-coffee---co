@@ -59,6 +59,13 @@
       <div class="wrap">
         <p class="eyebrow">Home &amp; Café Equipment</p>
         <h2>Shop the gear</h2>
+
+        <!-- Breadcrumb for nested categories (hidden until the customer drills into a group) -->
+        <div class="menu-breadcrumb" id="productBreadcrumb" style="display: none; margin-top: 24px;"></div>
+
+        <!-- Intro text for the group the customer is currently inside (the group's description) -->
+        <p class="product-group-intro" id="productGroupIntro" style="display: none;"></p>
+
         <div id="product-grid" class="product-grid"></div>
         <p id="product-empty" class="product-empty">
           New gear is on its way — check back shortly.
@@ -205,6 +212,11 @@
     <script src="/account-auth.js"></script>
     <script>
       window.PRODUCT_CATEGORY = "coffee-gear";
+      // Turns on nested categories (groups with sub-items) for this page.
+      // Pages without this flag keep the original flat product list.
+      window.PRODUCT_TREE = true;
+      // Label for the first breadcrumb link (back to the top level).
+      window.PRODUCT_ROOT_LABEL = "Coffee Gear";
     </script>
     <script src="/product-loader.js"></script>
       <script src="/nav-toggle.js"></script>

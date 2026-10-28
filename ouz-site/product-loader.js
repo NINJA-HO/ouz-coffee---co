@@ -25,6 +25,15 @@
 // against). If invalid, the exact reason is shown inline instead of
 // silently failing.
 //
+// NESTED CATEGORIES (opt-in): when a page sets window.PRODUCT_TREE = true,
+// items can be organised into groups. A "group" (isGroup === true, or any
+// item that has sub-items) is browse-only: its card shows just an image,
+// name and description — no price, no stock badge, no Place Order or
+// WhatsApp button. Tapping a group drills into it (with a breadcrumb and
+// the group's description as an intro line). Items with no sub-items are
+// normal products with the full order flow. Pages that don't set the flag
+// (Roastery, Green Beans) behave exactly as before.
+//
 // Uses the Firebase "compat" (non-module) API on purpose: some networks/proxies
 // have been seen mis-handling ES module <script type="module"> imports, so this
 // avoids the "import" keyword entirely for maximum compatibility.
@@ -34,6 +43,8 @@
   var db = firebase.firestore();
 
   var CATEGORY = window.PRODUCT_CATEGORY || "coffee-gear";
+  var TREE_MODE = window.PRODUCT_TREE === true;
+  var ROOT_LABEL = window.PRODUCT_ROOT_LABEL || "All";
   var DESC_PREVIEW_LENGTH = 90;
   var currentOrderProduct = null; // includes .id (Firestore doc id) once set
   var whatsappNumber = "";
@@ -46,6 +57,12 @@
     return typeof product.stock !== "number" || product.stock <= 0;
   }
 
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
   // Renders a price string, supporting an optional strikethrough discount
   // syntax: "~~NPR 1400~~ NPR 999" shows NPR 1400 crossed out next to
   // NPR 999 in bold. A plain price like "NPR 999" (or "Ask in-store")
@@ -56,11 +73,6 @@
     if (match) {
       var oldPrice = match[1].trim();
       var newPrice = match[2].trim();
-      // Only the crossed-out old price gets its own styled span (smaller,
-      // muted, line-through) — the current price is left as plain text so
-      // it inherits the exact same size/weight/color a normal price would
-      // (whatever .price already applies), instead of risking a mismatch
-      // from an inline override.
       // The old price gets a highlighted badge (light red background,
       // darker red text, line-through) so it's clearly legible and stands
       // out as a real discount — not just faded gray text — while the
@@ -396,8 +408,76 @@
     });
   }
 
-  // ================= LOAD & RENDER PRODUCTS =================
-  function loadProducts() {
+  // ================= PRODUCT CARD (orderable product) =================
+  // Builds the standard product card. Used as-is by both the flat list
+  // (Roastery, Green Beans) and the nested view (Coffee Gear).
+  function buildProductCard(data, docId) {
+    var images = data.images || [];
+    var mainImage = images[0] || "";
+    var description = data.description || "";
+    var flatDescription = description.replace(/\s+/g, " ").trim();
+    var preview =
+      flatDescription.length > DESC_PREVIEW_LENGTH
+        ? flatDescription.slice(0, DESC_PREVIEW_LENGTH).trim() + "…"
+        : flatDescription;
+
+    var whatsappLink = buildWhatsappLink(data, docId);
+    var whatsappHtml = whatsappLink
+      ? '<a class="whatsapp-btn" href="' + whatsappLink + '" target="_blank" rel="noopener" ' +
+        'aria-label="Chat on WhatsApp about ' + (data.name || "this product") + '">' +
+        WHATSAPP_ICON_SVG +
+        "</a>"
+      : "";
+
+    var outOfStock = isOutOfStock(data);
+    var badgeHtml = outOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : "";
+    var orderBtnHtml =
+      '<button class="btn btn-primary product-card-order-btn' +
+      (outOfStock ? " out-of-stock" : "") +
+      '" type="button">' +
+      (outOfStock ? "Out of Stock" : "Place Order") +
+      "</button>";
+
+    var card = document.createElement("div");
+    card.className = "product-card product-card-clickable";
+    card.innerHTML =
+      '<div class="product-card-img">' +
+      '<img src="' + mainImage + '" alt="' + (data.name || "") + '" />' +
+      "</div>" +
+      badgeHtml +
+      "<h3>" + (data.name || "") + "</h3>" +
+      '<div class="price">' + renderPriceHtml(data.price || "") + "</div>" +
+      '<p class="product-card-desc">' + preview + "</p>" +
+      '<div class="product-card-action-row">' +
+      orderBtnHtml +
+      whatsappHtml +
+      "</div>";
+
+    card.addEventListener("click", function () {
+      currentOrderProduct = data;
+      openModal(data, docId);
+    });
+
+    card.querySelector(".product-card-order-btn").addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (!outOfStock) {
+        currentOrderProduct = data;
+        openOrderModal(data);
+      }
+    });
+
+    var waBtn = card.querySelector(".whatsapp-btn");
+    if (waBtn) {
+      waBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+    }
+
+    return card;
+  }
+
+  // ================= FLAT LIST (original behaviour) =================
+  function loadFlatProducts() {
     var grid = document.getElementById("product-grid");
     var emptyMsg = document.getElementById("product-empty");
     if (!grid) return;
@@ -417,68 +497,7 @@
 
         snapshot.forEach(function (docSnap) {
           var data = Object.assign({ id: docSnap.id }, docSnap.data());
-          var images = data.images || [];
-          var mainImage = images[0] || "";
-          var description = data.description || "";
-          var flatDescription = description.replace(/\s+/g, " ").trim();
-          var preview =
-            flatDescription.length > DESC_PREVIEW_LENGTH
-              ? flatDescription.slice(0, DESC_PREVIEW_LENGTH).trim() + "…"
-              : flatDescription;
-
-          var whatsappLink = buildWhatsappLink(data, docSnap.id);
-          var whatsappHtml = whatsappLink
-            ? '<a class="whatsapp-btn" href="' + whatsappLink + '" target="_blank" rel="noopener" ' +
-              'aria-label="Chat on WhatsApp about ' + (data.name || "this product") + '">' +
-              WHATSAPP_ICON_SVG +
-              "</a>"
-            : "";
-
-          var outOfStock = isOutOfStock(data);
-          var badgeHtml = outOfStock ? '<span class="out-of-stock-badge">Out of Stock</span>' : "";
-          var orderBtnHtml =
-            '<button class="btn btn-primary product-card-order-btn' +
-            (outOfStock ? " out-of-stock" : "") +
-            '" type="button">' +
-            (outOfStock ? "Out of Stock" : "Place Order") +
-            "</button>";
-
-          var card = document.createElement("div");
-          card.className = "product-card product-card-clickable";
-          card.innerHTML =
-            '<div class="product-card-img">' +
-            '<img src="' + mainImage + '" alt="' + (data.name || "") + '" />' +
-            "</div>" +
-            badgeHtml +
-            "<h3>" + (data.name || "") + "</h3>" +
-            '<div class="price">' + renderPriceHtml(data.price || "") + "</div>" +
-            '<p class="product-card-desc">' + preview + "</p>" +
-            '<div class="product-card-action-row">' +
-            orderBtnHtml +
-            whatsappHtml +
-            "</div>";
-
-          card.addEventListener("click", function () {
-            currentOrderProduct = data;
-            openModal(data, docSnap.id);
-          });
-
-          card.querySelector(".product-card-order-btn").addEventListener("click", function (e) {
-            e.stopPropagation();
-            if (!outOfStock) {
-              currentOrderProduct = data;
-              openOrderModal(data);
-            }
-          });
-
-          var waBtn = card.querySelector(".whatsapp-btn");
-          if (waBtn) {
-            waBtn.addEventListener("click", function (e) {
-              e.stopPropagation();
-            });
-          }
-
-          grid.appendChild(card);
+          grid.appendChild(buildProductCard(data, docSnap.id));
         });
       })
       .catch(function (err) {
@@ -487,13 +506,225 @@
       });
   }
 
+  // ================= NESTED VIEW (groups + products) =================
+  var allItems = []; // flat list, each with .id
+  var byId = {};
+  var trail = []; // [{id, name}, ...] groups from the top level down to the current level
+
+  var treeGrid = document.getElementById("product-grid");
+  var treeEmptyMsg = document.getElementById("product-empty");
+  var breadcrumbEl = document.getElementById("productBreadcrumb");
+  var introEl = document.getElementById("productGroupIntro");
+  var defaultEmptyText = treeEmptyMsg ? treeEmptyMsg.textContent : "";
+
+  // Top-level = no parentId, or its parent no longer exists.
+  function isRoot(item) {
+    return !item.parentId || !byId[item.parentId];
+  }
+  function getChildren(parentId) {
+    return allItems.filter(function (item) {
+      return item.parentId === parentId;
+    });
+  }
+  function itemsAt(parentId) {
+    return parentId ? getChildren(parentId) : allItems.filter(isRoot);
+  }
+  // A group is flagged isGroup, or simply has sub-items.
+  function isGroupItem(item) {
+    return item.isGroup === true || getChildren(item.id).length > 0;
+  }
+  function pathTo(id) {
+    var arr = [];
+    var cur = byId[id];
+    var guard = 0;
+    while (cur && cur.parentId && byId[cur.parentId] && guard < 50) {
+      cur = byId[cur.parentId];
+      arr.unshift({ id: cur.id, name: cur.name || "" });
+      guard++;
+    }
+    return arr;
+  }
+
+  function scrollToTopOfList() {
+    var anchor = breadcrumbEl && breadcrumbEl.style.display !== "none" ? breadcrumbEl : treeGrid;
+    if (!anchor) return;
+    var top = anchor.getBoundingClientRect().top + window.pageYOffset - 100;
+    if (window.pageYOffset > top) window.scrollTo({ top: top, behavior: "smooth" });
+  }
+
+  function renderBreadcrumb() {
+    if (!breadcrumbEl) return;
+    if (!trail.length) {
+      breadcrumbEl.style.display = "none";
+      breadcrumbEl.innerHTML = "";
+      return;
+    }
+    breadcrumbEl.style.display = "block";
+    breadcrumbEl.innerHTML = "";
+
+    var homeLink = document.createElement("a");
+    homeLink.href = "#";
+    homeLink.textContent = ROOT_LABEL;
+    homeLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      trail = [];
+      renderLevel("");
+      scrollToTopOfList();
+    });
+    breadcrumbEl.appendChild(homeLink);
+
+    trail.forEach(function (crumb, index) {
+      var sep = document.createElement("span");
+      sep.textContent = " › ";
+      breadcrumbEl.appendChild(sep);
+
+      if (index === trail.length - 1) {
+        var current = document.createElement("span");
+        current.textContent = crumb.name;
+        current.className = "menu-breadcrumb-current";
+        breadcrumbEl.appendChild(current);
+      } else {
+        var link = document.createElement("a");
+        link.href = "#";
+        link.textContent = crumb.name;
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          trail = trail.slice(0, index + 1);
+          renderLevel(crumb.id);
+          scrollToTopOfList();
+        });
+        breadcrumbEl.appendChild(link);
+      }
+    });
+  }
+
+  // Shows the current group's full description as an intro line.
+  function renderIntro() {
+    if (!introEl) return;
+    var group = trail.length ? byId[trail[trail.length - 1].id] : null;
+    var text = group && group.description ? group.description.trim() : "";
+    if (text) {
+      introEl.textContent = text;
+      introEl.style.display = "block";
+    } else {
+      introEl.textContent = "";
+      introEl.style.display = "none";
+    }
+  }
+
+  // Browse-only card: image, name, description. No price, stock or buttons.
+  function buildGroupCard(item) {
+    var count = getChildren(item.id).length;
+    var flatDescription = (item.description || "").replace(/\s+/g, " ").trim();
+    var preview =
+      flatDescription.length > DESC_PREVIEW_LENGTH
+        ? flatDescription.slice(0, DESC_PREVIEW_LENGTH).trim() + "…"
+        : flatDescription;
+    var mainImage = (item.images && item.images[0]) || "";
+
+    var card = document.createElement("div");
+    card.className = "product-card product-card-clickable product-card-group";
+    card.innerHTML =
+      '<div class="product-card-img">' +
+      (mainImage ? '<img src="' + escapeHtml(mainImage) + '" alt="' + escapeHtml(item.name) + '" />' : "") +
+      "</div>" +
+      "<h3>" + escapeHtml(item.name) + " &rsaquo;</h3>" +
+      (preview ? '<p class="product-card-desc">' + escapeHtml(preview) + "</p>" : "") +
+      '<div class="product-group-hint">' +
+      (count ? count + (count === 1 ? " item" : " items") : "Coming soon") +
+      "</div>";
+
+    card.addEventListener("click", function () {
+      trail.push({ id: item.id, name: item.name || "" });
+      renderLevel(item.id);
+      scrollToTopOfList();
+    });
+
+    return card;
+  }
+
+  function renderLevel(parentId) {
+    if (!treeGrid) return;
+    var items = itemsAt(parentId);
+    treeGrid.innerHTML = "";
+    renderBreadcrumb();
+    renderIntro();
+
+    if (!items.length) {
+      if (treeEmptyMsg) {
+        treeEmptyMsg.style.display = "block";
+        treeEmptyMsg.textContent = trail.length ? "Nothing here yet." : defaultEmptyText;
+      }
+      return;
+    }
+    if (treeEmptyMsg) treeEmptyMsg.style.display = "none";
+
+    items.forEach(function (item) {
+      if (isGroupItem(item)) {
+        treeGrid.appendChild(buildGroupCard(item));
+      } else {
+        treeGrid.appendChild(buildProductCard(item, item.id));
+      }
+    });
+  }
+
+  function loadTree() {
+    if (!treeGrid) return Promise.resolve();
+
+    return db
+      .collection("products")
+      .where("category", "==", CATEGORY)
+      .orderBy("createdAt", "asc")
+      .get()
+      .then(function (snapshot) {
+        allItems = [];
+        byId = {};
+        snapshot.forEach(function (docSnap) {
+          var item = Object.assign({ id: docSnap.id }, docSnap.data());
+          allItems.push(item);
+          byId[item.id] = item;
+        });
+        trail = [];
+        renderLevel("");
+      })
+      .catch(function (err) {
+        if (treeEmptyMsg) {
+          treeEmptyMsg.style.display = "block";
+          treeEmptyMsg.textContent = defaultEmptyText;
+        }
+        console.warn("Products could not load from Firestore.", err);
+      });
+  }
+
+  function loadProducts() {
+    if (TREE_MODE) return loadTree();
+    loadFlatProducts();
+    return Promise.resolve();
+  }
+
   // ================= DEEP LINK: open a specific product's modal =================
   // If the page was visited via a shared link like coffee-gear.html?product=abc123
-  // (e.g. from a WhatsApp message), fetch that product directly and open its modal.
+  // (e.g. from a WhatsApp message), open that product's modal. In the nested
+  // view, the list is first navigated to the product's group so the
+  // breadcrumb is right; a link to a group simply opens that group.
   function openProductFromUrl() {
     var params = new URLSearchParams(window.location.search);
     var productId = params.get("product");
     if (!productId) return;
+
+    if (TREE_MODE && byId[productId]) {
+      var item = byId[productId];
+      if (isGroupItem(item)) {
+        trail = pathTo(productId).concat({ id: productId, name: item.name || "" });
+        renderLevel(productId);
+      } else {
+        trail = pathTo(productId);
+        renderLevel(trail.length ? trail[trail.length - 1].id : "");
+        currentOrderProduct = item;
+        openModal(item, productId);
+      }
+      return;
+    }
 
     db.collection("products")
       .doc(productId)
@@ -523,7 +754,12 @@
       console.warn("Could not load settings.", err);
     })
     .finally(function () {
-      loadProducts();
-      openProductFromUrl();
+      if (TREE_MODE) {
+        // The deep link needs the full list loaded first.
+        loadProducts().then(openProductFromUrl);
+      } else {
+        loadProducts();
+        openProductFromUrl();
+      }
     });
 })();

@@ -22,6 +22,156 @@
     />
     <link rel="stylesheet" href="/styles_base.css" />
     <link rel="stylesheet" href="/styles_pages.css" />
+    <style>
+      /* ===== Tutee lesson reader — mobile-first, scoped to this page (tt- prefix) ===== */
+      body.tt-lock { overflow: hidden; }
+
+      /* login */
+      #tuteeLoginCard input[type="text"],
+      #tuteeLoginCard input[type="tel"] { font-size: 16px; } /* 16px stops iOS zooming in on focus */
+      #tuteeLoginCard .btn { width: 100%; min-height: 48px; }
+      .tt-keep { display: flex; align-items: center; gap: 10px; margin: 6px 0 16px; font-size: 0.9rem; color: #6b5f56; cursor: pointer; min-height: 32px; }
+      .tt-keep input { width: 20px; height: 20px; margin: 0; accent-color: var(--maroon, #7a1b34); flex: none; }
+
+      /* welcome row */
+      .tt-welcome { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+      .tt-welcome p { margin: 0; color: #6b5f56; }
+      .tt-welcome .btn { min-height: 40px; }
+
+      /* layout */
+      .tt-layout { display: block; }
+      .tt-side { display: none; }
+      .tt-main { min-width: 0; }
+
+      /* lesson picker bar (phones) — sits in the page, scrolls away with it */
+      .tt-bar {
+        margin: 0 0 14px; background: #fff;
+        border: 1px solid #e6dccd; border-radius: 12px; overflow: hidden;
+      }
+      .tt-picker {
+        display: flex; align-items: center; gap: 12px; width: 100%;
+        padding: 10px 14px; min-height: 54px; border: 0; background: transparent;
+        font: inherit; text-align: left; cursor: pointer; color: inherit;
+      }
+      .tt-picker-text { flex: 1; min-width: 0; }
+      .tt-picker-label { display: block; font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--maroon, #7a1b34); }
+      .tt-picker-title { display: block; font-weight: 600; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .tt-picker-chev { flex: none; font-size: 1.1rem; color: #8a7d72; }
+      .tt-all-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+        margin-top: 12px; min-height: 48px; border: 1px solid #e6dccd; border-radius: 12px;
+        background: transparent; font: inherit; font-weight: 600; color: var(--maroon, #7a1b34); cursor: pointer;
+      }
+      .tt-all-btn:active { background: #faf4ec; }
+
+      /* article */
+      .tt-article {
+        background: #fff; border: 1px solid #e6dccd; border-radius: 14px;
+        padding: 22px 18px 26px; color: #2b2420;
+        font-size: 1.0625rem; line-height: 1.75; overflow-wrap: break-word; word-break: break-word;
+      }
+      .tt-loading { text-align: center; color: #8a7d72; padding: 40px 0; }
+      .tt-article-head { position: static !important; top: auto !important; z-index: auto !important; background: transparent !important; box-shadow: none !important; margin-bottom: 18px; padding: 0 0 16px !important; border-bottom: 1px solid #efe6d9; }
+      .tt-meta { margin: 0 0 6px; font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--maroon, #7a1b34); }
+      .tt-title { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: clamp(1.6rem, 6vw, 2.3rem); line-height: 1.2; color: var(--maroon-deep, #4d0f20); }
+
+      .tt-b { margin: 0 0 0.85em; }
+      .tt-p:empty { min-height: 0.8em; }
+      .tt-h1, .tt-h2, .tt-h3 { font-family: "Fraunces", Georgia, serif; font-weight: 700; line-height: 1.25; color: var(--maroon-deep, #4d0f20); margin-bottom: 0.5em; }
+      .tt-h1 { font-size: clamp(1.5rem, 5.2vw, 1.95rem); margin-top: 1.7em; }
+      .tt-h2 { font-size: clamp(1.28rem, 4.4vw, 1.5rem); margin-top: 1.4em; }
+      .tt-h3 { font-size: 1.13rem; margin-top: 1.2em; }
+      .tt-article-head + .tt-h1, .tt-article-head + .tt-h2, .tt-article-head + .tt-h3 { margin-top: 0; }
+
+      .tt-bullet, .tt-numbered { position: relative; padding-left: 1.7em; }
+      .tt-bullet::before { content: "•"; position: absolute; left: 0.45em; color: var(--maroon, #7a1b34); font-weight: 700; }
+      .tt-numbered::before { content: attr(data-num); position: absolute; left: 0; width: 1.5em; text-align: right; color: var(--maroon, #7a1b34); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+      /* checkboxes: whole row is the tap target */
+      .tt-check {
+        display: flex; align-items: flex-start; gap: 14px; cursor: pointer;
+        padding: 10px 12px; margin: 0 -12px 0.4em; border-radius: 10px; min-height: 46px;
+        -webkit-tap-highlight-color: rgba(122, 27, 52, 0.08);
+      }
+      .tt-check:active { background: #faf4ec; }
+      .tt-check input { flex: none; width: 24px; height: 24px; margin: 3px 0 0; accent-color: var(--maroon, #7a1b34); cursor: pointer; }
+      .tt-check.saving { opacity: 0.6; }
+
+      /* images */
+      .tt-image { margin: 1.1em 0; }
+      .tt-zoom { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+      .tt-zoom img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid #efe6d9; background: #faf4ec; }
+
+      /* previous / next */
+      .tt-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+      .tt-pager-btn {
+        display: block; width: 100%; text-align: left; padding: 14px 16px; min-height: 64px;
+        border: 1px solid #e6dccd; border-radius: 12px; background: #fff; font: inherit; color: inherit; cursor: pointer;
+      }
+      .tt-pager-btn:hover { border-color: var(--maroon, #7a1b34); }
+      .tt-pager-btn.next { grid-column: 2; text-align: right; background: var(--maroon, #7a1b34); border-color: var(--maroon, #7a1b34); color: #fff; }
+      .tt-pager-btn.next:hover { background: var(--maroon-deep, #4d0f20); }
+      .tt-pager-label { display: block; font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; margin-bottom: 2px; }
+      .tt-pager-title { display: block; font-weight: 600; font-size: 0.95rem; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .tt-pager-done { grid-column: 2; align-self: center; text-align: right; color: #8a7d72; font-size: 0.9rem; }
+
+      /* lesson list items (sidebar + sheet) */
+      .tt-nav-item {
+        display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+        padding: 12px 12px; min-height: 50px; border: 0; border-radius: 10px;
+        background: transparent; font: inherit; color: inherit; cursor: pointer;
+      }
+      .tt-nav-item:hover { background: #faf4ec; }
+      .tt-nav-item.active { background: rgba(122, 27, 52, 0.09); font-weight: 600; }
+      .tt-nav-num {
+        flex: none; width: 28px; height: 28px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: #f0e8dc; font-size: 0.82rem; font-weight: 600; color: #6b5f56;
+      }
+      .tt-nav-item.active .tt-nav-num { background: var(--maroon, #7a1b34); color: #fff; }
+      .tt-nav-title { flex: 1; min-width: 0; line-height: 1.35; }
+
+      /* bottom sheet */
+      .tt-sheet { position: fixed; inset: 0; z-index: 2000; visibility: hidden; pointer-events: none; }
+      .tt-sheet.open { visibility: visible; pointer-events: auto; }
+      .tt-sheet-backdrop { position: absolute; inset: 0; background: rgba(20, 12, 8, 0.5); opacity: 0; transition: opacity 0.2s ease; }
+      .tt-sheet.open .tt-sheet-backdrop { opacity: 1; }
+      .tt-sheet-panel {
+        position: absolute; left: 0; right: 0; bottom: 0; max-height: 80vh; max-height: 80dvh;
+        display: flex; flex-direction: column; background: #fff;
+        border-radius: 18px 18px 0 0; transform: translateY(100%); transition: transform 0.25s ease;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .tt-sheet.open .tt-sheet-panel { transform: translateY(0); }
+      .tt-sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+      .tt-sheet-head h3 { margin: 0; font-size: 1.1rem; }
+      .tt-sheet-close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; font-size: 1.6rem; line-height: 1; cursor: pointer; color: #6b5f56; }
+      .tt-sheet-list { overflow-y: auto; padding: 4px 10px 14px; -webkit-overflow-scrolling: touch; }
+
+      /* lightbox */
+      .tt-lightbox { position: fixed; inset: 0; z-index: 3000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.92); padding: 16px; cursor: zoom-out; }
+      .tt-lightbox.open { display: flex; }
+      .tt-lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+      .tt-lightbox-hint { position: absolute; top: 14px; right: 16px; color: #fff; font-size: 2rem; line-height: 1; opacity: 0.85; }
+
+      /* wide screens: lesson list becomes a sidebar, bar + sheet disappear */
+      @media (min-width: 900px) {
+        .tt-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; align-items: start; }
+        .tt-side { display: block; background: #fff; border: 1px solid #e6dccd; border-radius: 14px; padding: 12px; }
+        .tt-side-label { margin: 4px 8px 8px; font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--maroon, #7a1b34); }
+        .tt-bar, .tt-all-btn { display: none; }
+        .tt-article { padding: 36px 44px 44px; border-radius: 16px; }
+        .tt-pager { margin-top: 24px; }
+      }
+      @media (max-width: 380px) {
+        .tt-article { padding: 18px 14px 22px; }
+        .tt-pager { grid-template-columns: 1fr; }
+        .tt-pager-btn.next, .tt-pager-done { grid-column: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tt-sheet-panel, .tt-sheet-backdrop { transition: none; }
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -66,12 +216,14 @@
           </p>
 
           <label for="loginName">Full Name</label>
-          <input id="loginName" type="text" placeholder="Your full name" />
+          <input id="loginName" type="text" placeholder="Your full name" autocomplete="name" autocapitalize="words" enterkeyhint="next" />
           <div class="order-field-error" id="loginNameError">Please enter your full name.</div>
 
           <label for="loginPhone">Mobile Number</label>
-          <input id="loginPhone" type="tel" placeholder="e.g. 98XXXXXXXX" />
+          <input id="loginPhone" type="tel" inputmode="tel" placeholder="e.g. 98XXXXXXXX" autocomplete="tel" enterkeyhint="go" />
           <div class="order-field-error" id="loginPhoneError">Please enter your registered mobile number.</div>
+
+          <label class="tt-keep"><input type="checkbox" id="loginKeep" checked /> Keep me signed in on this device</label>
 
           <button class="btn btn-primary" type="button" id="loginBtn">Enter</button>
           <div class="status-msg" id="loginStatus"></div>
@@ -79,13 +231,36 @@
 
         <!-- ===== LESSONS VIEW (hidden until login succeeds) ===== -->
         <div id="tuteeLessonsView" style="display: none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
-            <p style="margin:0;color:#6b5f56;">Welcome, <strong id="welcomeName"></strong>.</p>
+          <div class="tt-welcome">
+            <p>Welcome, <strong id="welcomeName"></strong>.</p>
             <button class="btn btn-ghost" type="button" id="logoutTuteeBtn">Log Out</button>
           </div>
 
-          <div id="lessonNavList" class="lesson-nav-list"></div>
-          <div id="lessonContentArea" class="lesson-content-area"></div>
+          <div class="tt-layout" id="ttLayout">
+            <!-- wide screens: lesson list sidebar -->
+            <aside class="tt-side" aria-label="Lessons">
+              <p class="tt-side-label">Lessons</p>
+              <div id="lessonNavList"></div>
+            </aside>
+
+            <div class="tt-main">
+              <!-- phones: "Lesson 2 of 8" bar that opens the lesson picker -->
+              <div class="tt-bar" id="ttBar">
+                <button class="tt-picker" type="button" id="ttPickerBtn" aria-haspopup="dialog">
+                  <span class="tt-picker-text">
+                    <span class="tt-picker-label" id="ttPickerLabel">Lessons</span>
+                    <span class="tt-picker-title" id="ttPickerTitle"></span>
+                  </span>
+                  <span class="tt-picker-chev" aria-hidden="true">&#9662;</span>
+                </button>
+              </div>
+
+              <article id="lessonContentArea" class="tt-article"></article>
+              <nav class="tt-pager" id="ttPager" aria-label="Previous and next lesson"></nav>
+              <button class="tt-all-btn" type="button" id="ttAllBtn">&#9776; All lessons</button>
+            </div>
+          </div>
+
           <p class="product-empty" id="noLessonsMsg" style="display:none;">
             No lessons have been added yet — check back soon.
           </p>
@@ -93,6 +268,24 @@
 
       </div>
     </section>
+
+    <!-- Lesson picker (bottom sheet on phones) -->
+    <div class="tt-sheet" id="ttSheet" role="dialog" aria-modal="true" aria-label="Choose a lesson" aria-hidden="true">
+      <div class="tt-sheet-backdrop" id="ttSheetBackdrop"></div>
+      <div class="tt-sheet-panel">
+        <div class="tt-sheet-head">
+          <h3>All lessons</h3>
+          <button class="tt-sheet-close" type="button" id="ttSheetClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="tt-sheet-list" id="ttSheetList"></div>
+      </div>
+    </div>
+
+    <!-- Full-screen image viewer (tap an image in a lesson) -->
+    <div class="tt-lightbox" id="ttLightbox" role="dialog" aria-modal="true" aria-label="Image" aria-hidden="true">
+      <span class="tt-lightbox-hint" aria-hidden="true">&times;</span>
+      <img id="ttLightboxImg" alt="" />
+    </div>
 
     <footer>
       <div class="wrap foot-flex">

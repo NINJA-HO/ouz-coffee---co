@@ -9,6 +9,10 @@
 // addition is a small category badge on each card (Coffee Gear / Roastery /
 // Green Beans) plus a live, ranked search box at the top of the page.
 //
+// NESTED CATEGORIES: items can be groups (browse-only: image, name, description)
+// or products (full ordering flow). Browsing shows one level at a time with a
+// breadcrumb; typing in the search box searches every item flat, across all levels.
+//
 // Uses the Firebase "compat" (non-module) API on purpose, same as every
 // other loader script on this site, for maximum network compatibility.
 
@@ -22,6 +26,57 @@
   var PLACE_ORDER_URL = "https://us-central1-ouz-coffee-co.cloudfunctions.net/placeOrder";
   var allProducts = []; // flat array of { id, ...productFields }
   var activeCategory = "all"; // "all" | "coffee-gear" | "roastery" | "green-beans"
+
+  // ---- nested view state ----
+  var byId = {};
+  var trail = []; // [{id, name}, ...] groups from the top level down to the current level
+
+  function escapeHtml(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+  // Top-level = no parentId, or its parent no longer exists.
+  function isRoot(item) {
+    return !item.parentId || !byId[item.parentId];
+  }
+  function getChildren(parentId) {
+    return allProducts.filter(function (item) {
+      return item.parentId === parentId;
+    });
+  }
+  // A group is flagged isGroup, or simply has sub-items.
+  function isGroupItem(item) {
+    return item.isGroup === true || getChildren(item.id).length > 0;
+  }
+  function pathTo(id) {
+    var arr = [];
+    var cur = byId[id];
+    var guard = 0;
+    while (cur && cur.parentId && byId[cur.parentId] && guard < 50) {
+      cur = byId[cur.parentId];
+      arr.unshift({ id: cur.id, name: cur.name || "" });
+      guard++;
+    }
+    return arr;
+  }
+  function currentQuery() {
+    var el = document.getElementById("collectionsSearch");
+    return el ? el.value : "";
+  }
+  function refresh() {
+    renderProducts(getFilteredSortedProducts(currentQuery()));
+  }
+  function scrollToTopOfList() {
+    var bc = document.getElementById("productBreadcrumb");
+    var anchor = bc && bc.style.display !== "none" ? bc : document.getElementById("product-grid");
+    if (!anchor) return;
+    var top = anchor.getBoundingClientRect().top + window.pageYOffset - 100;
+    if (window.pageYOffset > top) window.scrollTo({ top: top, behavior: "smooth" });
+  }
 
   var WHATSAPP_ICON_SVG =
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 2C6.48 2 2 6.02 2 11c0 2.25.9 4.29 2.4 5.9L2 22l5.5-1.8C9 20.7 10.46 21 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>';
@@ -456,18 +511,19 @@
   function getFilteredSortedProducts(query) {
     var trimmed = (query || "").trim();
 
-    var base =
-      activeCategory === "all"
-        ? allProducts.slice()
-        : allProducts.filter(function (product) {
-            return product.category === activeCategory;
-          });
-
-    if (!trimmed) {
-      return base; // original createdAt order, just category-filtered
+    function inCategory(product) {
+      return activeCategory === "all" || product.category === activeCategory;
     }
 
-    return base
+    // Browsing (no search text): show just the current level of the tree.
+    if (!trimmed) {
+      if (trail.length) return getChildren(trail[trail.length - 1].id);
+      return allProducts.filter(isRoot).filter(inCategory);
+    }
+
+    // Searching: flat, ranked results across every level.
+    return allProducts
+      .filter(inCategory)
       .map(function (product) {
         return { product: product, score: scoreProduct(product, trimmed) };
       })
@@ -487,6 +543,96 @@
     return categoryLabel(activeCategory);
   }
 
+  // ================= BREADCRUMB, INTRO, GROUP CARD =================
+  function renderBreadcrumb(searching) {
+    var el = document.getElementById("productBreadcrumb");
+    if (!el) return;
+    if (searching || !trail.length) {
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    el.style.display = "block";
+    el.innerHTML = "";
+
+    var home = document.createElement("a");
+    home.href = "#";
+    home.textContent = activeCategory === "all" ? "Collections" : categoryLabel(activeCategory);
+    home.addEventListener("click", function (e) {
+      e.preventDefault();
+      trail = [];
+      refresh();
+      scrollToTopOfList();
+    });
+    el.appendChild(home);
+
+    trail.forEach(function (crumb, index) {
+      var sep = document.createElement("span");
+      sep.textContent = " › ";
+      el.appendChild(sep);
+      if (index === trail.length - 1) {
+        var cur = document.createElement("span");
+        cur.textContent = crumb.name;
+        cur.className = "menu-breadcrumb-current";
+        el.appendChild(cur);
+      } else {
+        var link = document.createElement("a");
+        link.href = "#";
+        link.textContent = crumb.name;
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          trail = trail.slice(0, index + 1);
+          refresh();
+          scrollToTopOfList();
+        });
+        el.appendChild(link);
+      }
+    });
+  }
+
+  // Shows the current group's full description as an intro line.
+  function renderIntro(searching) {
+    var el = document.getElementById("productGroupIntro");
+    if (!el) return;
+    var group = !searching && trail.length ? byId[trail[trail.length - 1].id] : null;
+    var text = group && group.description ? group.description.trim() : "";
+    el.textContent = text;
+    el.style.display = text ? "block" : "none";
+  }
+
+  // Browse-only card: image, name, description. No price, stock or buttons.
+  function buildGroupCard(item) {
+    var count = getChildren(item.id).length;
+    var flat = (item.description || "").replace(/\s+/g, " ").trim();
+    var preview = flat.length > DESC_PREVIEW_LENGTH ? flat.slice(0, DESC_PREVIEW_LENGTH).trim() + "…" : flat;
+    var mainImage = (item.images && item.images[0]) || "";
+
+    var card = document.createElement("div");
+    card.className = "product-card product-card-clickable product-card-group";
+    card.innerHTML =
+      '<div class="product-card-img">' +
+      (mainImage ? '<img src="' + escapeHtml(mainImage) + '" alt="' + escapeHtml(item.name) + '" />' : "") +
+      '<span class="collection-category-badge collection-cat-' + escapeHtml(item.category || "coffee-gear") + '">' +
+      categoryLabel(item.category) +
+      "</span>" +
+      "</div>" +
+      "<h3>" + escapeHtml(item.name) + " &rsaquo;</h3>" +
+      (preview ? '<p class="product-card-desc">' + escapeHtml(preview) + "</p>" : "") +
+      '<div class="product-group-hint">' +
+      (count ? count + (count === 1 ? " item" : " items") : "Coming soon") +
+      "</div>";
+
+    card.addEventListener("click", function () {
+      // Opening a group (even from search results) leaves search and drills in.
+      var searchEl = document.getElementById("collectionsSearch");
+      if (searchEl) searchEl.value = "";
+      trail = pathTo(item.id).concat({ id: item.id, name: item.name || "" });
+      refresh();
+      scrollToTopOfList();
+    });
+    return card;
+  }
+
   // ================= RENDER PRODUCT GRID =================
   function renderProducts(products) {
     var grid = document.getElementById("product-grid");
@@ -498,6 +644,8 @@
 
     if (!grid) return;
     grid.innerHTML = "";
+    renderBreadcrumb(!!query);
+    renderIntro(!!query);
 
     if (!products.length) {
       if (emptyMsg) {
@@ -506,8 +654,10 @@
           emptyMsg.textContent = "New products are on their way — check back shortly.";
         } else if (query) {
           emptyMsg.textContent = "No products match your search.";
+        } else if (trail.length) {
+          emptyMsg.textContent = "Nothing here yet.";
         } else {
-          emptyMsg.textContent = "No " + filterLabel + " products yet.";
+          emptyMsg.textContent = "No " + (filterLabel ? filterLabel + " " : "") + "products yet.";
         }
       }
     } else if (emptyMsg) {
@@ -519,14 +669,18 @@
         countEl.textContent =
           products.length + " match" + (products.length === 1 ? "" : "es") + ' for "' + query + '"' +
           (filterLabel ? " in " + filterLabel : "");
-      } else if (filterLabel) {
-        countEl.textContent = products.length + " " + filterLabel + " product" + (products.length === 1 ? "" : "s");
+      } else if (filterLabel && !trail.length) {
+        countEl.textContent = products.length + " " + filterLabel + " item" + (products.length === 1 ? "" : "s");
       } else {
         countEl.textContent = "";
       }
     }
 
     products.forEach(function (data) {
+      if (isGroupItem(data)) {
+        grid.appendChild(buildGroupCard(data));
+        return;
+      }
       var images = data.images || [];
       var mainImage = images[0] || "";
       var description = data.description || "";
@@ -599,15 +753,19 @@
 
   // ================= LOAD ALL PRODUCTS (once) =================
   function loadAllProducts() {
-    db.collection("products")
+    return db.collection("products")
       .orderBy("createdAt", "asc")
       .get()
       .then(function (snapshot) {
         allProducts = [];
+        byId = {};
         snapshot.forEach(function (docSnap) {
-          allProducts.push(Object.assign({ id: docSnap.id }, docSnap.data()));
+          var item = Object.assign({ id: docSnap.id }, docSnap.data());
+          allProducts.push(item);
+          byId[item.id] = item;
         });
-        renderProducts(allProducts);
+        trail = [];
+        refresh();
       })
       .catch(function (err) {
         var emptyMsg = document.getElementById("product-empty");
@@ -621,6 +779,21 @@
     var params = new URLSearchParams(window.location.search);
     var productId = params.get("product");
     if (!productId) return;
+
+    // Already loaded: go to the item's group first so the breadcrumb is right.
+    var known = byId[productId];
+    if (known) {
+      if (isGroupItem(known)) {
+        trail = pathTo(productId).concat({ id: productId, name: known.name || "" });
+        refresh();
+      } else {
+        trail = pathTo(productId);
+        refresh();
+        currentOrderProduct = known;
+        openModal(known, productId);
+      }
+      return;
+    }
 
     db.collection("products")
       .doc(productId)
@@ -641,7 +814,7 @@
   var collectionsSearchInput = document.getElementById("collectionsSearch");
   if (collectionsSearchInput) {
     collectionsSearchInput.addEventListener("input", function (e) {
-      renderProducts(getFilteredSortedProducts(e.target.value));
+      refresh();
     });
   }
 
@@ -655,8 +828,8 @@
       btn.classList.add("active");
       activeCategory = btn.getAttribute("data-category");
 
-      var currentQuery = collectionsSearchInput ? collectionsSearchInput.value : "";
-      renderProducts(getFilteredSortedProducts(currentQuery));
+      trail = []; // switching category always returns to the top level
+      refresh();
     });
   });
 
@@ -673,7 +846,6 @@
       console.warn("Could not load settings.", err);
     })
     .finally(function () {
-      loadAllProducts();
-      openProductFromUrl();
+      loadAllProducts().then(openProductFromUrl);
     });
 })();

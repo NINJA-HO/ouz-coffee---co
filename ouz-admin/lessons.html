@@ -11,6 +11,599 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#221a16" />
     <link rel="stylesheet" href="/admin.css" />
+    <style>
+      /* ================= Lessons editor — Notion-style, scoped to this page ================= */
+      .lessons-notion {
+        --n-text: #37352f;
+        --n-muted: #9b9a97;
+        --n-faint: #c3c2bf;
+        --n-hover: #f1f1ef;
+        --n-border: #e9e9e7;
+        --n-accent: #7a1b34;
+        --n-accent-soft: rgba(122, 27, 52, 0.08);
+        color: var(--n-text);
+        max-width: 860px;
+      }
+      .lessons-notion *,
+      .n-floating * {
+        box-sizing: border-box;
+      }
+
+      /* ---------- buttons ---------- */
+      .n-btn {
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--n-border);
+        background: #fff;
+        color: var(--n-text);
+        cursor: pointer;
+        line-height: 1.2;
+        transition: background 0.12s ease, border-color 0.12s ease;
+      }
+      .n-btn:hover {
+        background: var(--n-hover);
+      }
+      .n-btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+      }
+      .n-btn-primary {
+        background: var(--n-accent);
+        border-color: var(--n-accent);
+        color: #fff;
+      }
+      .n-btn-primary:hover {
+        background: #651628;
+        border-color: #651628;
+      }
+      .n-btn-quiet {
+        border-color: transparent;
+        background: transparent;
+        color: #6b6a66;
+      }
+      .n-btn-quiet:hover {
+        background: var(--n-hover);
+      }
+
+      /* ---------- list view ---------- */
+      .n-list-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+      .n-list-head h2 {
+        margin: 0 0 4px;
+        font-size: 1.7rem;
+      }
+      .n-list-head p {
+        margin: 0;
+        color: var(--n-muted);
+        font-size: 0.92rem;
+        max-width: 52ch;
+      }
+      .lessons-notion .n-search {
+        width: 100%;
+        font: inherit;
+        font-size: 0.92rem;
+        padding: 9px 12px;
+        margin: 0 0 12px;
+        border: 1px solid var(--n-border);
+        border-radius: 8px;
+        background: #fff;
+        outline: none;
+        box-shadow: none;
+      }
+      .lessons-notion .n-search:focus {
+        border-color: var(--n-accent);
+      }
+      .n-lessons {
+        border-top: 1px solid var(--n-border);
+      }
+      .n-lesson {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 10px;
+        border-bottom: 1px solid var(--n-border);
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background 0.1s ease;
+      }
+      .n-lesson:hover,
+      .n-lesson:focus-visible {
+        background: var(--n-hover);
+        outline: none;
+      }
+      .n-lesson-icon {
+        font-size: 1.15rem;
+        width: 26px;
+        text-align: center;
+        flex: none;
+      }
+      .n-lesson-title {
+        flex: 1;
+        min-width: 0;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .n-lesson-title.untitled {
+        color: var(--n-muted);
+        font-weight: 400;
+      }
+      .n-lesson-meta {
+        flex: none;
+        color: var(--n-muted);
+        font-size: 0.8rem;
+      }
+      .n-lesson-arrow {
+        flex: none;
+        color: var(--n-faint);
+        font-size: 1.2rem;
+      }
+      .n-empty {
+        text-align: center;
+        padding: 56px 16px;
+        color: var(--n-muted);
+      }
+      .n-empty .n-empty-icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+      }
+      .n-empty p {
+        margin: 0 0 16px;
+      }
+
+      /* ---------- editor top bar ---------- */
+      .n-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        margin-bottom: 14px;
+        background: rgba(250, 247, 242, 0.92);
+        backdrop-filter: blur(6px);
+      }
+      .n-topbar .n-spacer {
+        flex: 1;
+      }
+      .n-status {
+        font-size: 0.82rem;
+        color: var(--n-muted);
+      }
+      .n-status.dirty {
+        color: #b26a00;
+      }
+      .n-status.saved {
+        color: #2f7d4f;
+      }
+      .n-status.error {
+        color: #b3261e;
+      }
+
+      /* ---------- the page ---------- */
+      .n-page {
+        background: #fff;
+        border: 1px solid var(--n-border);
+        border-radius: 12px;
+        padding: 48px 56px 40px 72px;
+        min-height: 60vh;
+      }
+      .lessons-notion .n-title {
+        display: block;
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        margin: 0 0 22px;
+        font: inherit;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 2.3rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--n-text);
+      }
+      .lessons-notion .n-title::placeholder {
+        color: var(--n-faint);
+      }
+
+      .n-row {
+        position: relative;
+        margin: 1px 0;
+      }
+      .n-row.n-dragging {
+        opacity: 0.35;
+      }
+      .n-row.n-drop-before::before,
+      .n-row.n-drop-after::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--n-accent);
+        pointer-events: none;
+        z-index: 3;
+      }
+      .n-row.n-drop-before::before {
+        top: -2px;
+      }
+      .n-row.n-drop-after::after {
+        bottom: -2px;
+      }
+
+      /* hover gutter: + and drag handle */
+      .n-gutter {
+        position: absolute;
+        left: -58px;
+        top: 3px;
+        display: flex;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 0.1s ease;
+      }
+      .n-row:hover .n-gutter,
+      .n-row:focus-within .n-gutter {
+        opacity: 1;
+      }
+      .n-gutter button {
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--n-faint);
+        font-size: 1.05rem;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .n-gutter button:hover {
+        background: var(--n-hover);
+        color: #6b6a66;
+      }
+      .n-gutter .n-handle {
+        cursor: grab;
+        letter-spacing: -2px;
+      }
+
+      .n-body {
+        position: relative;
+      }
+      .n-content {
+        outline: none;
+        padding: 3px 2px;
+        line-height: 1.65;
+        font-size: 1rem;
+        min-height: 1.65em;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .n-c-heading1 {
+        font-size: 1.9rem;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 0.9em;
+      }
+      .n-c-heading2 {
+        font-size: 1.5rem;
+        font-weight: 650;
+        line-height: 1.3;
+        margin-top: 0.7em;
+      }
+      .n-c-heading3 {
+        font-size: 1.2rem;
+        font-weight: 650;
+        line-height: 1.35;
+        margin-top: 0.5em;
+      }
+      .n-row:first-child .n-c-heading1,
+      .n-row:first-child .n-c-heading2,
+      .n-row:first-child .n-c-heading3 {
+        margin-top: 0;
+      }
+      .n-content:empty::before {
+        content: attr(data-ph);
+        color: var(--n-faint);
+        pointer-events: none;
+        float: left;
+        height: 0;
+      }
+      /* plain text shows its hint only while focused (or when it is the only block) */
+      .n-c-paragraph:empty::before {
+        content: "";
+      }
+      .n-c-paragraph:empty:focus::before,
+      .n-only .n-c-paragraph:empty::before {
+        content: attr(data-ph);
+      }
+
+      /* list markers */
+      .n-row[data-type="bullet"] .n-body,
+      .n-row[data-type="numbered"] .n-body,
+      .n-row[data-type="checkbox"] .n-body {
+        padding-left: 28px;
+      }
+      .n-row[data-type="bullet"] .n-body::before {
+        content: "•";
+        position: absolute;
+        left: 8px;
+        top: 3px;
+        line-height: 1.65;
+        font-size: 1.1rem;
+      }
+      .n-row[data-type="numbered"] .n-body::before {
+        content: attr(data-num) ".";
+        position: absolute;
+        right: calc(100% - 24px);
+        top: 3px;
+        line-height: 1.65;
+        color: #6b6a66;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .n-check {
+        position: absolute;
+        left: 4px;
+        top: 7px;
+        width: 17px;
+        height: 17px;
+        margin: 0;
+        accent-color: var(--n-accent);
+        cursor: pointer;
+      }
+      .n-row[data-checked="true"] .n-content {
+        color: var(--n-muted);
+        text-decoration: line-through;
+      }
+
+      /* image block */
+      .n-image {
+        margin: 6px 0;
+        border-radius: 8px;
+        outline: none;
+      }
+      .n-image:focus-visible {
+        box-shadow: 0 0 0 2px var(--n-accent);
+      }
+      .n-image-empty {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px;
+        border: 1.5px dashed var(--n-border);
+        border-radius: 8px;
+        background: #fbfbfa;
+        color: var(--n-muted);
+        cursor: pointer;
+        transition: background 0.12s ease, border-color 0.12s ease;
+      }
+      .n-image-empty:hover,
+      .n-image.n-over .n-image-empty {
+        background: var(--n-hover);
+        border-color: var(--n-accent);
+      }
+      .n-image-empty .n-image-ico {
+        font-size: 1.6rem;
+      }
+      .n-image-empty strong {
+        display: block;
+        color: var(--n-text);
+        font-weight: 500;
+      }
+      .n-image-empty small {
+        font-size: 0.8rem;
+      }
+      .n-image-filled {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+      }
+      .n-image-filled img {
+        display: block;
+        max-width: 100%;
+        max-height: 460px;
+        border-radius: 8px;
+        border: 1px solid var(--n-border);
+      }
+      .n-image-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.12s ease;
+      }
+      .n-image-filled:hover .n-image-actions,
+      .n-image:focus-within .n-image-actions {
+        opacity: 1;
+      }
+      .n-image-actions .n-btn {
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+      .n-image-pending {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 0.75rem;
+        color: #b26a00;
+      }
+
+      .n-tail {
+        min-height: 90px;
+        cursor: text;
+        color: var(--n-faint);
+        padding-top: 8px;
+        font-size: 0.95rem;
+      }
+      .n-tail span {
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+      .n-tail:hover span {
+        opacity: 1;
+      }
+
+      /* ---------- floating things (appended to <body>) ---------- */
+      .n-floating {
+        position: fixed;
+        z-index: 1000;
+        display: none;
+        background: #fff;
+        border: 1px solid var(--n-border);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+        color: #37352f;
+        font-size: 0.9rem;
+      }
+      #slashMenu {
+        width: 280px;
+        max-height: 320px;
+        overflow-y: auto;
+        padding: 6px;
+      }
+      #ctxMenu {
+        min-width: 210px;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 6px;
+      }
+      .n-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 7px 8px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+      .n-menu-item:hover,
+      .n-menu-item.active {
+        background: var(--n-hover, #f1f1ef);
+      }
+      .n-menu-item:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .n-menu-item.danger {
+        color: #b3261e;
+      }
+      .n-menu-item.current {
+        font-weight: 600;
+      }
+      .n-menu-ico {
+        flex: none;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e9e9e7;
+        border-radius: 6px;
+        background: #fff;
+        font-weight: 600;
+        font-size: 0.82rem;
+      }
+      .n-menu-ico.small {
+        width: 22px;
+        height: 22px;
+        border: none;
+        background: transparent;
+        font-size: 0.8rem;
+        color: #6b6a66;
+      }
+      .n-menu-text strong {
+        display: block;
+        font-weight: 500;
+      }
+      .n-menu-text small {
+        color: #9b9a97;
+        font-size: 0.76rem;
+      }
+      .n-menu-head {
+        padding: 6px 8px 4px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9b9a97;
+      }
+      .n-menu-sep {
+        height: 1px;
+        background: #e9e9e7;
+        margin: 5px 0;
+      }
+      #fmtBar {
+        padding: 3px;
+        display: none;
+        gap: 2px;
+        border-radius: 8px;
+      }
+      #fmtBar button {
+        width: 30px;
+        height: 28px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        color: #37352f;
+      }
+      #fmtBar button:hover {
+        background: #f1f1ef;
+      }
+
+      @media (hover: none) {
+        .n-gutter {
+          opacity: 0.55;
+        }
+      }
+      @media (max-width: 720px) {
+        .n-page {
+          padding: 28px 18px 28px 44px;
+        }
+        .n-gutter {
+          left: -42px;
+        }
+        .n-gutter .n-add {
+          display: none;
+        }
+        .lessons-notion .n-title {
+          font-size: 1.8rem;
+        }
+        .n-lesson-meta {
+          display: none;
+        }
+        .n-list-head {
+          flex-direction: column;
+        }
+      }
+    </style>
   </head>
   <body>
     <header class="admin-header">
@@ -44,57 +637,52 @@
       </aside>
 
       <main class="admin-main">
-        <div class="section-title">
-          <div>
-            <h2>Lessons</h2>
-            <p>Write the notes students see on the Tutee page — same for every registered student.</p>
-          </div>
-        </div>
+        <div class="lessons-notion">
+          <!-- ===== LIST VIEW ===== -->
+          <div id="lessonListView">
+            <div class="n-list-head">
+              <div>
+                <h2>Lessons</h2>
+                <p>The notes your students read on the Tutee page — the same for every registered student.</p>
+              </div>
+              <button class="n-btn n-btn-primary" type="button" id="newLessonBtn">+ New lesson</button>
+            </div>
 
-        <!-- ===== LIST VIEW ===== -->
-        <div id="lessonListView">
-          <button class="btn btn-primary" type="button" id="newLessonBtn">+ New Lesson</button>
-          <div id="lessonsList" class="orders-list" style="margin-top: 24px;"></div>
-          <div class="empty-state" id="emptyState" style="display: none;">
-            No lessons yet — click "+ New Lesson" to write your first one.
-          </div>
-        </div>
-
-        <!-- ===== EDITOR VIEW ===== -->
-        <div id="lessonEditorView" style="display: none;">
-          <button class="btn btn-ghost" type="button" id="backToListBtn">&larr; Back to Lessons</button>
-
-          <div class="add-card" style="margin-top: 20px;">
-            <div class="field">
-              <label for="lessonTitleInput">Lesson Title</label>
-              <input id="lessonTitleInput" type="text" placeholder="e.g. Lesson 1 — Espresso Basics" />
+            <input class="n-search" id="lessonSearch" type="search" placeholder="Search lessons…" autocomplete="off" style="display: none;" />
+            <div id="lessonsList" class="n-lessons"></div>
+            <div class="n-empty" id="emptyState" style="display: none;">
+              <div class="n-empty-icon">📄</div>
+              <p>No lessons yet. Write your first one — it only takes a title and a few lines.</p>
+              <button class="n-btn n-btn-primary" type="button" id="emptyNewBtn">+ New lesson</button>
             </div>
           </div>
 
-          <div class="add-card">
-            <h3>Notes</h3>
-            <div id="blocksContainer"></div>
-
-            <div class="add-block-menu">
-              <span class="add-block-label">+ Add block:</span>
-              <button class="tb-btn" type="button" data-add="heading1">Heading 1</button>
-              <button class="tb-btn" type="button" data-add="heading2">Heading 2</button>
-              <button class="tb-btn" type="button" data-add="heading3">Heading 3</button>
-              <button class="tb-btn" type="button" data-add="paragraph">Text</button>
-              <button class="tb-btn" type="button" data-add="bullet">Bullet List</button>
-              <button class="tb-btn" type="button" data-add="numbered">Numbered List</button>
-              <button class="tb-btn" type="button" data-add="checkbox">Checkbox</button>
-              <button class="tb-btn" type="button" data-add="image">Image</button>
+          <!-- ===== EDITOR VIEW ===== -->
+          <div id="lessonEditorView" style="display: none;">
+            <div class="n-topbar">
+              <button class="n-btn n-btn-quiet" type="button" id="backToListBtn">&larr; All lessons</button>
+              <span class="n-spacer"></span>
+              <span class="n-status" id="lessonStatus"></span>
+              <button class="n-btn n-btn-quiet" type="button" id="lessonMenuBtn" aria-label="More options" style="display: none;">&middot;&middot;&middot;</button>
+              <button class="n-btn n-btn-primary" type="button" id="saveLessonBtn">Save</button>
             </div>
-          </div>
 
-          <div class="add-card" style="display: flex; gap: 12px; align-items: center;">
-            <button class="btn btn-primary" type="button" id="saveLessonBtn">Save Lesson</button>
-            <button class="btn btn-danger" type="button" id="deleteLessonBtn" style="display: none;">Delete Lesson</button>
-            <div class="status-msg" id="lessonStatus" style="margin-top: 0;"></div>
+            <div class="n-page">
+              <input class="n-title" id="lessonTitleInput" type="text" placeholder="Untitled lesson" autocomplete="off" />
+              <div id="blocksContainer"></div>
+              <div class="n-tail" id="addTail"><span>Click here to add more</span></div>
+            </div>
           </div>
         </div>
       </main>
+    </div>
+
+    <!-- floating UI -->
+    <div class="n-floating" id="slashMenu"></div>
+    <div class="n-floating" id="ctxMenu"></div>
+    <div class="n-floating" id="fmtBar">
+      <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
     </div>
 
     <!-- Firebase compat scripts: plain <script> tags, no "import" statements. -->
@@ -120,325 +708,1139 @@
         }
       });
       document.getElementById("logoutBtn").addEventListener("click", function () {
+        if (!confirmDiscard()) return;
         auth.signOut().then(function () {
           window.location.href = "/index.html";
         });
       });
 
-      // ---- View switching ----
-      var listView = document.getElementById("lessonListView");
-      var editorView = document.getElementById("lessonEditorView");
-      var currentLessonId = null; // null = creating a new lesson
-      var blocks = []; // in-memory array of block objects for the lesson being edited
+      // ================= shared helpers =================
+      function $(id) {
+        return document.getElementById(id);
+      }
+      function esc(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function makeBlockId() {
+        return "b" + Date.now() + Math.random().toString(36).slice(2, 8);
+      }
 
+      // Block types are exactly the ones the Tutee page already understands.
+      var TYPES = [
+        { type: "paragraph", label: "Text", desc: "Just start writing", icon: "T", keys: "text paragraph plain" },
+        { type: "heading1", label: "Heading 1", desc: "Big section heading", icon: "H1", keys: "heading h1 title" },
+        { type: "heading2", label: "Heading 2", desc: "Medium section heading", icon: "H2", keys: "heading h2 subheading" },
+        { type: "heading3", label: "Heading 3", desc: "Small section heading", icon: "H3", keys: "heading h3" },
+        { type: "bullet", label: "Bulleted list", desc: "A simple bulleted list", icon: "•", keys: "bullet list ul" },
+        { type: "numbered", label: "Numbered list", desc: "A list with numbering", icon: "1.", keys: "numbered number list ol" },
+        { type: "checkbox", label: "To-do list", desc: "Track items with checkboxes", icon: "☑", keys: "todo to-do checkbox check task" },
+        { type: "image", label: "Image", desc: "Upload or paste a picture", icon: "🖼", keys: "image picture photo" },
+      ];
+      var TEXT_TYPES = ["heading1", "heading2", "heading3", "paragraph", "bullet", "numbered", "checkbox"];
+      var LIST_TYPES = ["bullet", "numbered", "checkbox"];
+      var PLACEHOLDERS = {
+        heading1: "Heading 1",
+        heading2: "Heading 2",
+        heading3: "Heading 3",
+        paragraph: "Type '/' for blocks, or just start writing…",
+        bullet: "List item",
+        numbered: "List item",
+        checkbox: "To-do",
+      };
+      var MD_SHORTCUTS = {
+        "#": "heading1",
+        "##": "heading2",
+        "###": "heading3",
+        "-": "bullet",
+        "*": "bullet",
+        "1.": "numbered",
+        "[]": "checkbox",
+      };
+
+      // ================= state =================
+      var listView = $("lessonListView");
+      var editorView = $("lessonEditorView");
+      var container = $("blocksContainer");
+      var currentLessonId = null; // null = creating a new lesson
+      var blocks = []; // in-memory blocks of the lesson being edited
+      var dirty = false;
+      var allLessons = []; // [{id, data}] for the list view
+
+      function blockIndex(id) {
+        for (var i = 0; i < blocks.length; i++) if (blocks[i].id === id) return i;
+        return -1;
+      }
+      function blockById(id) {
+        var i = blockIndex(id);
+        return i === -1 ? null : blocks[i];
+      }
+      function rowEl(id) {
+        return container.querySelector('.n-row[data-id="' + id + '"]');
+      }
+      function isEmptyHtml(html) {
+        var t = document.createElement("div");
+        t.innerHTML = html || "";
+        return t.textContent.replace(/ /g, " ").trim() === "" && !t.querySelector("img");
+      }
+
+      // ================= status / dirty =================
+      function setStatus(text, cls) {
+        var el = $("lessonStatus");
+        el.textContent = text || "";
+        el.className = "n-status" + (cls ? " " + cls : "");
+      }
+      function markDirty() {
+        dirty = true;
+        setStatus("Unsaved changes", "dirty");
+      }
+      function confirmDiscard() {
+        if (!dirty || editorView.style.display === "none") return true;
+        return confirm("You have unsaved changes. Leave without saving?");
+      }
+      window.addEventListener("beforeunload", function (e) {
+        if (dirty && editorView.style.display !== "none") {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+
+      // ================= view switching =================
       function showListView() {
         listView.style.display = "block";
         editorView.style.display = "none";
+        closeSlash();
+        closeCtx();
+        hideFmt();
         loadLessons();
       }
       function showEditorView() {
         listView.style.display = "none";
         editorView.style.display = "block";
+        window.scrollTo(0, 0);
       }
-      document.getElementById("backToListBtn").addEventListener("click", showListView);
+      $("backToListBtn").addEventListener("click", function () {
+        if (!confirmDiscard()) return;
+        dirty = false;
+        showListView();
+      });
 
-      // ---- Lesson list ----
+      // ================= lesson list =================
       function loadLessons() {
-        var list = document.getElementById("lessonsList");
-        var emptyState = document.getElementById("emptyState");
-        list.innerHTML = "";
+        var list = $("lessonsList");
+        list.innerHTML = '<div class="n-empty" style="padding:28px">Loading…</div>';
+        $("emptyState").style.display = "none";
 
         db.collection("lessons")
           .orderBy("createdAt", "asc")
           .get()
           .then(function (snapshot) {
-            if (snapshot.empty) {
-              emptyState.style.display = "block";
-              return;
-            }
-            emptyState.style.display = "none";
-
+            allLessons = [];
             snapshot.forEach(function (docSnap) {
-              var data = docSnap.data();
-              var row = document.createElement("div");
-              row.className = "order-row";
-              row.style.cursor = "pointer";
-              row.innerHTML =
-                '<div class="order-row-product">' +
-                '<div class="order-row-noimg"></div>' +
-                "<div>" +
-                '<div class="order-row-pname">' + (data.title || "(untitled lesson)") + "</div>" +
-                '<div class="order-row-pprice">' + ((data.blocks || []).length) + " block(s)</div>" +
-                "</div>" +
-                "</div>" +
-                '<div class="order-row-meta">' +
-                '<button class="btn btn-ghost" data-id="' + docSnap.id + '">Edit</button>' +
-                "</div>";
-
-              row.querySelector("button").addEventListener("click", function (e) {
-                e.stopPropagation();
-                openLessonEditor(docSnap.id, data);
-              });
-              row.addEventListener("click", function () {
-                openLessonEditor(docSnap.id, data);
-              });
-
-              list.appendChild(row);
+              allLessons.push({ id: docSnap.id, data: docSnap.data() });
             });
+            renderLessonList();
+          })
+          .catch(function (err) {
+            list.innerHTML = '<div class="n-empty" style="padding:28px">Couldn\'t load lessons. Please refresh the page.</div>';
+            console.error(err);
           });
       }
 
-      document.getElementById("newLessonBtn").addEventListener("click", function () {
-        openLessonEditor(null, { title: "", blocks: [] });
-      });
-
-      // ---- Block helpers ----
-      function makeBlockId() {
-        return "b" + Date.now() + Math.random().toString(36).slice(2, 8);
+      function formatDate(ts) {
+        try {
+          if (ts && ts.toDate) {
+            return ts.toDate().toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+          }
+        } catch (e) {}
+        return "";
       }
-      var TEXT_TYPES = ["heading1", "heading2", "heading3", "paragraph", "bullet", "numbered", "checkbox"];
-      var TYPE_LABELS = {
-        heading1: "Heading 1",
-        heading2: "Heading 2",
-        heading3: "Heading 3",
-        paragraph: "Text",
-        bullet: "Bullet List",
-        numbered: "Numbered List",
-        checkbox: "Checkbox",
-      };
 
+      function renderLessonList() {
+        var list = $("lessonsList");
+        var emptyState = $("emptyState");
+        var search = $("lessonSearch");
+        var q = search.value.trim().toLowerCase();
+        list.innerHTML = "";
+
+        if (!allLessons.length) {
+          emptyState.style.display = "block";
+          search.style.display = "none";
+          return;
+        }
+        emptyState.style.display = "none";
+        search.style.display = allLessons.length > 6 ? "block" : "none";
+        if (search.style.display === "none") q = "";
+
+        var shown = allLessons.filter(function (l) {
+          return !q || (l.data.title || "").toLowerCase().indexOf(q) > -1;
+        });
+        if (!shown.length) {
+          list.innerHTML = '<div class="n-empty" style="padding:28px">No lessons match “' + esc(q) + "”.</div>";
+          return;
+        }
+
+        shown.forEach(function (l) {
+          var n = (l.data.blocks || []).length;
+          var date = formatDate(l.data.updatedAt || l.data.createdAt);
+          var row = document.createElement("div");
+          row.className = "n-lesson";
+          row.tabIndex = 0;
+          row.innerHTML =
+            '<span class="n-lesson-icon">📄</span>' +
+            '<span class="n-lesson-title' + (l.data.title ? "" : " untitled") + '">' + esc(l.data.title || "Untitled lesson") + "</span>" +
+            '<span class="n-lesson-meta">' + n + (n === 1 ? " block" : " blocks") + (date ? " · " + esc(date) : "") + "</span>" +
+            '<span class="n-lesson-arrow">&rsaquo;</span>';
+          row.addEventListener("click", function () {
+            openLessonEditor(l.id, l.data);
+          });
+          row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") openLessonEditor(l.id, l.data);
+          });
+          list.appendChild(row);
+        });
+      }
+      $("lessonSearch").addEventListener("input", renderLessonList);
+
+      function startNewLesson() {
+        openLessonEditor(null, { title: "", blocks: [] });
+      }
+      $("newLessonBtn").addEventListener("click", startNewLesson);
+      $("emptyNewBtn").addEventListener("click", startNewLesson);
+
+      // ================= open editor =================
       function openLessonEditor(id, data) {
         currentLessonId = id;
-        document.getElementById("lessonTitleInput").value = data.title || "";
+        $("lessonTitleInput").value = data.title || "";
         blocks = (data.blocks || []).map(function (b) {
           return Object.assign({}, b, { id: b.id || makeBlockId() });
         });
-        document.getElementById("deleteLessonBtn").style.display = id ? "inline-flex" : "none";
-        document.getElementById("lessonStatus").textContent = "";
-        document.getElementById("lessonStatus").className = "status-msg";
+        if (!blocks.length) blocks.push({ id: makeBlockId(), type: "paragraph", content: "" });
+        dirty = false;
+        setStatus("");
+        $("lessonMenuBtn").style.display = id ? "inline-flex" : "none";
         renderBlocks();
         showEditorView();
+        if (!id) $("lessonTitleInput").focus();
       }
 
-      function renderBlocks() {
-        var container = document.getElementById("blocksContainer");
+      $("lessonTitleInput").addEventListener("input", markDirty);
+      $("lessonTitleInput").addEventListener("keydown", function (e) {
+        if ((e.key === "Enter" || e.key === "ArrowDown") && blocks.length) {
+          e.preventDefault();
+          focusBlock(blocks[0].id, "start");
+        }
+      });
+
+      // ================= caret helpers =================
+      function textLen(html) {
+        var t = document.createElement("div");
+        t.innerHTML = html || "";
+        return t.textContent.length;
+      }
+      function locate(el, n) {
+        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+        var node,
+          seen = 0,
+          last = null;
+        while ((node = walker.nextNode())) {
+          last = node;
+          if (seen + node.nodeValue.length >= n) return { node: node, offset: n - seen };
+          seen += node.nodeValue.length;
+        }
+        return last ? { node: last, offset: last.nodeValue.length } : { node: el, offset: 0 };
+      }
+      function placeCaret(el, at) {
+        el.focus();
+        var sel = window.getSelection();
+        var range = document.createRange();
+        if (typeof at === "number") {
+          var p = locate(el, at);
+          range.setStart(p.node, p.offset);
+          range.collapse(true);
+        } else {
+          range.selectNodeContents(el);
+          range.collapse(at === "start");
+        }
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      function caretOffset(el) {
+        var sel = window.getSelection();
+        if (!sel.rangeCount) return 0;
+        var r = sel.getRangeAt(0);
+        var pre = r.cloneRange();
+        pre.selectNodeContents(el);
+        pre.setEnd(r.startContainer, r.startOffset);
+        return pre.toString().length;
+      }
+      function selectionCollapsedIn(el) {
+        var sel = window.getSelection();
+        return sel.rangeCount && sel.isCollapsed && el.contains(sel.anchorNode);
+      }
+      function atStart(el) {
+        return selectionCollapsedIn(el) && caretOffset(el) === 0;
+      }
+      function atEnd(el) {
+        return selectionCollapsedIn(el) && caretOffset(el) >= el.textContent.length;
+      }
+      function lineMetrics(el) {
+        var sel = window.getSelection();
+        var lh = parseFloat(getComputedStyle(el).lineHeight) || 24;
+        var box = el.getBoundingClientRect();
+        var r = sel.getRangeAt(0).cloneRange();
+        r.collapse(true);
+        var rects = r.getClientRects();
+        var rect = rects.length ? rects[0] : null;
+        return { lh: lh, box: box, rect: rect };
+      }
+      function onFirstLine(el) {
+        if (!selectionCollapsedIn(el)) return false;
+        var m = lineMetrics(el);
+        return !m.rect || m.rect.top - m.box.top < m.lh * 0.9;
+      }
+      function onLastLine(el) {
+        if (!selectionCollapsedIn(el)) return false;
+        var m = lineMetrics(el);
+        return !m.rect || m.box.bottom - m.rect.bottom < m.lh * 0.9;
+      }
+      // Removes everything after the caret from `el` and returns it as HTML.
+      function extractTail(el) {
+        var sel = window.getSelection();
+        var r = sel.getRangeAt(0);
+        var tailRange = r.cloneRange();
+        tailRange.selectNodeContents(el);
+        tailRange.setStart(r.endContainer, r.endOffset);
+        var frag = tailRange.extractContents();
+        var tmp = document.createElement("div");
+        tmp.appendChild(frag);
+        return isEmptyHtml(tmp.innerHTML) ? "" : tmp.innerHTML;
+      }
+
+      // ================= rendering =================
+      function renderBlocks(focus) {
         container.innerHTML = "";
+        blocks.forEach(function (b) {
+          container.appendChild(buildRow(b));
+        });
+        container.classList.toggle("n-only", blocks.length === 1 && blocks[0].type === "paragraph");
+        updateNumbers();
+        if (focus) focusBlock(focus.id, focus.at);
+      }
 
-        blocks.forEach(function (block, index) {
-          var row = document.createElement("div");
-          row.className = "block-row";
-
-          var controls = document.createElement("div");
-          controls.className = "block-controls";
-
-          if (TEXT_TYPES.indexOf(block.type) !== -1) {
-            var select = document.createElement("select");
-            select.className = "block-type-select";
-            TEXT_TYPES.forEach(function (t) {
-              var opt = document.createElement("option");
-              opt.value = t;
-              opt.textContent = TYPE_LABELS[t];
-              if (t === block.type) opt.selected = true;
-              select.appendChild(opt);
-            });
-            select.addEventListener("change", function () {
-              block.type = select.value;
-              renderBlocks();
-            });
-            controls.appendChild(select);
+      function updateNumbers() {
+        var n = 0;
+        Array.prototype.forEach.call(container.children, function (row) {
+          if (row.getAttribute("data-type") === "numbered") {
+            n++;
+            row.querySelector(".n-body").setAttribute("data-num", n);
           } else {
-            var label = document.createElement("span");
-            label.className = "block-type-label";
-            label.textContent = "Image";
-            controls.appendChild(label);
+            n = 0;
           }
-
-          var upBtn = document.createElement("button");
-          upBtn.type = "button";
-          upBtn.className = "tb-btn";
-          upBtn.textContent = "↑";
-          upBtn.disabled = index === 0;
-          upBtn.addEventListener("click", function () {
-            if (index > 0) {
-              var tmp = blocks[index - 1];
-              blocks[index - 1] = blocks[index];
-              blocks[index] = tmp;
-              renderBlocks();
-            }
-          });
-
-          var downBtn = document.createElement("button");
-          downBtn.type = "button";
-          downBtn.className = "tb-btn";
-          downBtn.textContent = "↓";
-          downBtn.disabled = index === blocks.length - 1;
-          downBtn.addEventListener("click", function () {
-            if (index < blocks.length - 1) {
-              var tmp = blocks[index + 1];
-              blocks[index + 1] = blocks[index];
-              blocks[index] = tmp;
-              renderBlocks();
-            }
-          });
-
-          var delBtn = document.createElement("button");
-          delBtn.type = "button";
-          delBtn.className = "tb-btn tb-clear";
-          delBtn.textContent = "Delete";
-          delBtn.addEventListener("click", function () {
-            blocks.splice(index, 1);
-            renderBlocks();
-          });
-
-          controls.appendChild(upBtn);
-          controls.appendChild(downBtn);
-          controls.appendChild(delBtn);
-          row.appendChild(controls);
-
-          if (block.type === "image") {
-            row.appendChild(buildImageBlockUI(block));
-          } else {
-            row.appendChild(buildTextBlockUI(block));
-          }
-
-          container.appendChild(row);
         });
       }
 
-      function buildTextBlockUI(block) {
-        var wrap = document.createElement("div");
-
-        if (block.type === "checkbox") {
-          var checkRow = document.createElement("div");
-          checkRow.className = "block-checkbox-row";
-
-          var checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.checked = !!block.checked;
-          checkbox.addEventListener("change", function () {
-            block.checked = checkbox.checked;
-          });
-          checkRow.appendChild(checkbox);
-
-          var editable = buildEditableContent(block);
-          checkRow.appendChild(editable);
-          wrap.appendChild(checkRow);
-        } else {
-          var toolbar = document.createElement("div");
-          toolbar.className = "block-toolbar";
-          ["bold", "italic"].forEach(function (cmd) {
-            var btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "tb-btn";
-            btn.innerHTML = cmd === "bold" ? "<b>B</b>" : "<i>I</i>";
-            btn.addEventListener("mousedown", function (e) {
-              e.preventDefault();
-              editableEl.focus();
-              document.execCommand(cmd, false, null);
-              block.content = editableEl.innerHTML;
-            });
-            toolbar.appendChild(btn);
-          });
-          wrap.appendChild(toolbar);
-
-          var editableEl = buildEditableContent(block);
-          wrap.appendChild(editableEl);
+      function focusBlock(id, at) {
+        var row = rowEl(id);
+        if (!row) return;
+        var el = row.querySelector(".n-content");
+        if (el) placeCaret(el, at === undefined ? "end" : at);
+        else {
+          var img = row.querySelector(".n-image");
+          if (img) img.focus();
         }
-
-        return wrap;
       }
 
-      function buildEditableContent(block) {
+      function buildRow(block) {
+        var row = document.createElement("div");
+        row.className = "n-row";
+        row.setAttribute("data-id", block.id);
+        row.setAttribute("data-type", block.type);
+        if (block.type === "checkbox") row.setAttribute("data-checked", block.checked ? "true" : "false");
+
+        // gutter: add + drag handle
+        var gutter = document.createElement("div");
+        gutter.className = "n-gutter";
+        var addBtn = document.createElement("button");
+        addBtn.type = "button";
+        addBtn.className = "n-add";
+        addBtn.title = "Add a block below";
+        addBtn.textContent = "+";
+        addBtn.addEventListener("click", function () {
+          addBlockBelow(block);
+        });
+        var handle = document.createElement("button");
+        handle.type = "button";
+        handle.className = "n-handle";
+        handle.title = "Drag to move, click for options";
+        handle.textContent = "⋮⋮";
+        handle.draggable = true;
+        handle.addEventListener("click", function (e) {
+          e.stopPropagation();
+          openBlockMenu(block, handle.getBoundingClientRect());
+        });
+        handle.addEventListener("dragstart", function (e) {
+          dragId = block.id;
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", block.id);
+          try {
+            e.dataTransfer.setDragImage(row, 0, 0);
+          } catch (err) {}
+          setTimeout(function () {
+            row.classList.add("n-dragging");
+          }, 0);
+        });
+        handle.addEventListener("dragend", clearDrag);
+        gutter.appendChild(addBtn);
+        gutter.appendChild(handle);
+        row.appendChild(gutter);
+
+        // body
+        var body = document.createElement("div");
+        body.className = "n-body";
+        if (block.type === "image") {
+          body.appendChild(buildImageUI(block));
+        } else {
+          if (block.type === "checkbox") {
+            var cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.className = "n-check";
+            cb.checked = !!block.checked;
+            cb.addEventListener("change", function () {
+              block.checked = cb.checked;
+              row.setAttribute("data-checked", cb.checked ? "true" : "false");
+              markDirty();
+            });
+            body.appendChild(cb);
+          }
+          body.appendChild(buildContentEl(block));
+        }
+        row.appendChild(body);
+        return row;
+      }
+
+      function buildContentEl(block) {
         var el = document.createElement("div");
-        el.className = "block-content block-content-" + block.type;
+        el.className = "n-content n-c-" + block.type;
         el.contentEditable = "true";
-        el.setAttribute("data-placeholder", placeholderFor(block.type));
+        el.spellcheck = true;
+        el.setAttribute("data-ph", PLACEHOLDERS[block.type] || "");
         el.innerHTML = block.content || "";
+
         el.addEventListener("input", function () {
-          block.content = el.innerHTML;
+          onContentInput(block, el);
+        });
+        el.addEventListener("keydown", function (e) {
+          onContentKeydown(e, block, el);
+        });
+        el.addEventListener("paste", function (e) {
+          onContentPaste(e, block, el);
+        });
+        el.addEventListener("blur", function () {
+          setTimeout(function () {
+            if (slash.open && document.activeElement !== el) closeSlash();
+          }, 120);
         });
         return el;
       }
 
-      function placeholderFor(type) {
-        if (type === "heading1") return "Heading 1";
-        if (type === "heading2") return "Heading 2";
-        if (type === "heading3") return "Heading 3";
-        if (type === "bullet") return "List item";
-        if (type === "numbered") return "List item";
-        if (type === "checkbox") return "To-do item";
-        return "Type something...";
+      // ================= typing: markdown shortcuts + slash menu =================
+      function onContentInput(block, el) {
+        if (el.innerHTML === "<br>") el.innerHTML = "";
+        var text = el.textContent.replace(/ /g, " ");
+
+        // "# ", "## ", "- ", "1. ", "[] " at the start of a plain text block
+        if (block.type === "paragraph" && /^\S+ $/.test(text)) {
+          var shortcut = MD_SHORTCUTS[text.trim()];
+          if (shortcut) {
+            block.type = shortcut;
+            block.content = "";
+            if (shortcut === "checkbox") block.checked = false;
+            markDirty();
+            renderBlocks({ id: block.id, at: "start" });
+            return;
+          }
+        }
+
+        block.content = el.innerHTML;
+        markDirty();
+
+        if (text.charAt(0) === "/") {
+          if (!slash.dismissed) {
+            slash.blockId = block.id;
+            updateSlash();
+          }
+        } else {
+          slash.dismissed = false;
+          closeSlash();
+        }
       }
 
-      function buildImageBlockUI(block) {
-        var wrap = document.createElement("div");
-        wrap.className = "block-image-row";
+      function newBlockAfter(block, type, content) {
+        var nb = { id: makeBlockId(), type: type || "paragraph", content: content || "" };
+        if (nb.type === "checkbox") nb.checked = false;
+        blocks.splice(blockIndex(block.id) + 1, 0, nb);
+        return nb;
+      }
 
-        if (block.imageUrl) {
-          var img = document.createElement("img");
-          img.className = "block-image-preview";
-          img.src = block.imageUrl;
-          wrap.appendChild(img);
-
-          var replaceLabel = document.createElement("span");
-          replaceLabel.className = "field-hint";
-          replaceLabel.textContent = "Choose a new file below to replace this image.";
-          wrap.appendChild(replaceLabel);
+      function onContentKeydown(e, block, el) {
+        // slash menu captures navigation keys while open
+        if (slash.open) {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            slash.index = (slash.index + 1) % slash.items.length;
+            paintSlash();
+            return;
+          }
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            slash.index = (slash.index - 1 + slash.items.length) % slash.items.length;
+            paintSlash();
+            return;
+          }
+          if (e.key === "Enter" || e.key === "Tab") {
+            e.preventDefault();
+            applySlash(slash.items[slash.index]);
+            return;
+          }
+          if (e.key === "Escape") {
+            e.preventDefault();
+            slash.dismissed = true;
+            closeSlash();
+            return;
+          }
         }
+
+        if (e.isComposing) return;
+
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (e.shiftKey) {
+            document.execCommand("insertLineBreak");
+            return;
+          }
+          handleEnter(block, el);
+          return;
+        }
+
+        if (e.key === "Backspace" && selectionCollapsedIn(el) && caretOffset(el) === 0) {
+          handleBackspaceAtStart(e, block, el);
+          return;
+        }
+
+        if (e.key === "ArrowUp" && !e.shiftKey && onFirstLine(el)) {
+          var iu = blockIndex(block.id);
+          if (iu > 0) {
+            e.preventDefault();
+            focusBlock(blocks[iu - 1].id, "end");
+          } else {
+            e.preventDefault();
+            $("lessonTitleInput").focus();
+          }
+          return;
+        }
+        if (e.key === "ArrowDown" && !e.shiftKey && onLastLine(el)) {
+          var idn = blockIndex(block.id);
+          if (idn < blocks.length - 1) {
+            e.preventDefault();
+            focusBlock(blocks[idn + 1].id, "start");
+          }
+        }
+      }
+
+      function handleEnter(block, el) {
+        var empty = isEmptyHtml(el.innerHTML);
+
+        // Enter on an empty list item ends the list
+        if (empty && LIST_TYPES.indexOf(block.type) > -1) {
+          block.type = "paragraph";
+          block.content = "";
+          delete block.checked;
+          markDirty();
+          renderBlocks({ id: block.id, at: "start" });
+          return;
+        }
+
+        var sel = window.getSelection();
+        if (sel.rangeCount && !sel.isCollapsed) sel.getRangeAt(0).deleteContents();
+
+        var tail = extractTail(el);
+        block.content = isEmptyHtml(el.innerHTML) ? "" : el.innerHTML;
+        var nextType = LIST_TYPES.indexOf(block.type) > -1 ? block.type : "paragraph";
+        var nb = newBlockAfter(block, nextType, tail);
+        markDirty();
+        renderBlocks({ id: nb.id, at: "start" });
+      }
+
+      function handleBackspaceAtStart(e, block, el) {
+        // 1) a styled block first turns back into plain text
+        if (block.type !== "paragraph") {
+          e.preventDefault();
+          block.type = "paragraph";
+          delete block.checked;
+          markDirty();
+          renderBlocks({ id: block.id, at: "start" });
+          return;
+        }
+        // 2) plain text merges into the block above
+        var i = blockIndex(block.id);
+        if (i <= 0) return;
+        e.preventDefault();
+        var prev = blocks[i - 1];
+        if (prev.type === "image") {
+          if (isEmptyHtml(block.content)) {
+            blocks.splice(i, 1);
+            markDirty();
+            renderBlocks({ id: prev.id });
+          }
+          return;
+        }
+        var joinAt = textLen(prev.content);
+        prev.content = (prev.content || "") + (block.content || "");
+        blocks.splice(i, 1);
+        markDirty();
+        renderBlocks({ id: prev.id, at: joinAt });
+      }
+
+      // ================= paste =================
+      function imageFilesFrom(list) {
+        return Array.prototype.filter.call(list || [], function (f) {
+          return f && f.type && f.type.indexOf("image/") === 0;
+        });
+      }
+
+      function onContentPaste(e, block, el) {
+        var cd = e.clipboardData;
+        if (!cd) return;
+
+        var files = imageFilesFrom(cd.files);
+        if (files.length) {
+          e.preventDefault();
+          insertImageFiles(files, block);
+          return;
+        }
+
+        // Always paste as plain text (no stray fonts/colours from other sites)
+        e.preventDefault();
+        var text = (cd.getData("text/plain") || "").replace(/\r/g, "");
+        if (!text) return;
+        var lines = text.split("\n");
+        if (lines.length === 1) {
+          document.execCommand("insertText", false, text);
+          return;
+        }
+
+        // multi-line paste: first line goes at the caret, the others become new blocks
+        var sel = window.getSelection();
+        if (sel.rangeCount && !sel.isCollapsed) sel.getRangeAt(0).deleteContents();
+        var tail = extractTail(el);
+        document.execCommand("insertText", false, lines[0]);
+        block.content = el.innerHTML;
+
+        var type = LIST_TYPES.indexOf(block.type) > -1 ? block.type : "paragraph";
+        var anchor = block;
+        var last = block;
+        lines.slice(1).forEach(function (line) {
+          if (!line.trim()) return;
+          var nb = newBlockAfter(anchor, type, esc(line));
+          anchor = nb;
+          last = nb;
+        });
+        if (tail) last.content = (last.content || "") + tail;
+        markDirty();
+        renderBlocks({ id: last.id, at: last === block ? "end" : textLen(last.content) - textLen(tail) });
+      }
+
+      // ================= floating format bar (bold / italic on selection) =================
+      var fmtBar = $("fmtBar");
+      function hideFmt() {
+        fmtBar.style.display = "none";
+      }
+      document.addEventListener("selectionchange", function () {
+        var sel = window.getSelection();
+        if (!sel.rangeCount || sel.isCollapsed || editorView.style.display === "none") return hideFmt();
+        var node = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
+        var el = node && node.closest ? node.closest(".n-content") : null;
+        var range = sel.getRangeAt(0);
+        if (!el || !el.contains(range.endContainer)) return hideFmt();
+        var rect = range.getBoundingClientRect();
+        if (!rect.width && !rect.height) return hideFmt();
+        fmtBar.style.display = "flex";
+        var w = fmtBar.offsetWidth || 70;
+        var left = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left + rect.width / 2 - w / 2));
+        var top = rect.top - 42;
+        if (top < 8) top = rect.bottom + 8;
+        fmtBar.style.left = left + "px";
+        fmtBar.style.top = top + "px";
+      });
+      Array.prototype.forEach.call(fmtBar.querySelectorAll("button"), function (btn) {
+        btn.addEventListener("mousedown", function (e) {
+          e.preventDefault(); // keep the selection
+          document.execCommand(btn.getAttribute("data-cmd"), false, null);
+          var sel = window.getSelection();
+          var node = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
+          var el = node && node.closest ? node.closest(".n-content") : null;
+          var row = el && el.closest(".n-row");
+          var b = row && blockById(row.getAttribute("data-id"));
+          if (b) {
+            b.content = el.innerHTML;
+            markDirty();
+          }
+        });
+      });
+
+      // ================= slash menu =================
+      var slash = { open: false, blockId: null, items: [], index: 0, dismissed: false };
+      var slashEl = $("slashMenu");
+
+      function closeSlash() {
+        slash.open = false;
+        slashEl.style.display = "none";
+      }
+      function updateSlash() {
+        var row = rowEl(slash.blockId);
+        var el = row && row.querySelector(".n-content");
+        if (!el) return closeSlash();
+        var text = el.textContent.replace(/ /g, " ");
+        if (text.charAt(0) !== "/") return closeSlash();
+        var q = text.slice(1).trim().toLowerCase();
+        slash.items = TYPES.filter(function (t) {
+          return !q || (t.label + " " + t.keys).toLowerCase().indexOf(q) > -1;
+        });
+        if (!slash.items.length) return closeSlash();
+        slash.index = Math.min(slash.index, slash.items.length - 1);
+        slash.open = true;
+        paintSlash();
+
+        var rect = el.getBoundingClientRect();
+        slashEl.style.display = "block";
+        var h = slashEl.offsetHeight;
+        var top = rect.bottom + 6;
+        if (top + h > window.innerHeight - 8) top = Math.max(8, rect.top - h - 6);
+        slashEl.style.left = Math.min(rect.left, window.innerWidth - 296) + "px";
+        slashEl.style.top = top + "px";
+      }
+      function paintSlash() {
+        slashEl.innerHTML = '<div class="n-menu-head">Blocks</div>';
+        slash.items.forEach(function (t, i) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "n-menu-item" + (i === slash.index ? " active" : "");
+          b.innerHTML =
+            '<span class="n-menu-ico">' + esc(t.icon) + "</span>" +
+            '<span class="n-menu-text"><strong>' + esc(t.label) + "</strong><small>" + esc(t.desc) + "</small></span>";
+          b.addEventListener("mousedown", function (e) {
+            e.preventDefault(); // keep focus in the block
+          });
+          b.addEventListener("click", function () {
+            applySlash(t);
+          });
+          b.addEventListener("mousemove", function () {
+            if (slash.index !== i) {
+              slash.index = i;
+              Array.prototype.forEach.call(slashEl.querySelectorAll(".n-menu-item"), function (n, k) {
+                n.classList.toggle("active", k === i);
+              });
+            }
+          });
+          slashEl.appendChild(b);
+        });
+        var active = slashEl.querySelector(".n-menu-item.active");
+        if (active && active.scrollIntoView) active.scrollIntoView({ block: "nearest" });
+      }
+      function applySlash(item) {
+        var b = blockById(slash.blockId);
+        closeSlash();
+        slash.dismissed = false;
+        if (!b || !item) return;
+        changeType(b, item.type, true);
+      }
+
+      function changeType(b, type, clearText) {
+        if (type === "image") {
+          b.type = "image";
+          b.imageUrl = b.imageUrl || "";
+          delete b.content;
+          delete b.checked;
+        } else {
+          if (clearText) b.content = "";
+          b.type = type;
+          if (b.content === undefined) b.content = "";
+          if (type === "checkbox") b.checked = !!b.checked;
+          else delete b.checked;
+        }
+        markDirty();
+        renderBlocks({ id: b.id, at: "end" });
+      }
+
+      // "+" in the gutter: new line below with the slash menu already open
+      function addBlockBelow(block) {
+        var target = block;
+        if (!(block.type === "paragraph" && isEmptyHtml(block.content))) {
+          target = newBlockAfter(block, "paragraph", "");
+        }
+        target.content = "/";
+        slash.dismissed = false;
+        renderBlocks({ id: target.id, at: "end" });
+        slash.blockId = target.id;
+        slash.index = 0;
+        updateSlash();
+        markDirty();
+      }
+
+      // ================= generic context menu (block options, lesson options) =================
+      var ctxEl = $("ctxMenu");
+      function closeCtx() {
+        ctxEl.style.display = "none";
+        ctxEl.innerHTML = "";
+      }
+      function showCtx(anchor, items) {
+        ctxEl.innerHTML = "";
+        items.forEach(function (it) {
+          if (it === "sep") {
+            var s = document.createElement("div");
+            s.className = "n-menu-sep";
+            ctxEl.appendChild(s);
+          } else if (it.head) {
+            var h = document.createElement("div");
+            h.className = "n-menu-head";
+            h.textContent = it.head;
+            ctxEl.appendChild(h);
+          } else {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "n-menu-item" + (it.danger ? " danger" : "") + (it.current ? " current" : "");
+            b.disabled = !!it.disabled;
+            b.innerHTML = (it.icon ? '<span class="n-menu-ico small">' + esc(it.icon) + "</span>" : "") + "<span>" + esc(it.label) + "</span>";
+            b.addEventListener("click", function () {
+              closeCtx();
+              it.onClick();
+            });
+            ctxEl.appendChild(b);
+          }
+        });
+        ctxEl.style.display = "block";
+        var w = ctxEl.offsetWidth;
+        var h2 = ctxEl.offsetHeight;
+        var left = Math.max(8, Math.min(anchor.left, window.innerWidth - w - 8));
+        var top = anchor.bottom + 6;
+        if (top + h2 > window.innerHeight - 8) top = Math.max(8, anchor.top - h2 - 6);
+        ctxEl.style.left = left + "px";
+        ctxEl.style.top = top + "px";
+      }
+      document.addEventListener("mousedown", function (e) {
+        if (ctxEl.style.display === "block" && !ctxEl.contains(e.target)) closeCtx();
+        if (slash.open && !slashEl.contains(e.target)) closeSlash();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeCtx();
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s" && editorView.style.display !== "none") {
+          e.preventDefault();
+          saveLesson();
+        }
+      });
+      window.addEventListener("scroll", closeCtx, true);
+
+      function moveBlock(from, to) {
+        if (to < 0 || to >= blocks.length || from === to) return;
+        var b = blocks.splice(from, 1)[0];
+        blocks.splice(to, 0, b);
+        markDirty();
+        renderBlocks({ id: b.id });
+      }
+      function deleteBlock(block) {
+        var i = blockIndex(block.id);
+        if (i === -1) return;
+        blocks.splice(i, 1);
+        if (!blocks.length) blocks.push({ id: makeBlockId(), type: "paragraph", content: "" });
+        markDirty();
+        var f = blocks[Math.max(0, i - 1)];
+        renderBlocks({ id: f.id, at: "end" });
+      }
+      function duplicateBlock(block) {
+        var copy = Object.assign({}, block, { id: makeBlockId() });
+        if (block._pendingFile) {
+          copy._pendingFile = block._pendingFile;
+          copy._pendingPreviewUrl = URL.createObjectURL(block._pendingFile);
+        }
+        blocks.splice(blockIndex(block.id) + 1, 0, copy);
+        markDirty();
+        renderBlocks({ id: copy.id });
+      }
+
+      function openBlockMenu(block, anchor) {
+        var i = blockIndex(block.id);
+        var items = [];
+        if (block.type !== "image") {
+          items.push({ head: "Turn into" });
+          TYPES.forEach(function (t) {
+            if (t.type === "image") return;
+            items.push({
+              label: t.label,
+              icon: t.icon,
+              current: t.type === block.type,
+              onClick: function () {
+                if (t.type !== block.type) changeType(block, t.type, false);
+              },
+            });
+          });
+          items.push("sep");
+        }
+        items.push({ label: "Move up", icon: "↑", disabled: i === 0, onClick: function () { moveBlock(i, i - 1); } });
+        items.push({ label: "Move down", icon: "↓", disabled: i === blocks.length - 1, onClick: function () { moveBlock(i, i + 1); } });
+        items.push({ label: "Duplicate", icon: "⧉", onClick: function () { duplicateBlock(block); } });
+        items.push("sep");
+        items.push({ label: "Delete", icon: "🗑", danger: true, onClick: function () { deleteBlock(block); } });
+        showCtx(anchor, items);
+      }
+
+      // ================= drag to reorder =================
+      var dragId = null;
+      var dropIndex = -1;
+      function clearDrag() {
+        dragId = null;
+        dropIndex = -1;
+        Array.prototype.forEach.call(container.children, function (r) {
+          r.classList.remove("n-dragging", "n-drop-before", "n-drop-after");
+        });
+      }
+      container.addEventListener("dragover", function (e) {
+        if (!dragId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        var rows = Array.prototype.slice.call(container.children);
+        var idx = rows.length;
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i].getBoundingClientRect();
+          if (e.clientY < r.top + r.height / 2) {
+            idx = i;
+            break;
+          }
+        }
+        dropIndex = idx;
+        rows.forEach(function (r, k) {
+          r.classList.toggle("n-drop-before", k === idx);
+          r.classList.toggle("n-drop-after", idx === rows.length && k === rows.length - 1);
+        });
+      });
+      container.addEventListener("drop", function (e) {
+        if (!dragId) return;
+        e.preventDefault();
+        var from = blockIndex(dragId);
+        var to = dropIndex;
+        clearDrag();
+        if (from === -1 || to === -1) return;
+        if (from < to) to--;
+        moveBlock(from, to);
+      });
+
+      // ================= images =================
+      var MAX_IMAGE_MB = 10;
+
+      function setImageFile(block, file) {
+        if (!file || file.type.indexOf("image/") !== 0) {
+          setStatus("That file isn't an image.", "error");
+          return false;
+        }
+        if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+          setStatus("Image is too large (max " + MAX_IMAGE_MB + " MB).", "error");
+          return false;
+        }
+        if (block._pendingPreviewUrl) URL.revokeObjectURL(block._pendingPreviewUrl);
+        block._pendingFile = file;
+        block._pendingPreviewUrl = URL.createObjectURL(file);
+        markDirty();
+        return true;
+      }
+
+      // Adds one image block per file after `block` (reusing it if it's an empty text block).
+      function insertImageFiles(files, block) {
+        var anchor = block;
+        var reuse = block.type === "paragraph" && isEmptyHtml(block.content);
+        var lastId = block.id;
+        files.forEach(function (file, n) {
+          var target;
+          if (n === 0 && reuse) {
+            target = block;
+            target.type = "image";
+            delete target.content;
+            target.imageUrl = "";
+          } else {
+            target = { id: makeBlockId(), type: "image", imageUrl: "" };
+            blocks.splice(blockIndex(anchor.id) + 1, 0, target);
+          }
+          if (!setImageFile(target, file)) {
+            blocks.splice(blockIndex(target.id), 1);
+            if (!blocks.length) blocks.push({ id: makeBlockId(), type: "paragraph", content: "" });
+            return;
+          }
+          anchor = target;
+          lastId = target.id;
+        });
+        renderBlocks({ id: lastId });
+      }
+
+      function buildImageUI(block) {
+        var wrap = document.createElement("div");
+        wrap.className = "n-image";
+        wrap.tabIndex = 0;
 
         var fileInput = document.createElement("input");
         fileInput.type = "file";
         fileInput.accept = "image/*";
+        fileInput.style.display = "none";
         fileInput.addEventListener("change", function () {
-          var file = fileInput.files[0];
-          if (!file) return;
-          block._pendingFile = file;
-          block._pendingPreviewUrl = URL.createObjectURL(file);
-          renderBlocks();
+          var f = fileInput.files[0];
+          if (f && setImageFile(block, f)) renderBlocks({ id: block.id });
         });
         wrap.appendChild(fileInput);
 
-        if (block._pendingPreviewUrl) {
-          var previewImg = document.createElement("img");
-          previewImg.className = "block-image-preview";
-          previewImg.src = block._pendingPreviewUrl;
-          wrap.appendChild(previewImg);
+        var src = block._pendingPreviewUrl || block.imageUrl;
+        if (src) {
+          var filled = document.createElement("div");
+          filled.className = "n-image-filled";
+          var img = document.createElement("img");
+          img.src = src;
+          img.alt = "";
+          filled.appendChild(img);
+
+          var actions = document.createElement("div");
+          actions.className = "n-image-actions";
+          var replace = document.createElement("button");
+          replace.type = "button";
+          replace.className = "n-btn";
+          replace.textContent = "Replace";
+          replace.addEventListener("click", function () {
+            fileInput.click();
+          });
+          var remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "n-btn";
+          remove.textContent = "Remove";
+          remove.addEventListener("click", function () {
+            deleteBlock(block);
+          });
+          actions.appendChild(replace);
+          actions.appendChild(remove);
+          filled.appendChild(actions);
+          wrap.appendChild(filled);
+
+          if (block._pendingFile) {
+            var note = document.createElement("div");
+            note.className = "n-image-pending";
+            note.textContent = "Will upload when you save";
+            wrap.appendChild(note);
+          }
+        } else {
+          var empty = document.createElement("div");
+          empty.className = "n-image-empty";
+          empty.innerHTML =
+            '<span class="n-image-ico">🖼</span><span><strong>Add an image</strong><small>Click to choose a file, drag one here, or paste from your clipboard</small></span>';
+          empty.addEventListener("click", function () {
+            fileInput.click();
+          });
+          wrap.appendChild(empty);
         }
 
+        wrap.addEventListener("dragover", function (e) {
+          if (dragId) return;
+          if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], "Files") > -1) {
+            e.preventDefault();
+            wrap.classList.add("n-over");
+          }
+        });
+        wrap.addEventListener("dragleave", function () {
+          wrap.classList.remove("n-over");
+        });
+        wrap.addEventListener("drop", function (e) {
+          wrap.classList.remove("n-over");
+          if (dragId) return;
+          var f = imageFilesFrom(e.dataTransfer && e.dataTransfer.files)[0];
+          if (f) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (setImageFile(block, f)) renderBlocks({ id: block.id });
+          }
+        });
+        wrap.addEventListener("paste", function (e) {
+          var files = imageFilesFrom(e.clipboardData && e.clipboardData.files);
+          if (files.length) {
+            e.preventDefault();
+            if (setImageFile(block, files[0])) renderBlocks({ id: block.id });
+          }
+        });
+        wrap.addEventListener("keydown", function (e) {
+          if (e.target !== wrap) return;
+          var i = blockIndex(block.id);
+          if (e.key === "Backspace" || e.key === "Delete") {
+            e.preventDefault();
+            deleteBlock(block);
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            var nb = newBlockAfter(block, "paragraph", "");
+            markDirty();
+            renderBlocks({ id: nb.id, at: "start" });
+          } else if (e.key === "ArrowUp" && i > 0) {
+            e.preventDefault();
+            focusBlock(blocks[i - 1].id, "end");
+          } else if (e.key === "ArrowDown" && i < blocks.length - 1) {
+            e.preventDefault();
+            focusBlock(blocks[i + 1].id, "start");
+          }
+        });
         return wrap;
       }
 
-      // ---- Add block buttons ----
-      document.querySelectorAll(".add-block-menu [data-add]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var type = btn.getAttribute("data-add");
-          var block = { id: makeBlockId(), type: type, content: "" };
-          if (type === "checkbox") block.checked = false;
-          blocks.push(block);
-          renderBlocks();
-        });
+      // ================= click below the last block =================
+      $("addTail").addEventListener("click", function () {
+        var last = blocks[blocks.length - 1];
+        if (last && last.type === "paragraph" && isEmptyHtml(last.content)) {
+          focusBlock(last.id, "end");
+          return;
+        }
+        var nb = { id: makeBlockId(), type: "paragraph", content: "" };
+        blocks.push(nb);
+        renderBlocks({ id: nb.id, at: "start" });
       });
 
-      // ---- Save lesson (uploads any pending images first) ----
-      document.getElementById("saveLessonBtn").addEventListener("click", function () {
-        var title = document.getElementById("lessonTitleInput").value.trim();
-        var statusEl = document.getElementById("lessonStatus");
-        var saveBtn = document.getElementById("saveLessonBtn");
+      // Pasting an image while not inside a text block (e.g. with an image block selected)
+      document.addEventListener("paste", function (e) {
+        if (editorView.style.display === "none") return;
+        if (e.defaultPrevented) return;
+        if (e.target && e.target.closest && e.target.closest(".n-content, .n-image, #lessonTitleInput")) return;
+        var files = imageFilesFrom(e.clipboardData && e.clipboardData.files);
+        if (files.length && blocks.length) insertImageFiles(files, blocks[blocks.length - 1]);
+      });
+
+      // ================= save =================
+      var saving = false;
+      function cleanContent(html) {
+        return (html || "").replace(/(<br\s*\/?>\s*)+$/i, "");
+      }
+
+      function saveLesson() {
+        if (saving) return;
+        var title = $("lessonTitleInput").value.trim();
+        var saveBtn = $("saveLessonBtn");
 
         if (!title) {
-          statusEl.textContent = "Please enter a lesson title.";
-          statusEl.className = "status-msg error";
+          setStatus("Give this lesson a title first.", "error");
+          $("lessonTitleInput").focus();
           return;
         }
 
+        saving = true;
         saveBtn.disabled = true;
-        saveBtn.textContent = "Saving...";
-        statusEl.textContent = "";
-        statusEl.className = "status-msg";
+        saveBtn.textContent = "Saving…";
+        setStatus("Saving…");
 
         var uploadPromises = blocks.map(function (block) {
           if (block.type === "image" && block._pendingFile) {
-            var path = "lessons/" + Date.now() + "-" + block._pendingFile.name;
+            var safeName = block._pendingFile.name.replace(/[^\w.\-]+/g, "_");
+            var path = "lessons/" + Date.now() + "-" + Math.random().toString(36).slice(2, 6) + "-" + safeName;
             var ref = storage.ref(path);
             return ref
               .put(block._pendingFile)
@@ -447,6 +1849,7 @@
               })
               .then(function (url) {
                 block.imageUrl = url;
+                if (block._pendingPreviewUrl) URL.revokeObjectURL(block._pendingPreviewUrl);
                 delete block._pendingFile;
                 delete block._pendingPreviewUrl;
               });
@@ -456,12 +1859,20 @@
 
         Promise.all(uploadPromises)
           .then(function () {
-            var cleanBlocks = blocks.map(function (b) {
+            // drop empty blocks at the very end, and image blocks with no image
+            var kept = blocks.filter(function (b) {
+              return !(b.type === "image" && !b.imageUrl);
+            });
+            while (kept.length && kept[kept.length - 1].type !== "image" && isEmptyHtml(kept[kept.length - 1].content)) {
+              kept.pop();
+            }
+
+            var cleanBlocks = kept.map(function (b) {
               var clean = { id: b.id, type: b.type };
               if (b.type === "image") {
                 clean.imageUrl = b.imageUrl || "";
               } else {
-                clean.content = b.content || "";
+                clean.content = cleanContent(b.content);
                 if (b.type === "checkbox") clean.checked = !!b.checked;
               }
               return clean;
@@ -475,31 +1886,38 @@
 
             if (currentLessonId) {
               return db.collection("lessons").doc(currentLessonId).set(payload, { merge: true });
-            } else {
-              payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-              return db.collection("lessons").add(payload).then(function (docRef) {
-                currentLessonId = docRef.id;
-              });
             }
+            payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            return db.collection("lessons").add(payload).then(function (docRef) {
+              currentLessonId = docRef.id;
+            });
           })
           .then(function () {
-            statusEl.textContent = "Lesson saved successfully.";
-            statusEl.classList.add("success");
-            document.getElementById("deleteLessonBtn").style.display = "inline-flex";
+            dirty = false;
+            setStatus("All changes saved", "saved");
+            $("lessonMenuBtn").style.display = "inline-flex";
+            renderBlocks(); // refresh image previews now that they're uploaded
           })
           .catch(function (err) {
-            statusEl.textContent = "Couldn't save. Please try again.";
-            statusEl.classList.add("error");
+            setStatus("Couldn't save. Please try again.", "error");
             console.error(err);
           })
           .finally(function () {
+            saving = false;
             saveBtn.disabled = false;
-            saveBtn.textContent = "Save Lesson";
+            saveBtn.textContent = "Save";
           });
+      }
+      $("saveLessonBtn").addEventListener("click", saveLesson);
+
+      // ================= lesson options (⋯) + delete =================
+      $("lessonMenuBtn").addEventListener("click", function () {
+        showCtx(this.getBoundingClientRect(), [
+          { label: "Delete lesson", icon: "🗑", danger: true, onClick: deleteLesson },
+        ]);
       });
 
-      // ---- Delete lesson ----
-      document.getElementById("deleteLessonBtn").addEventListener("click", function () {
+      function deleteLesson() {
         if (!currentLessonId) return;
         if (!confirm("Delete this entire lesson? This cannot be undone.")) return;
 
@@ -507,13 +1925,14 @@
           .doc(currentLessonId)
           .delete()
           .then(function () {
+            dirty = false;
             showListView();
           })
           .catch(function (err) {
             alert("Couldn't delete this lesson. Please try again.");
             console.error(err);
           });
-      });
+      }
     </script>
   </body>
 </html>
